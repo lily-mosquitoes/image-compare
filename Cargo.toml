@@ -1,0 +1,12 @@
+[package]
+name = "image-compare"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+yew = { version = "0.20", features = ["csr"] }
+yew-router = "0.17"
+
+[dev-dependencies]
+gloo-utils = "0.1.6"
+wasm-bindgen-test = "0.3.0"

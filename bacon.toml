@@ -1,0 +1,31 @@
+# This is a configuration file for the bacon tool
+# More info at https://github.com/Canop/bacon
+
+default_job = "test"
+
+[jobs]
+
+[jobs.clippy]
+command = ["cargo", "clippy", "--color", "always"]
+need_stdout = false
+
+[jobs.clippy-all]
+command = ["cargo", "clippy", "--all-targets", "--color", "always"]
+need_stdout = false
+watch = ["tests", "benches", "examples"]
+
+[jobs.test]
+command = ["wasm-pack", "test", "--firefox", "--headless", "--color", "always"]
+need_stdout = true
+watch = ["tests"]
+
+[jobs.serve]
+command = ["trunk", "serve"]
+need_stdout = true
+allow_warnings = true
+
+[keybindings]
+c = "job:clippy"
+a = "job:clippy-all"
+t = "job:test"
+s = "job:serve"
