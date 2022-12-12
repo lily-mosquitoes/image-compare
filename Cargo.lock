@@ -330,8 +330,9 @@ dependencies = [
 name = "image-compare"
 version = "0.1.0"
 dependencies = [
- "gloo-utils",
+ "wasm-bindgen",
  "wasm-bindgen-test",
+ "web-sys",
  "yew",
  "yew-router",
 ]
