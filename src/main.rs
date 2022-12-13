@@ -54,7 +54,9 @@ fn switch(routes: Route) -> Html {
 fn app() -> Html {
     html! {
         <BrowserRouter>
-            <Switch<Route> render={switch} />
+            <section id="main">
+                <Switch<Route> render={switch} />
+            </section>
         </BrowserRouter>
     }
 }
@@ -77,13 +79,6 @@ pub mod tests {
             .expect("window to be present")
             .document()
             .expect("document to be present") 
-    }
-
-    fn get_inner_html_by_id(id: &str) -> String {
-        document()
-            .get_element_by_id(id)
-            .expect("element with id to be present")
-            .inner_html()
     }
 
     fn get_element_by_id(id: &str) -> web_sys::Element {
@@ -127,8 +122,11 @@ pub mod tests {
 
         render_app!();
 
-        let without_fingerprint = get_inner_html_by_id("main");
-        assert_eq!(without_fingerprint.as_str(), "<h1>No cookies</h1>");
+        let mut id_of_first_child_from_main = get_element_by_id("main")
+            .first_element_child()
+            .expect("child to be present")
+            .id();
+        assert_eq!(id_of_first_child_from_main.as_str(), "welcome");
 
         let _ = htmldocument()
             .set_cookie("fingerprint=testvalue; path=/;")
@@ -138,8 +136,11 @@ pub mod tests {
 
         render_app!();
 
-        let with_fingerprint = get_inner_html_by_id("main");        
-        assert_eq!(with_fingerprint.as_str(), "<h1>Yes cookies</h1>");
+        id_of_first_child_from_main = get_element_by_id("main")
+            .first_element_child()
+            .expect("child to be present")
+            .id();
+        assert_eq!(id_of_first_child_from_main.as_str(), "compare");
     }
 }
 
