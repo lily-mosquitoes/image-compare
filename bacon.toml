@@ -15,7 +15,7 @@ need_stdout = false
 watch = ["tests", "benches", "examples"]
 
 [jobs.test]
-command = ["wasm-pack", "test", "--firefox", "--headless", "--color", "always"]
+command = ["wasm-pack", "test", "--firefox", "--headless", "--", "--color", "always"]
 need_stdout = true
 watch = ["tests"]
 
