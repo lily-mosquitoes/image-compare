@@ -44,7 +44,7 @@ fn switch(routes: Route) -> Html {
                 html! { <pages::Welcome /> }
             }
         },
-        Route::Compare => html! { <section id="main"><h1>{ "Yes cookies" }</h1></section> },
+        Route::Compare => html! { <pages::Compare /> },
         Route::Success => html! { <h1>{ "Success" }</h1> },
         Route::Failure => html! { <h1>{ "Failure" }</h1> },
     }
