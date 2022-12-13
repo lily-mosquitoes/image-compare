@@ -66,77 +66,45 @@ fn main() {
 }
 
 #[cfg(test)]
+pub mod tests_setup;
+
+#[cfg(test)]
 pub mod tests {
-    wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
-
     use super::*;
-    use wasm_bindgen_test::*;
-    use std::time::Duration;
-    use yew::platform::time::sleep;
+    use tests_setup::*;
 
-    fn document() -> web_sys::Document {
-        web_sys::window()
-            .expect("window to be present")
-            .document()
-            .expect("document to be present") 
-    }
-
-    fn get_element_by_id(id: &str) -> web_sys::Element {
-        document()
-            .get_element_by_id(id)
-            .expect("element with id to be present")
-    }
-
-    fn htmldocument() -> web_sys::HtmlDocument {
-        document()
-            .dyn_into::<web_sys::HtmlDocument>()
-            .expect("Document to be castable to HtmlDocument")
-    }
+    setup_environment!();
 
     fn cookie_exists(name: &str) -> bool {
-        if let Some(cookies) = htmldocument().cookie().ok() {
+        if let Some(cookies) = WasmWindow::document().get_raw_cookies() {
             cookies.contains(name)
         } else {
             false
         }
     }
 
-    macro_rules! render_app {
-        () => {
-            yew::Renderer::<App>::with_root(get_element_by_id("output"))
-                .render();
-            // wait for rendering
-            sleep(Duration::from_millis(100)).await;
-        }
-    }
-
     #[wasm_bindgen_test]
     async fn test_fingerprint_absent() {
-        let _ = htmldocument()
-            .set_cookie("fingerprint=; \
-                        expires=Thu, 01 Jan 1970 00:00:00 UTC; \
-                        path=/;")
-            .expect("cookie to be unset");
-
+        WasmWindow::document().set_raw_cookies(EMPTY_FINGERPRINT);
         assert!(!cookie_exists("fingerprint"));
 
-        render_app!();
+        render_app!(App);
 
-        let mut id_of_first_child_from_main = get_element_by_id("main")
+        let mut id_of_first_child_from_main = WasmWindow::document()
+            .get_element_by_id("main")
             .first_element_child()
             .expect("child to be present")
             .id();
         assert_eq!(id_of_first_child_from_main.as_str(), "welcome");
 
-        let _ = htmldocument()
-            .set_cookie("fingerprint=testvalue; path=/;")
-            .expect("cookie to be set");
-
+        WasmWindow::document()
+            .set_raw_cookies("fingerprint=testvalue; path=/;");
         assert!(cookie_exists("fingerprint"));
 
-        render_app!();
+        render_app!(App);
 
-        id_of_first_child_from_main = get_element_by_id("main")
+        id_of_first_child_from_main = WasmWindow::document()
+            .get_element_by_id("main")
             .first_element_child()
             .expect("child to be present")
             .id();
