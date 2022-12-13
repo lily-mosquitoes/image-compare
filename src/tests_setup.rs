@@ -55,6 +55,7 @@ impl WasmDocument {
     }
 }
 
+#[allow(dead_code)]
 impl WasmElement {
     pub fn as_html(&self) -> web_sys::HtmlElement {
         self.inner.to_owned().dyn_into::<web_sys::HtmlElement>()

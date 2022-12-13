@@ -66,12 +66,12 @@ fn main() {
 }
 
 #[cfg(test)]
-pub mod tests_setup;
+pub(crate) mod tests_setup;
 
 #[cfg(test)]
-pub mod tests {
+pub(crate) mod tests {
     use super::*;
-    use tests_setup::*;
+    use crate::tests_setup::*;
 
     setup_environment!();
 
