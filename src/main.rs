@@ -84,7 +84,7 @@ pub(crate) mod tests {
     }
 
     #[wasm_bindgen_test]
-    async fn test_fingerprint_absent() {
+    async fn test_fingerprint_redirect() {
         WasmWindow::document().set_raw_cookies(EMPTY_FINGERPRINT);
         assert!(!cookie_exists("fingerprint"));
 
