@@ -1,6 +1,6 @@
-pub mod welcome;
-pub mod compare;
+pub(crate) mod welcome;
+pub(crate) mod compare;
 
-pub use self::welcome::Welcome;
-pub use self::compare::Compare;
+pub(crate) use self::welcome::Welcome;
+pub(crate) use self::compare::Compare;
 
