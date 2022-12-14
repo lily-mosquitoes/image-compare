@@ -3,7 +3,7 @@ use yew_router::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys;
 
-mod pages;
+pub(crate) mod pages;
 
 #[derive(Clone, Routable, PartialEq)]
 enum Route {
