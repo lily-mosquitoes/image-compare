@@ -17,7 +17,7 @@ pub(crate) enum Route {
     Failure,
 }
 
-fn htmldocument() -> web_sys::HtmlDocument {
+fn get_htmldocument() -> web_sys::HtmlDocument {
     web_sys::window()
         .expect("window to be present")
         .document()
@@ -26,12 +26,14 @@ fn htmldocument() -> web_sys::HtmlDocument {
         .expect("Document to be castable to HtmlDocument")
 }
 
+fn get_raw_cookies() -> Option<String> {
+    get_htmldocument().cookie().ok()
+}
+
 fn switch(routes: Route) -> Html {
     match routes {
         Route::Welcome => {
-            let raw_cookies = htmldocument().cookie().ok();
-    
-            let fingerprint_exists = match raw_cookies {
+            let fingerprint_exists = match get_raw_cookies() {
                 Some(cookies_str) => cookies_str.contains("fingerprint"),
                 None => false,
             };
