@@ -31,22 +31,26 @@ fn get_raw_cookies() -> Option<String> {
 }
 
 fn switch(routes: Route) -> Html {
+    let fingerprint_exists = match get_raw_cookies() {
+        Some(cookies_str) => cookies_str.contains("fingerprint"),
+        None => false,
+    };
+
     match routes {
         Route::Welcome => {
-            let fingerprint_exists = match get_raw_cookies() {
-                Some(cookies_str) => cookies_str.contains("fingerprint"),
-                None => false,
-            };
-
             if fingerprint_exists {
-                html! {
-                    <Redirect<Route> to={Route::Compare} />
-                }
+                html! { <Redirect<Route> to={Route::Compare} /> }
             } else {
                 html! { <pages::Welcome /> }
             }
         },
-        Route::Compare => html! { <pages::Compare /> },
+        Route::Compare => {
+            if fingerprint_exists {
+                html! { <pages::Compare /> }
+            } else {
+                html! { <Redirect<Route> to={Route::Welcome} /> }
+            }
+        },
         Route::Success => html! { <h1>{ "Success" }</h1> },
         Route::Failure => html! { <h1>{ "Failure" }</h1> },
     }
@@ -95,6 +99,10 @@ pub(crate) mod tests {
         assert!(!fingerprint_exists());
 
         render_app!(App);
+
+        // I could not figure out a way to test that the browser
+        // gets redirected back to Welcome if the user tries to
+        // go directly to Compare without a fingerprint...
 
         let mut id_of_first_child_from_main = WasmWindow::document()
             .get_element_by_id("main")
