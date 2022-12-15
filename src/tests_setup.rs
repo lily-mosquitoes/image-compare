@@ -79,18 +79,25 @@ macro_rules! setup_environment {
 
 pub(crate) use setup_environment;
 
+macro_rules! wait_for_render {
+    () => {
+        yew::platform::time::sleep(std::time::Duration::from_millis(100))
+            .await;
+    }
+}
+
+pub(crate) use wait_for_render;
+
 macro_rules! render_app {
     ($component:ident) => {
         yew::Renderer::<$component>::with_root((*WasmWindow::document()
                                                .get_element_by_id("output"))
                                                .to_owned())
             .render();
-        // wait for rendering
-        yew::platform::time::sleep(std::time::Duration::from_millis(100))
-            .await;
+        
+        wait_for_render!();
     }
 }
 
 pub(crate) use render_app;
-
 

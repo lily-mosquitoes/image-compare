@@ -3,10 +3,10 @@ use yew_router::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys;
 
-pub(crate) mod pages;
+mod pages;
 
 #[derive(Clone, Routable, PartialEq)]
-enum Route {
+pub(crate) enum Route {
     #[at("/")]
     Welcome,
     #[at("/compare")]
@@ -75,18 +75,22 @@ pub(crate) mod tests {
 
     setup_environment!();
 
-    fn cookie_exists(name: &str) -> bool {
+    fn unset_fingerprint() {
+        WasmWindow::document().set_raw_cookies(EMPTY_FINGERPRINT);
+    }
+
+    fn fingerprint_exists() -> bool {
         if let Some(cookies) = WasmWindow::document().get_raw_cookies() {
-            cookies.contains(name)
+            cookies.contains("fingerprint")
         } else {
             false
         }
     }
 
     #[wasm_bindgen_test]
-    async fn test_fingerprint_redirect() {
-        WasmWindow::document().set_raw_cookies(EMPTY_FINGERPRINT);
-        assert!(!cookie_exists("fingerprint"));
+    async fn test_first_render_and_fingerprint_redirect() {
+        unset_fingerprint();
+        assert!(!fingerprint_exists());
 
         render_app!(App);
 
@@ -97,11 +101,13 @@ pub(crate) mod tests {
             .id();
         assert_eq!(id_of_first_child_from_main.as_str(), "welcome");
 
-        WasmWindow::document()
-            .set_raw_cookies("fingerprint=testvalue; path=/;");
-        assert!(cookie_exists("fingerprint"));
+        let fingerprint_button = WasmWindow::document()
+            .get_element_by_id("get_fingerprint")
+            .as_html();
 
-        render_app!(App);
+        fingerprint_button.click();
+        wait_for_render!();
+        assert!(fingerprint_exists());
 
         id_of_first_child_from_main = WasmWindow::document()
             .get_element_by_id("main")

@@ -1,7 +1,12 @@
 use yew::prelude::*;
+use yew_router::prelude::*;
+use crate::Route;
 
 #[function_component(Welcome)]
 pub(crate) fn welcome() -> Html {
+    let navigator = use_navigator()
+        .expect("navigator to be avaliable");
+
     let get_fingerprint = Callback::from(move |_| {
         use web_sys;
         use wasm_bindgen::JsCast;
@@ -15,8 +20,10 @@ pub(crate) fn welcome() -> Html {
         }
 
         htmldocument()
-            .set_cookie("fingerprint=testvalue;path=/")
+            .set_cookie("fingerprint=testvalue; path=/")
             .unwrap();
+
+        navigator.push(&Route::Welcome)
     });
     
     html! {
@@ -29,30 +36,3 @@ pub(crate) fn welcome() -> Html {
     }
 }
 
-#[cfg(test)]
-pub(crate) mod tests {
-    use super::*;
-    use crate::tests_setup::*;
-
-    setup_environment!();
-
-    #[wasm_bindgen_test]
-    async fn test_get_fingerprint() {
-        WasmWindow::document()
-            .set_raw_cookies(EMPTY_FINGERPRINT);
-
-        render_app!(Welcome);
-
-        let fingerprint_button = WasmWindow::document()
-            .get_element_by_id("get_fingerprint")
-            .as_html();
-
-        fingerprint_button.click();
-
-        let cookies = WasmWindow::document()
-            .get_raw_cookies()
-            .expect("cookies to not be null");
-
-        assert!(cookies.contains("fingerprint"));
-    }
-}
