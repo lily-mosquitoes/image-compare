@@ -5,27 +5,6 @@ use crate::Route;
 
 #[function_component(Welcome)]
 pub(crate) fn welcome() -> Html {
-    let navigator = use_navigator()
-        .expect("navigator to be avaliable");
-
-    let get_fingerprint = Callback::from(move |_| {
-        use wasm_bindgen::JsCast;
-        fn htmldocument() -> web_sys::HtmlDocument {
-            web_sys::window()
-                .expect("window to be present")
-                .document()
-                .expect("document to be present") 
-                .dyn_into::<web_sys::HtmlDocument>()
-                .expect("Document to be castable to HtmlDocument")
-        }
-
-        htmldocument()
-            .set_cookie("fingerprint=testvalue; path=/")
-            .unwrap();
-
-        navigator.push(&Route::Welcome)
-    });
-
     let current_card = use_state(|| 1);
  
     let cards_section = move || -> web_sys::Element {
@@ -138,24 +117,28 @@ pub(crate) fn welcome() -> Html {
                     { ">>" }
                 </button>
             </section>
-            <button
-                id="get_fingerprint"
-                class="underline"
-                onclick={get_fingerprint}
-            >
-                { "I already know this, let me start!" }
-            </button>
+            <GetFingerprintButton button_type={ButtonType::Link} />
         </section>
     }
 }
 
+#[derive(PartialEq)]
+enum ButtonType {
+    Full,
+    Link,
+}
+
+#[derive(Properties, PartialEq)]
+struct GetFingerprintButtonProps {
+    button_type: ButtonType,
+}
+
 #[function_component(GetFingerprintButton)]
-fn get_fingerprint_button() -> Html {
+fn get_fingerprint_button(props: &GetFingerprintButtonProps) -> Html {
     let navigator = use_navigator()
         .expect("navigator to be avaliable");
 
     let get_fingerprint = Callback::from(move |_| {
-        use web_sys;
         use wasm_bindgen::JsCast;
         fn htmldocument() -> web_sys::HtmlDocument {
             web_sys::window()
@@ -173,13 +156,24 @@ fn get_fingerprint_button() -> Html {
         navigator.push(&Route::Welcome)
     });
 
+    let (classes, text): (&str, &str) = match props.button_type {
+        ButtonType::Full => {(
+            "px-3 py-1.5 w-fit bg-violet-800 rounded-full",
+            "Accept and start!"
+        )},
+        ButtonType::Link => {(
+            "underline",
+            "I already know this, let me start!"
+        )},
+    };
+
     html! {
         <button
             id="get_fingerprint"
-            class="px-3 py-1.5 w-fit bg-violet-800 rounded-full"
+            class={classes}
             onclick={get_fingerprint}
         >
-            { "Accept and start!" }
+            { text }
         </button>
     }
 }
@@ -202,7 +196,7 @@ fn instruction_card(props: &InstructionCardProps) -> Html {
             </h2>
             <p class="basis-full">{ &props.text }</p>
             if props.has_button {
-                <GetFingerprintButton />
+                <GetFingerprintButton button_type={ButtonType::Full} />
             }
         </div>
     }
