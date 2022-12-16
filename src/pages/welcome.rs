@@ -86,7 +86,7 @@ pub(crate) fn welcome() -> Html {
             <section
                 id="information"
                 onscroll={onscroll}
-                class="flex items-stretch w-96 overflow-scroll scroll-smooth scrollbar-hide snap-x snap-mandatory snap-always"
+                class="flex items-stretch gap-3 w-96 overflow-scroll scroll-smooth scrollbar-hide snap-x snap-mandatory snap-always"
             >
                 <InstructionCard
                     title="Welcome to Image Compare!"
@@ -99,7 +99,7 @@ pub(crate) fn welcome() -> Html {
                     has_button={false}
                 />
                 <InstructionCard
-                    title="What we get?"
+                    title="What information we collect"
                     text="We keep information on your votes using cookies to determine the user... If you accept this please click the button below to start!"
                     has_button={true}
                 />
@@ -189,7 +189,8 @@ struct InstructionCardProps {
 fn instruction_card(props: &InstructionCardProps) -> Html {
     html! {
         <div
-            class="w-96 shrink-0 snap-center flex flex-col items-center gap-3 border-2"
+            class="w-96 shrink-0 snap-center flex flex-col items-center \
+            gap-3 bg-violet-200 border-2 border-violet-800 rounded-xl p-3"
         >
             <h2>
                 { &props.title }
