@@ -80,13 +80,16 @@ pub(crate) fn welcome() -> Html {
     html! {
         <section
             id="welcome"
-            class="m-auto w-1/2 flex flex-col items-center justify-center gap-3"
+            class="mx-auto my-10 lg:my-3 w-full lg:w-1/2 \
+            flex flex-col items-center justify-center gap-10 lg:gap-3"
         >
-            <h1>{ "Image Compare" }</h1>
+            <h1 class="font-bold text-8xl lg:text-3xl text-violet-800">
+                { "Image Compare" }
+            </h1>
             <section
                 id="information"
                 onscroll={onscroll}
-                class="flex items-stretch gap-3 w-96 overflow-scroll scroll-smooth scrollbar-hide snap-x snap-mandatory snap-always"
+                class="flex items-stretch gap-10 px-3 w-4/5 overflow-scroll scroll-smooth scrollbar-hide snap-x snap-mandatory snap-always"
             >
                 <InstructionCard
                     title="Welcome to Image Compare!"
@@ -104,17 +107,17 @@ pub(crate) fn welcome() -> Html {
                     has_button={true}
                 />
             </section>
-            <section id="slide_buttons" class="w-1/2 flex justify-between">
-                <button id="slide_left" onclick={scroll_left}>
-                    { "<<" }
+            <section id="slide_buttons" class="w-1/2 flex justify-between text-6xl lg:text-base">
+                <button id="slide_left" onclick={scroll_left} class="rounded-full bg-violet-800 px-10 lg:px-3 py-5 lg:py-1.5 symbol-6xl lg:symbol-base text-white">
+                    { "arrow_back" }
                 </button>
-                <section id="slide_counter" class="flex flex-row">
+                <section id="slide_counter" class="flex flex-row gap-1 rounded-full bg-violet-200 px-10 lg:px-3 py-5 lg:py-1.5 text-violet-800">
                     <p>{ format!("{}", *current_card) }</p>
                     <p>{ "/" }</p>
                     <p id="total_cards">{ "0" }</p>
                 </section>
-                <button id="slide_right" onclick={scroll_right}>
-                    { ">>" }
+                <button id="slide_right" onclick={scroll_right} class="rounded-full bg-violet-800 px-10 lg:px-3 py-5 lg:py-1.5 symbol-6xl lg:symbol-base text-white">
+                    { "arrow_forward" }
                 </button>
             </section>
             <GetFingerprintButton button_type={ButtonType::Link} />
@@ -158,11 +161,11 @@ fn get_fingerprint_button(props: &GetFingerprintButtonProps) -> Html {
 
     let (classes, text): (&str, &str) = match props.button_type {
         ButtonType::Full => {(
-            "px-3 py-1.5 w-fit bg-violet-800 rounded-full",
+            "px-10 lg:px-3 py-5 lg:py-1.5 w-fit rounded-full font-bold bg-violet-800 text-white hover:bg-violet-700 text-5xl lg:text-base",
             "Accept and start!"
         )},
         ButtonType::Link => {(
-            "underline",
+            "underline text-violet-400 hover:text-violet-800 text-5xl lg:text-base",
             "I already know this, let me start!"
         )},
     };
@@ -189,13 +192,18 @@ struct InstructionCardProps {
 fn instruction_card(props: &InstructionCardProps) -> Html {
     html! {
         <div
-            class="w-96 shrink-0 snap-center flex flex-col items-center \
-            gap-3 bg-violet-200 border-2 border-violet-800 rounded-xl p-3"
+            class="w-full shrink-0 snap-center \
+            flex flex-col items-center gap-10 lg:gap-3 \
+            bg-violet-200 border-8 lg:border-2 border-violet-800 \
+            rounded-3xl lg:rounded-xl \
+            py-3 md:py-10 px-5"
         >
-            <h2>
+            <h2 class="font-bold text-5xl lg:text-xl">
                 { &props.title }
             </h2>
-            <p class="basis-full">{ &props.text }</p>
+            <p class="px-5 text-5xl lg:text-base">
+                { &props.text }
+            </p>
             if props.has_button {
                 <GetFingerprintButton button_type={ButtonType::Full} />
             }

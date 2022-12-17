@@ -60,7 +60,7 @@ fn switch(routes: Route) -> Html {
 fn app() -> Html {
     html! {
         <BrowserRouter>
-            <section id="main">
+            <section id="main" class="font-hyperlegible">
                 <Switch<Route> render={switch} />
             </section>
         </BrowserRouter>

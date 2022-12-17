@@ -4,7 +4,11 @@ const plugin = require('tailwindcss/plugin')
 module.exports = {
   content: ["./src/**/*.rs"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'hyperlegible': ['Atkinson Hyperlegible', 'sans-serif']
+      },
+    },
   },
   plugins: [
     plugin(function({ addUtilities }) {
