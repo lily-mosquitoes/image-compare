@@ -3,6 +3,7 @@ use yew_router::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys;
 
+pub(crate) mod components;
 mod pages;
 
 #[derive(Clone, Routable, PartialEq)]
@@ -60,7 +61,10 @@ fn switch(routes: Route) -> Html {
 fn app() -> Html {
     html! {
         <BrowserRouter>
-            <section id="main" class="font-hyperlegible">
+            <section
+                id="main"
+                class="h-screen font-hyperlegible bg-gradient-to-tr from-stone-700 via-stone-700 to-stone-500"
+            >
                 <Switch<Route> render={switch} />
             </section>
         </BrowserRouter>

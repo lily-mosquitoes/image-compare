@@ -1,4 +1,5 @@
 /target
 /dist
 /node_modules
-/static/icon.svg
+/static
+!/static/syles.css
