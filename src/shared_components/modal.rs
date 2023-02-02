@@ -1,30 +1,36 @@
 use yew::prelude::*;
-use image_compare::wasmjs;
+
+use crate::{
+    dom::DOM,
+    MAIN_SECTION_ID,
+};
 
 #[derive(Properties, PartialEq)]
-pub struct ModalProps {
-    pub id: String,
+pub(crate) struct ModalProps {
+    pub(crate) id: String,
     #[prop_or_default]
-    pub children: Children,
+    pub(crate) children: Children,
 }
 
 #[function_component]
 pub(crate) fn Modal(props: &ModalProps) -> Html {
-    let modal_host = wasmjs::get_element_by_id("main")
-        .expect("Expected to find a #main element");
+    let modal_host = DOM::get_element_by_id(MAIN_SECTION_ID).expect(
+        &format!("Expected to find a #{} element", MAIN_SECTION_ID),
+    );
 
-    let close_modal = {
-        let id = props.id.clone();
-        Callback::from(move |_| {
-            match wasmjs::add_class_to_element_by_id("hidden", &id) {
-                Ok(_) => (),
-                Err(error) => web_sys::console::error_1(&error),
-            }
-        })
-    };
+    let close_modal =
+        {
+            let id = props.id.clone();
+            Callback::from(move |_| {
+                match DOM::add_class_to_element_by_id("hidden", &id) {
+                    Ok(_) => (),
+                    Err(error) => web_sys::console::error_1(&error),
+                }
+            })
+        };
 
     create_portal(
-        html!{
+        html! {
             <section
                 id={props.id.clone()}
                 class="hidden bg-black/[0.4] w-full h-full \
@@ -58,5 +64,3 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
         modal_host.into(),
     )
 }
-
-

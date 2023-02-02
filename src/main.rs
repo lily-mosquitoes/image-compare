@@ -1,75 +1,4 @@
-use yew::prelude::*;
-use yew_router::prelude::*;
-use wasm_bindgen::JsCast;
-use web_sys;
-
-pub(crate) mod components;
-mod pages;
-
-#[derive(Clone, Routable, PartialEq)]
-pub(crate) enum Route {
-    #[at("/")]
-    Welcome,
-    #[at("/compare")]
-    Compare,
-    #[at("/success")]
-    Success,
-    #[at("/failure")]
-    Failure,
-}
-
-fn get_htmldocument() -> web_sys::HtmlDocument {
-    web_sys::window()
-        .expect("window to be present")
-        .document()
-        .expect("document to be present") 
-        .dyn_into::<web_sys::HtmlDocument>()
-        .expect("Document to be castable to HtmlDocument")
-}
-
-fn get_raw_cookies() -> Option<String> {
-    get_htmldocument().cookie().ok()
-}
-
-fn switch(routes: Route) -> Html {
-    let fingerprint_exists = match get_raw_cookies() {
-        Some(cookies_str) => cookies_str.contains("fingerprint"),
-        None => false,
-    };
-
-    match routes {
-        Route::Welcome => {
-            if fingerprint_exists {
-                html! { <Redirect<Route> to={Route::Compare} /> }
-            } else {
-                html! { <pages::Welcome /> }
-            }
-        },
-        Route::Compare => {
-            if fingerprint_exists {
-                html! { <pages::Compare /> }
-            } else {
-                html! { <Redirect<Route> to={Route::Welcome} /> }
-            }
-        },
-        Route::Success => html! { <h1>{ "Success" }</h1> },
-        Route::Failure => html! { <h1>{ "Failure" }</h1> },
-    }
-}
-
-#[function_component(App)]
-fn app() -> Html {
-    html! {
-        <BrowserRouter>
-            <section
-                id="main"
-                class="h-screen font-hyperlegible bg-gradient-to-tr from-stone-700 via-stone-700 to-stone-500"
-            >
-                <Switch<Route> render={switch} />
-            </section>
-        </BrowserRouter>
-    }
-}
+use image_compare::App;
 
 fn main() {
     yew::Renderer::<App>::new().render();
@@ -90,7 +19,9 @@ pub(crate) mod tests {
     }
 
     fn fingerprint_exists() -> bool {
-        if let Some(cookies) = WasmWindow::document().get_raw_cookies() {
+        if let Some(cookies) =
+            WasmWindow::document().get_raw_cookies()
+        {
             cookies.contains("fingerprint")
         } else {
             false
@@ -131,4 +62,3 @@ pub(crate) mod tests {
         assert_eq!(id_of_first_child_from_main.as_str(), "compare");
     }
 }
-

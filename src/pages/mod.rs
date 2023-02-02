@@ -1,6 +1,3 @@
-pub(crate) mod welcome;
-pub(crate) mod compare;
+pub(crate) mod images_to_compare;
 
-pub(crate) use self::welcome::Welcome;
-pub(crate) use self::compare::Compare;
-
+pub(crate) use self::images_to_compare::ImagesToCompare;

@@ -1,4 +1,10 @@
-use yew::prelude::*;
+use yew::{
+    function_component,
+    html,
+    Callback,
+    Html,
+    Properties,
+};
 
 #[derive(Clone, PartialEq)]
 pub(super) struct Image {
@@ -44,4 +50,3 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
         }
     }).collect::<Html>()
 }
-

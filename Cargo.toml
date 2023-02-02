@@ -8,8 +8,8 @@ yew = { version = "0.20", features = ["csr"] }
 yew-router = "0.17"
 web-sys = { version = "0.3.60", features = ["HtmlDocument", "Element", "DomTokenList", "Document", "HtmlCollection", "Window", "Navigator"] }
 wasm-bindgen = "0.2.83"
-rand = "0.8.5"
-getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.0"
+rand = "0.8.5"
+getrandom = { version = "0.2", features = ["js"] }
