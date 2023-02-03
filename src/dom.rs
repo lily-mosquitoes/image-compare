@@ -1,4 +1,7 @@
-use wasm_bindgen::JsValue;
+use wasm_bindgen::{
+    JsCast,
+    JsValue,
+};
 
 pub(crate) struct DOM;
 
@@ -43,5 +46,13 @@ impl DOM {
                 id
             )))
         }
+    }
+
+    pub(super) fn user_agent() -> Option<String> {
+        DOM::window()?.navigator().user_agent().ok()
+    }
+
+    pub(super) fn language() -> Option<String> {
+        DOM::window()?.navigator().language()
     }
 }

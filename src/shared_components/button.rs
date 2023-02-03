@@ -15,7 +15,7 @@ pub(crate) struct ButtonProps {
 #[function_component(Button)]
 pub(crate) fn button(props: &ButtonProps) -> Html {
     let onclick = {
-        let event = props.onclick;
+        let event = props.onclick.clone();
         Callback::from(move |_| event.emit(()))
     };
 
@@ -24,7 +24,7 @@ pub(crate) fn button(props: &ButtonProps) -> Html {
             class="text-5xl"
             onclick={onclick}
         >
-            { props.text }
+            { &props.text }
         </button>
     }
 }
