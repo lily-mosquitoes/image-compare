@@ -1,7 +1,4 @@
-use wasm_bindgen::{
-    JsCast,
-    JsValue,
-};
+use wasm_bindgen::JsValue;
 
 pub(crate) struct DOM;
 

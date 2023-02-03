@@ -10,8 +10,6 @@ pub(crate) mod yew_tester;
 use yew::{
     function_component,
     html,
-    use_state,
-    ContextProvider,
     Html,
 };
 use yew_router::{
