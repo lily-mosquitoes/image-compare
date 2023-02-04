@@ -2,4 +2,4 @@
 /dist
 /node_modules
 /icon.svg
-styles.css
+./styles.css
