@@ -16,6 +16,29 @@ impl DOM {
         DOM::document()?.body()?.first_element_child()
     }
 
+    pub(crate) fn get_images() -> Option<Vec<web_sys::Element>> {
+        let images = DOM::document()?.images();
+
+        let mut images_vec = Vec::<web_sys::Element>::new();
+        let mut index = 0;
+        loop {
+            match images.item(index) {
+                Some(image) => {
+                    images_vec.push(image);
+                },
+                None => break,
+            }
+
+            index += 1;
+        }
+
+        if index > 0 {
+            Some(images_vec)
+        } else {
+            None
+        }
+    }
+
     pub(crate) fn get_element_by_id(
         id: &str,
     ) -> Option<web_sys::Element> {

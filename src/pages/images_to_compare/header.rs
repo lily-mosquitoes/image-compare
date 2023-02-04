@@ -2,34 +2,37 @@ use yew::{
     classes,
     function_component,
     html,
-    use_state,
+    use_state_eq,
     Callback,
     Html,
+    Properties,
 };
 
 use super::change_user_modal::ChangeUserModal;
 use crate::shared_components::Button;
 
+#[derive(Properties, PartialEq)]
+pub(super) struct HeaderProps {
+    pub(super) votes: usize,
+}
+
 #[function_component(Header)]
-pub(super) fn header() -> Html {
+pub(super) fn header(props: &HeaderProps) -> Html {
     let change_user_modal_id = "change_user_modal".to_string();
-    let change_user_modal_is_visible = use_state(|| false);
+    let show_change_user_modal = use_state_eq(|| false);
 
     let open_change_user_modal = {
-        let change_user_modal_is_visible =
-            change_user_modal_is_visible.clone();
-        Callback::from(move |_| {
-            change_user_modal_is_visible.set(true)
-        })
+        let show_change_user_modal = show_change_user_modal.clone();
+        Callback::from(move |_| show_change_user_modal.set(true))
     };
 
     let close_change_user_modal = {
-        let change_user_modal_is_visible =
-            change_user_modal_is_visible.clone();
-        Callback::from(move |_| {
-            change_user_modal_is_visible.set(false)
-        })
+        let show_change_user_modal = show_change_user_modal.clone();
+        Callback::from(move |_| show_change_user_modal.set(false))
     };
+
+    let votes_count_text =
+        format!("I'm done with {} votes!", props.votes.clone());
 
     html! {
         <section
@@ -45,14 +48,14 @@ pub(super) fn header() -> Html {
             ]}
         >
             <Button
-                text={ "I'm done with 0 votes!" }
+                text={ votes_count_text.clone() }
                 onclick={Callback::from(move |_| ())}
             />
             <Button
                 text={ "Change user" }
                 onclick={open_change_user_modal}
             />
-            if *change_user_modal_is_visible {
+            if *show_change_user_modal {
                 <ChangeUserModal
                     id={change_user_modal_id}
                     onclose={close_change_user_modal}

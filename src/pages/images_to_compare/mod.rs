@@ -27,26 +27,36 @@ use crate::{
 
 #[function_component(ImagesToCompare)]
 pub(crate) fn images_to_compare() -> Html {
+    let show_error_modal = use_state_eq(|| false);
     let loading = use_state_eq(|| true);
     let image_list = use_state_eq(|| Vec::<Image>::new());
+    let votes = use_state_eq(|| 0);
     let selected_image = use_state(|| None);
 
     {
         let loading = loading.clone();
         let image_list = image_list.clone();
+        let votes = votes.clone();
 
         use_effect(move || {
-            if *loading {
+            if *loading && !*show_error_modal {
                 let t = wasm_bindgen::JsValue::from("changing...");
                 web_sys::console::log_1(&t);
 
                 wasm_bindgen_futures::spawn_local(async move {
-                    let response = get_images().await;
-                    image_list.set(response);
-                    loading.set(false);
-                    let debug_string =
-                        wasm_bindgen::JsValue::from("changed");
-                    web_sys::console::log_1(&debug_string);
+                    match get_images().await {
+                        Ok(response) => {
+                            image_list.set(response.images);
+                            votes.set(response.user.votes);
+                            loading.set(false);
+                            let debug_string =
+                                wasm_bindgen::JsValue::from(
+                                    "changed",
+                                );
+                            web_sys::console::log_1(&debug_string);
+                        },
+                        Err(_) => show_error_modal.set(true),
+                    }
                 });
             }
         });
@@ -71,7 +81,7 @@ pub(crate) fn images_to_compare() -> Html {
 
     html! {
         <section id="compare">
-            <Header />
+            <Header votes={(*votes).clone()}/>
             <section class={classes!["flex", "flex-row"]}>
                 <ImageList
                     loading={(*loading).clone()}
@@ -85,6 +95,7 @@ pub(crate) fn images_to_compare() -> Html {
 
 #[cfg(test)]
 mod tests {
+    // use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
         wasm_bindgen_test,
         wasm_bindgen_test_configure,
@@ -93,7 +104,9 @@ mod tests {
     use super::ImagesToCompare;
     use crate::{
         dom::DOM,
+        macros_for_tests::wasm_sleep,
         render_yew_component,
+        request::get_images,
     };
 
     wasm_bindgen_test_configure!(run_in_browser);
@@ -113,10 +126,73 @@ mod tests {
     async fn button_to_finish_comparing_exists() {
         render_yew_component!(ImagesToCompare);
 
-        let finish_comparing_button_text = "I'm done with 0 votes!";
+        let response = get_images()
+            .await
+            .expect("request to return Ok response");
+        let finish_comparing_button_text =
+            format!("I'm done with {} votes!", response.user.votes);
 
         assert!(DOM::has_button_with_inner_html(
-            finish_comparing_button_text
+            &finish_comparing_button_text
         ));
     }
+
+    #[wasm_bindgen_test]
+    async fn two_images_to_compare_exist() {
+        render_yew_component!(ImagesToCompare);
+
+        wasm_sleep!(1000);
+
+        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
+    }
+
+    // #[wasm_bindgen_test]
+    // async fn choosing_first_image_increases_vote_counter() {
+    //     render_yew_component!(ImagesToCompare);
+    //
+    //     wasm_sleep!(1000);
+    //
+    //     if let Some(images) = DOM::get_images() {
+    //         let image = images[0]
+    //             .clone()
+    //             .dyn_into::<web_sys::HtmlElement>()
+    //             .expect("Element to be castable to HtmlElement");
+    //
+    //         image.click();
+    //
+    //         wasm_sleep!(1000);
+    //     };
+    //
+    //     let finish_comparing_button_text = "I'm done with 1
+    // votes!";
+    //
+    //     assert!(DOM::has_button_with_inner_html(
+    //         finish_comparing_button_text
+    //     ));
+    // }
+    //
+    // #[wasm_bindgen_test]
+    // async fn choosing_second_image_increases_vote_counter() {
+    //     render_yew_component!(ImagesToCompare);
+    //
+    //     wasm_sleep!(1000);
+    //
+    //     if let Some(images) = DOM::get_images() {
+    //         let image = images[1]
+    //             .clone()
+    //             .dyn_into::<web_sys::HtmlElement>()
+    //             .expect("Element to be castable to HtmlElement");
+    //
+    //         image.click();
+    //
+    //         wasm_sleep!(1000);
+    //     };
+    //
+    //     let finish_comparing_button_text = "I'm done with 1
+    // votes!";
+    //
+    //     assert!(DOM::has_button_with_inner_html(
+    //         finish_comparing_button_text
+    //     ));
+    // }
 }
