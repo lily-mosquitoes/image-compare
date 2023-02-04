@@ -11,6 +11,7 @@ use yew::{
 
 use crate::{
     dom::DOM,
+    shared_components::Button,
     MAIN_SECTION_ID,
 };
 
@@ -51,11 +52,6 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
         &format!("Expected to find a #{} element", MAIN_SECTION_ID),
     );
 
-    let close_self = {
-        let event = close_modal(&props.id.clone()).clone();
-        Callback::from(move |_| event.emit(()))
-    };
-
     create_portal(
         html! {
             <section
@@ -92,12 +88,10 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                             "p-8",
                         ]}
                     >
-                        <button
-                            class={classes!["text-5xl", "drop-shadow-2xl"]}
-                            onclick={close_self}
-                        >
-                            { "X" }
-                        </button>
+                        <Button
+                            text={ "X" }
+                            onclick={close_modal(&props.id.clone())}
+                        />
                     </section>
                     <section
                         id="modal_body"

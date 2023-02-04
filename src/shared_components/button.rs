@@ -22,7 +22,7 @@ pub(crate) fn button(props: &ButtonProps) -> Html {
 
     html! {
         <button
-            class={classes!["text-5xl"]}
+            class={classes!["text-5xl", "drop-shadow-2xl"]}
             onclick={onclick}
         >
             { &props.text }
