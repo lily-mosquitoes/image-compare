@@ -22,6 +22,7 @@ impl DOM {
         DOM::document()?.get_element_by_id(id)
     }
 
+    // uses DomTokenList
     pub(crate) fn add_class_to_element_by_id(
         class: &str,
         id: &str,

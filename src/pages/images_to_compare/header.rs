@@ -2,21 +2,34 @@ use yew::{
     classes,
     function_component,
     html,
+    use_state,
     Callback,
     Html,
 };
 
 use super::change_user_modal::ChangeUserModal;
-use crate::shared_components::{
-    open_modal,
-    Button,
-};
+use crate::shared_components::Button;
 
 #[function_component(Header)]
 pub(super) fn header() -> Html {
     let change_user_modal_id = "change_user_modal".to_string();
+    let change_user_modal_is_visible = use_state(|| false);
 
-    let open_change_user_modal = open_modal(&change_user_modal_id);
+    let open_change_user_modal = {
+        let change_user_modal_is_visible =
+            change_user_modal_is_visible.clone();
+        Callback::from(move |_| {
+            change_user_modal_is_visible.set(true)
+        })
+    };
+
+    let close_change_user_modal = {
+        let change_user_modal_is_visible =
+            change_user_modal_is_visible.clone();
+        Callback::from(move |_| {
+            change_user_modal_is_visible.set(false)
+        })
+    };
 
     html! {
         <section
@@ -39,7 +52,12 @@ pub(super) fn header() -> Html {
                 text={ "Change user" }
                 onclick={open_change_user_modal}
             />
-            <ChangeUserModal id={change_user_modal_id}/>
+            if *change_user_modal_is_visible {
+                <ChangeUserModal
+                    id={change_user_modal_id}
+                    onclose={close_change_user_modal}
+                />
+            }
         </section>
     }
 }

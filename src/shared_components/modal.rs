@@ -14,33 +14,10 @@ use crate::{
     shared_components::Button,
 };
 
-pub(crate) fn open_modal(id: &str) -> Callback<()> {
-    let id = id.to_owned();
-
-    Callback::from(
-        move |_| match DOM::remove_class_from_element_by_id(
-            "hidden", &id,
-        ) {
-            Ok(_) => (),
-            Err(error) => web_sys::console::error_1(&error),
-        },
-    )
-}
-
-pub(crate) fn close_modal(id: &str) -> Callback<()> {
-    let id = id.to_owned();
-
-    Callback::from(move |_| {
-        match DOM::add_class_to_element_by_id("hidden", &id) {
-            Ok(_) => (),
-            Err(error) => web_sys::console::error_1(&error),
-        }
-    })
-}
-
 #[derive(Properties, PartialEq)]
 pub(crate) struct ModalProps {
     pub(crate) id: String,
+    pub(crate) onclose: Callback<()>,
     #[prop_or_default]
     pub(crate) children: Children,
 }
@@ -50,12 +27,16 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
     let modal_host = DOM::body_first_element_child()
         .expect("first section of body to be rendered");
 
+    let close_modal = {
+        let event = props.onclose.clone();
+        Callback::from(move |_| event.emit(()))
+    };
+
     create_portal(
         html! {
             <section
                 id={props.id.clone()}
                 class={classes![
-                    "hidden",
                     "bg-black/[0.4]",
                     "w-full",
                     "h-full",
@@ -88,7 +69,7 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                     >
                         <Button
                             text={ "X" }
-                            onclick={close_modal(&props.id.clone())}
+                            onclick={close_modal}
                         />
                     </section>
                     <section
