@@ -3,7 +3,6 @@ pub(crate) mod pages;
 pub(crate) mod request;
 pub(crate) mod routes;
 pub(crate) mod shared_components;
-pub(crate) mod yew_tester;
 
 // use wasm_bindgen::JsCast;
 // use web_sys;
@@ -23,44 +22,81 @@ use crate::routes::{
     Route,
 };
 
-pub(crate) static MAIN_SECTION_ID: &str = "main";
-
 #[function_component(App)]
 pub fn app() -> Html {
     html! {
-        <BrowserRouter>
-            <section
-                id={MAIN_SECTION_ID}
-                class={classes![
-                    "h-screen",
-                    "font-hyperlegible",
-                    "bg-gradient-to-tr",
-                    "from-stone-700",
-                    "via-stone-700",
-                    "to-stone-500",
-                ]}
-            >
-                <Switch<Route> render={switch} />
-            </section>
-        </BrowserRouter>
+        <section
+            id={"main"}
+            class={classes![
+                "h-screen",
+                "font-hyperlegible",
+                "bg-gradient-to-tr",
+                "from-stone-700",
+                "via-stone-700",
+                "to-stone-500",
+            ]}
+        >
+            <BrowserRouter>
+                    <Switch<Route> render={switch} />
+            </BrowserRouter>
+        </section>
     }
 }
 
+#[cfg(test)]
+pub(crate) mod test_helpers {
+    macro_rules! wasm_sleep {
+        ($time_in_ms:literal) => {
+            yew::platform::time::sleep(
+                std::time::Duration::from_millis($time_in_ms),
+            )
+            .await;
+        };
+    }
+    pub(crate) use wasm_sleep;
+
+    macro_rules! render_yew_component {
+        ($component:ident) => {
+            yew::Renderer::<$component>::with_root(
+                crate::dom::DOM::get_element_by_id("output")
+                    .expect("element with id #output to be present"),
+            )
+            .render();
+
+            crate::test_helpers::wasm_sleep!(100);
+        };
+    }
+    pub(crate) use render_yew_component;
+}
+
 // #[cfg(test)]
-// mod test {
+// mod tests {
 //     use wasm_bindgen_test::{
 //         wasm_bindgen_test,
 //         wasm_bindgen_test_configure,
 //     };
 //
-//     use super::App;
+//     use super::{
+//         App,
+//         MAIN_SECTION_ID,
+//     };
+//     use crate::{
+//         dom::DOM,
+//         test_helpers::render_yew_component,
+//     };
 //
 //     wasm_bindgen_test_configure!(run_in_browser);
 //
 //     #[wasm_bindgen_test]
-//     fn for_new_user_show_instructions() {
-//         yew::Renderer::<App>::new().render();
-//     }
+//     async fn main_section_id_matches_static() {
+//         render_yew_component!(App);
 //
-//     fn for_old_user_do_not_show_instructions() {}
+//         let first_section_id = DOM::get_element_by_id("output")
+//             .expect("output to be rendered")
+//             .first_element_child()
+//             .expect("main section of body to be rendered")
+//             .id();
+//
+//         assert_eq!(&first_section_id, MAIN_SECTION_ID);
+//     }
 // }

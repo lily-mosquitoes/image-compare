@@ -82,3 +82,44 @@ pub(crate) fn images_to_compare() -> Html {
         </section>
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use wasm_bindgen_test::{
+        wasm_bindgen_test,
+        wasm_bindgen_test_configure,
+    };
+
+    use super::ImagesToCompare;
+    use crate::{
+        dom::DOM,
+        test_helpers::render_yew_component,
+    };
+
+    wasm_bindgen_test_configure!(run_in_browser);
+
+    #[wasm_bindgen_test]
+    async fn images_to_compare_has_button_to_change_user() {
+        render_yew_component!(ImagesToCompare);
+
+        let buttons = DOM::document()
+            .expect("document to be rendered")
+            .get_elements_by_tag_name("button");
+
+        let mut index = 0;
+        let mut found = false;
+        loop {
+            match buttons.item(index) {
+                Some(button) => {
+                    if &button.inner_html() == "Change user" {
+                        found = true;
+                    }
+                },
+                None => break,
+            }
+            index += 1;
+        }
+
+        assert!(found);
+    }
+}

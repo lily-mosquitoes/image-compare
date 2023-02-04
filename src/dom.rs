@@ -11,6 +11,11 @@ impl DOM {
         DOM::window()?.document()
     }
 
+    pub(crate) fn body_first_element_child(
+    ) -> Option<web_sys::Element> {
+        DOM::document()?.body()?.first_element_child()
+    }
+
     pub(crate) fn get_element_by_id(
         id: &str,
     ) -> Option<web_sys::Element> {

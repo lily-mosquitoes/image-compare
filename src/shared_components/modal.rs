@@ -12,7 +12,6 @@ use yew::{
 use crate::{
     dom::DOM,
     shared_components::Button,
-    MAIN_SECTION_ID,
 };
 
 pub(crate) fn open_modal(id: &str) -> Callback<()> {
@@ -48,9 +47,8 @@ pub(crate) struct ModalProps {
 
 #[function_component]
 pub(crate) fn Modal(props: &ModalProps) -> Html {
-    let modal_host = DOM::get_element_by_id(MAIN_SECTION_ID).expect(
-        &format!("Expected to find a #{} element", MAIN_SECTION_ID),
-    );
+    let modal_host = DOM::body_first_element_child()
+        .expect("first section of body to be rendered");
 
     create_portal(
         html! {
