@@ -50,11 +50,37 @@ impl DOM {
         }
     }
 
-    pub(super) fn user_agent() -> Option<String> {
+    pub(crate) fn user_agent() -> Option<String> {
         DOM::window()?.navigator().user_agent().ok()
     }
 
-    pub(super) fn language() -> Option<String> {
+    pub(crate) fn language() -> Option<String> {
         DOM::window()?.navigator().language()
+    }
+}
+
+#[cfg(test)]
+impl DOM {
+    pub(crate) fn has_button_with_inner_html(
+        inner_html: &str,
+    ) -> bool {
+        let buttons = DOM::document()
+            .expect("document to be rendered")
+            .get_elements_by_tag_name("button");
+
+        let mut index = 0;
+        let mut found = false;
+        loop {
+            match buttons.item(index) {
+                Some(button) => {
+                    if &button.inner_html() == inner_html {
+                        found = true;
+                    }
+                },
+                None => break,
+            }
+            index += 1;
+        }
+        found
     }
 }

@@ -93,33 +93,30 @@ mod tests {
     use super::ImagesToCompare;
     use crate::{
         dom::DOM,
-        test_helpers::render_yew_component,
+        render_yew_component,
     };
 
     wasm_bindgen_test_configure!(run_in_browser);
 
     #[wasm_bindgen_test]
-    async fn images_to_compare_has_button_to_change_user() {
+    async fn button_to_change_user_exists() {
         render_yew_component!(ImagesToCompare);
 
-        let buttons = DOM::document()
-            .expect("document to be rendered")
-            .get_elements_by_tag_name("button");
+        let change_user_button_text = "Change user";
 
-        let mut index = 0;
-        let mut found = false;
-        loop {
-            match buttons.item(index) {
-                Some(button) => {
-                    if &button.inner_html() == "Change user" {
-                        found = true;
-                    }
-                },
-                None => break,
-            }
-            index += 1;
-        }
+        assert!(DOM::has_button_with_inner_html(
+            change_user_button_text
+        ));
+    }
 
-        assert!(found);
+    #[wasm_bindgen_test]
+    async fn button_to_finish_comparing_exists() {
+        render_yew_component!(ImagesToCompare);
+
+        let finish_comparing_button_text = "I'm done with 0 votes!";
+
+        assert!(DOM::has_button_with_inner_html(
+            finish_comparing_button_text
+        ));
     }
 }

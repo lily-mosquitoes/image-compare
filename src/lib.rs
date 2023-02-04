@@ -44,7 +44,7 @@ pub fn app() -> Html {
 }
 
 #[cfg(test)]
-pub(crate) mod test_helpers {
+pub(crate) mod macros_for_tests {
     macro_rules! wasm_sleep {
         ($time_in_ms:literal) => {
             yew::platform::time::sleep(
@@ -63,11 +63,14 @@ pub(crate) mod test_helpers {
             )
             .render();
 
-            crate::test_helpers::wasm_sleep!(100);
+            crate::macros_for_tests::wasm_sleep!(100);
         };
     }
     pub(crate) use render_yew_component;
 }
+
+#[cfg(test)]
+pub(crate) use macros_for_tests::*;
 
 // #[cfg(test)]
 // mod tests {
