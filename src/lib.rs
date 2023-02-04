@@ -8,6 +8,7 @@ pub(crate) mod yew_tester;
 // use wasm_bindgen::JsCast;
 // use web_sys;
 use yew::{
+    classes,
     function_component,
     html,
     Html,
@@ -30,7 +31,14 @@ pub fn app() -> Html {
         <BrowserRouter>
             <section
                 id={MAIN_SECTION_ID}
-                class="h-screen font-hyperlegible bg-gradient-to-tr from-stone-700 via-stone-700 to-stone-500"
+                class={classes![
+                    "h-screen",
+                    "font-hyperlegible",
+                    "bg-gradient-to-tr",
+                    "from-stone-700",
+                    "via-stone-700",
+                    "to-stone-500",
+                ]}
             >
                 <Switch<Route> render={switch} />
             </section>

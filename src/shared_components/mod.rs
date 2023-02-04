@@ -1,5 +1,11 @@
 pub(crate) mod button;
+pub(crate) mod loading;
 pub(crate) mod modal;
 
 pub(crate) use button::Button;
-pub(crate) use modal::Modal;
+pub(crate) use loading::Loading;
+pub(crate) use modal::{
+    close_modal,
+    open_modal,
+    Modal,
+};

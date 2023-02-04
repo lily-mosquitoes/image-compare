@@ -1,4 +1,5 @@
 use yew::{
+    classes,
     function_component,
     html,
     Callback,
@@ -21,7 +22,7 @@ pub(crate) fn button(props: &ButtonProps) -> Html {
 
     html! {
         <button
-            class="text-5xl"
+            class={classes!["text-5xl"]}
             onclick={onclick}
         >
             { &props.text }

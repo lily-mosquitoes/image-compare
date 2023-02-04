@@ -3,6 +3,7 @@ mod header;
 mod image_list;
 
 use yew::{
+    classes,
     function_component,
     html,
     use_effect,
@@ -71,7 +72,7 @@ pub(crate) fn images_to_compare() -> Html {
     html! {
         <section id="compare">
             <Header />
-            <section class="flex flex-row">
+            <section class={classes!["flex", "flex-row"]}>
                 <ImageList
                     loading={(*loading).clone()}
                     images={(*image_list).clone()}

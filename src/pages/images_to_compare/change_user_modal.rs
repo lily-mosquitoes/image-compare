@@ -1,4 +1,5 @@
 use yew::{
+    classes,
     function_component,
     html,
     Html,
@@ -18,7 +19,7 @@ pub(super) fn change_user_modal(
 ) -> Html {
     html! {
         <Modal id={props.id.clone()}>
-            <p class="text-5xl">{ "content" }</p>
+            <p class={classes!["text-5xl"]}>{ "content" }</p>
         </Modal>
     }
 }
