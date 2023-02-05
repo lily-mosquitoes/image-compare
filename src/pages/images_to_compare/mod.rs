@@ -207,29 +207,4 @@ mod tests {
         wasm_sleep!(100);
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
     }
-
-    // #[wasm_bindgen_test]
-    // async fn choosing_second_image_increases_vote_counter() {
-    //     render_yew_component!(ImagesToCompare);
-    //
-    //     wasm_sleep!(1000);
-    //
-    //     if let Some(images) = DOM::get_images() {
-    //         let image = images[1]
-    //             .clone()
-    //             .dyn_into::<web_sys::HtmlElement>()
-    //             .expect("Element to be castable to HtmlElement");
-    //
-    //         image.click();
-    //
-    //         wasm_sleep!(1000);
-    //     };
-    //
-    //     let finish_comparing_button_text = "I'm done with 1
-    // votes!";
-    //
-    //     assert!(DOM::has_button_with_inner_html(
-    //         finish_comparing_button_text
-    //     ));
-    // }
 }
