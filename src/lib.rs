@@ -63,7 +63,7 @@ pub(crate) mod macros_for_tests {
             )
             .render();
 
-            crate::macros_for_tests::wasm_sleep!(100);
+            crate::macros_for_tests::wasm_sleep!(150);
         };
     }
     pub(crate) use render_yew_component;

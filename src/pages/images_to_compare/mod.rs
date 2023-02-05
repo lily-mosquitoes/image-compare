@@ -113,7 +113,7 @@ pub(crate) fn images_to_compare() -> Html {
 
 #[cfg(test)]
 mod tests {
-    // use wasm_bindgen::JsCast;
+    use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
         wasm_bindgen_test,
         wasm_bindgen_test_configure,
@@ -124,6 +124,7 @@ mod tests {
         dom::DOM,
         render_yew_component,
         request::get_user,
+        wasm_sleep,
     };
 
     wasm_bindgen_test_configure!(run_in_browser);
@@ -171,40 +172,42 @@ mod tests {
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
     }
 
-    // #[wasm_bindgen_test]
-    // async fn request_errors_make_fatal_error_modal_appear() {
-    //     set_should_return_error!();
-    //
-    //     render_yew_component!(ImagesToCompare);
-    //
-    //     assert!(DOM::get_element_by_id("fatal_error_modal").
-    // is_some()); }
+    #[wasm_bindgen_test]
+    async fn choosing_first_image_loads_new_images() {
+        render_yew_component!(ImagesToCompare);
 
-    // #[wasm_bindgen_test]
-    // async fn choosing_first_image_increases_vote_counter() {
-    //     render_yew_component!(ImagesToCompare);
-    //
-    //     wasm_sleep!(1000);
-    //
-    //     if let Some(images) = DOM::get_images() {
-    //         let image = images[0]
-    //             .clone()
-    //             .dyn_into::<web_sys::HtmlElement>()
-    //             .expect("Element to be castable to HtmlElement");
-    //
-    //         image.click();
-    //
-    //         wasm_sleep!(1000);
-    //     };
-    //
-    //     let finish_comparing_button_text = "I'm done with 1
-    // votes!";
-    //
-    //     assert!(DOM::has_button_with_inner_html(
-    //         finish_comparing_button_text
-    //     ));
-    // }
-    //
+        let images = DOM::get_images().expect("Images to be present");
+
+        let image = images[0]
+            .clone()
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        image.click();
+        wasm_sleep!(50);
+        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 0);
+        wasm_sleep!(100);
+        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
+    }
+
+    #[wasm_bindgen_test]
+    async fn choosing_second_image_loads_new_images() {
+        render_yew_component!(ImagesToCompare);
+
+        let images = DOM::get_images().expect("Images to be present");
+
+        let image = images[1]
+            .clone()
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        image.click();
+        wasm_sleep!(50);
+        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 0);
+        wasm_sleep!(100);
+        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
+    }
+
     // #[wasm_bindgen_test]
     // async fn choosing_second_image_increases_vote_counter() {
     //     render_yew_component!(ImagesToCompare);

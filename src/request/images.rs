@@ -20,6 +20,8 @@ impl ImagesResponse {
 
 #[cfg(test)]
 pub(crate) async fn get_images() -> Result<Vec<Image>, ()> {
+    crate::wasm_sleep!(50);
+
     Ok(ImagesResponse::default().to_vec())
 }
 
