@@ -21,7 +21,6 @@ pub(super) struct HeaderProps {
 
 #[function_component(Header)]
 pub(super) fn header(props: &HeaderProps) -> Html {
-    let change_user_modal_id = "change_user_modal".to_string();
     let show_change_user_modal = use_state_eq(|| false);
 
     let open_change_user_modal = {
@@ -60,7 +59,6 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             />
             if *show_change_user_modal {
                 <ChangeUserModal
-                    id={change_user_modal_id}
                     onclose={close_change_user_modal}
                 />
             }

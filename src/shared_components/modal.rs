@@ -18,7 +18,6 @@ use crate::{
 pub(crate) struct ModalProps {
     pub(crate) id: String,
     pub(crate) onclose: Callback<()>,
-    #[prop_or_default]
     pub(crate) children: Children,
 }
 
@@ -74,7 +73,7 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                     </section>
                     <section
                         id="modal_body"
-                        class={classes!["flex", "p-8"]}
+                        class={classes!["flex", "flex-col", "p-8"]}
                     >
                         {for props.children.iter()}
                     </section>

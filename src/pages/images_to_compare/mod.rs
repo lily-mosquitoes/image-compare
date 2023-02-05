@@ -25,23 +25,32 @@ use crate::{
         Image,
         User,
     },
+    shared_components::FatalErrorModal,
 };
 
 #[function_component(ImagesToCompare)]
 pub(crate) fn images_to_compare() -> Html {
-    let show_error_modal = use_state_eq(|| false);
+    let show_fatal_error_modal = use_state_eq(|| false);
     let loading = use_state_eq(|| true);
     let image_list = use_state_eq(|| Vec::<Image>::new());
     let user_info = use_state_eq(|| User::default());
     let selected_image = use_state(|| None);
 
+    let close_fatal_error_modal = {
+        let show_fatal_error_modal = show_fatal_error_modal.clone();
+        Callback::from(move |_| {
+            show_fatal_error_modal.set(false);
+        })
+    };
+
     {
+        let show_fatal_error_modal = show_fatal_error_modal.clone();
         let loading = loading.clone();
         let image_list = image_list.clone();
         let user_info = user_info.clone();
 
         use_effect(move || {
-            if *loading && !*show_error_modal {
+            if *loading && !*show_fatal_error_modal {
                 let t = wasm_bindgen::JsValue::from("changing...");
                 web_sys::console::log_1(&t);
 
@@ -59,7 +68,7 @@ pub(crate) fn images_to_compare() -> Html {
                                 );
                             web_sys::console::log_1(&debug_string);
                         },
-                        (_, _) => show_error_modal.set(true),
+                        (_, _) => show_fatal_error_modal.set(true),
                     }
                 });
             }
@@ -93,6 +102,9 @@ pub(crate) fn images_to_compare() -> Html {
                     onclick={on_image_select}
                 />
             </section>
+            if *show_fatal_error_modal {
+                <FatalErrorModal onclose={close_fatal_error_modal} />
+            }
         </section>
     }
 }
