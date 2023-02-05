@@ -9,11 +9,14 @@ use yew::{
 };
 
 use super::change_user_modal::ChangeUserModal;
-use crate::shared_components::Button;
+use crate::{
+    request::User,
+    shared_components::Button,
+};
 
 #[derive(Properties, PartialEq)]
 pub(super) struct HeaderProps {
-    pub(super) votes: usize,
+    pub(super) user: User,
 }
 
 #[function_component(Header)]
@@ -32,7 +35,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
     };
 
     let votes_count_text =
-        format!("I'm done with {} votes!", props.votes.clone());
+        format!("I'm done with {} votes!", props.user.votes.clone());
 
     html! {
         <section

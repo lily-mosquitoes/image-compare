@@ -1,6 +1,26 @@
-pub(crate) mod images_to_compare;
+pub(crate) mod images;
+pub(crate) mod user;
 
-pub(crate) use images_to_compare::{
-    get_images,
-    Image,
+use chrono::{
+    DateTime,
+    Utc,
 };
+use serde::Deserialize;
+
+pub(crate) use self::{
+    images::{
+        get_images,
+        Image,
+    },
+    user::{
+        get_user,
+        User,
+    },
+};
+
+#[derive(Deserialize)]
+pub(crate) struct Response<T, E> {
+    pub(crate) timestamp: DateTime<Utc>,
+    pub(crate) data: Option<T>,
+    pub(crate) error: Option<E>,
+}

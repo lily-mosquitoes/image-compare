@@ -21,7 +21,9 @@ use crate::{
     dom::DOM,
     request::{
         get_images,
+        get_user,
         Image,
+        User,
     },
 };
 
@@ -30,13 +32,13 @@ pub(crate) fn images_to_compare() -> Html {
     let show_error_modal = use_state_eq(|| false);
     let loading = use_state_eq(|| true);
     let image_list = use_state_eq(|| Vec::<Image>::new());
-    let votes = use_state_eq(|| 0);
+    let user_info = use_state_eq(|| User::default());
     let selected_image = use_state(|| None);
 
     {
         let loading = loading.clone();
         let image_list = image_list.clone();
-        let votes = votes.clone();
+        let user_info = user_info.clone();
 
         use_effect(move || {
             if *loading && !*show_error_modal {
@@ -44,10 +46,12 @@ pub(crate) fn images_to_compare() -> Html {
                 web_sys::console::log_1(&t);
 
                 wasm_bindgen_futures::spawn_local(async move {
-                    match get_images().await {
-                        Ok(response) => {
-                            image_list.set(response.images);
-                            votes.set(response.user.votes);
+                    let images_response = get_images().await;
+                    let user_response = get_user().await;
+                    match (images_response, user_response) {
+                        (Ok(images), Ok(user)) => {
+                            image_list.set(images);
+                            user_info.set(user);
                             loading.set(false);
                             let debug_string =
                                 wasm_bindgen::JsValue::from(
@@ -55,7 +59,7 @@ pub(crate) fn images_to_compare() -> Html {
                                 );
                             web_sys::console::log_1(&debug_string);
                         },
-                        Err(_) => show_error_modal.set(true),
+                        (_, _) => show_error_modal.set(true),
                     }
                 });
             }
@@ -81,7 +85,7 @@ pub(crate) fn images_to_compare() -> Html {
 
     html! {
         <section id="compare">
-            <Header votes={(*votes).clone()}/>
+            <Header user={(*user_info).clone()}/>
             <section class={classes!["flex", "flex-row"]}>
                 <ImageList
                     loading={(*loading).clone()}
@@ -106,7 +110,7 @@ mod tests {
         dom::DOM,
         macros_for_tests::wasm_sleep,
         render_yew_component,
-        request::get_images,
+        request::get_user,
     };
 
     wasm_bindgen_test_configure!(run_in_browser);
@@ -126,11 +130,10 @@ mod tests {
     async fn button_to_finish_comparing_exists() {
         render_yew_component!(ImagesToCompare);
 
-        let response = get_images()
-            .await
-            .expect("request to return Ok response");
+        let user_info =
+            get_user().await.expect("Request to return Ok response");
         let finish_comparing_button_text =
-            format!("I'm done with {} votes!", response.user.votes);
+            format!("I'm done with {} votes!", user_info.votes);
 
         assert!(DOM::has_button_with_inner_html(
             &finish_comparing_button_text
