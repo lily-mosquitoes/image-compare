@@ -6,14 +6,17 @@ pub(crate) struct User {
     pub(crate) average_chosen_lambda: Option<f64>,
 }
 
+#[cfg(test)]
+pub(crate) async fn get_user() -> Result<User, ()> {
+    Ok(User::default())
+}
+
+#[cfg(not(test))]
 pub(crate) async fn get_user() -> Result<User, ()> {
     yew::platform::time::sleep(std::time::Duration::from_millis(500))
         .await;
 
-    let user = User {
-        votes: 0,
-        average_chosen_lambda: None,
-    };
+    let user = User::default();
 
     Ok(user)
 }

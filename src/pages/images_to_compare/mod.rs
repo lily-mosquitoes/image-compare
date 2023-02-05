@@ -120,7 +120,6 @@ mod tests {
     use super::ImagesToCompare;
     use crate::{
         dom::DOM,
-        macros_for_tests::wasm_sleep,
         render_yew_component,
         request::get_user,
     };
@@ -142,10 +141,21 @@ mod tests {
     async fn button_to_finish_comparing_exists() {
         render_yew_component!(ImagesToCompare);
 
-        let user_info =
+        let finish_comparing_button_text = "I'm done with 0 votes!";
+
+        assert!(DOM::has_button_with_inner_html(
+            finish_comparing_button_text
+        ));
+    }
+
+    #[wasm_bindgen_test]
+    async fn button_to_finish_comparing_shows_user_votes() {
+        render_yew_component!(ImagesToCompare);
+
+        let user =
             get_user().await.expect("Request to return Ok response");
         let finish_comparing_button_text =
-            format!("I'm done with {} votes!", user_info.votes);
+            format!("I'm done with {} votes!", user.votes);
 
         assert!(DOM::has_button_with_inner_html(
             &finish_comparing_button_text
@@ -156,10 +166,17 @@ mod tests {
     async fn two_images_to_compare_exist() {
         render_yew_component!(ImagesToCompare);
 
-        wasm_sleep!(1000);
-
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
     }
+
+    // #[wasm_bindgen_test]
+    // async fn request_errors_make_fatal_error_modal_appear() {
+    //     set_should_return_error!();
+    //
+    //     render_yew_component!(ImagesToCompare);
+    //
+    //     assert!(DOM::get_element_by_id("fatal_error_modal").
+    // is_some()); }
 
     // #[wasm_bindgen_test]
     // async fn choosing_first_image_increases_vote_counter() {

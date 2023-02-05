@@ -18,6 +18,21 @@ impl ImagesResponse {
     }
 }
 
+#[cfg(test)]
+pub(crate) async fn get_images() -> Result<Vec<Image>, ()> {
+    Ok(vec![
+        Image {
+            id: 0,
+            src: "https://i.imgur.com/3ByU8xj.png".to_string(),
+        },
+        Image {
+            id: 1,
+            src: "https://i.imgur.com/KN2lyRT.png".to_string(),
+        },
+    ])
+}
+
+#[cfg(not(test))]
 pub(crate) async fn get_images() -> Result<Vec<Image>, ()> {
     yew::platform::time::sleep(std::time::Duration::from_millis(500))
         .await;
