@@ -23,6 +23,7 @@ use crate::{
         get_images,
         get_user,
         Image,
+        ImagesResponse,
         User,
     },
     shared_components::FatalErrorModal,
@@ -32,7 +33,8 @@ use crate::{
 pub(crate) fn images_to_compare() -> Html {
     let show_fatal_error_modal = use_state_eq(|| false);
     let loading = use_state_eq(|| true);
-    let image_list = use_state_eq(|| Vec::<Image>::new());
+    let image_list =
+        use_state_eq(|| ImagesResponse::default().to_vec());
     let user_info = use_state_eq(|| User::default());
     let selected_image = use_state(|| None);
 

@@ -1,35 +1,26 @@
 use serde::Deserialize;
 
-#[derive(Clone, PartialEq, Deserialize)]
+#[derive(Clone, PartialEq, Default, Deserialize)]
 pub(crate) struct Image {
     pub(crate) id: usize,
     pub(crate) src: String,
 }
 
-#[derive(Deserialize)]
-struct ImagesResponse {
-    image1: Image,
-    image2: Image,
+#[derive(Deserialize, Default)]
+pub(crate) struct ImagesResponse {
+    pub(crate) image1: Image,
+    pub(crate) image2: Image,
 }
 
 impl ImagesResponse {
-    fn to_vec(&self) -> Vec<Image> {
+    pub(crate) fn to_vec(&self) -> Vec<Image> {
         vec![self.image1.clone(), self.image2.clone()]
     }
 }
 
 #[cfg(test)]
 pub(crate) async fn get_images() -> Result<Vec<Image>, ()> {
-    Ok(vec![
-        Image {
-            id: 0,
-            src: "https://i.imgur.com/3ByU8xj.png".to_string(),
-        },
-        Image {
-            id: 1,
-            src: "https://i.imgur.com/KN2lyRT.png".to_string(),
-        },
-    ])
+    Ok(ImagesResponse::default().to_vec())
 }
 
 #[cfg(not(test))]

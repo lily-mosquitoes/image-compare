@@ -11,6 +11,7 @@ pub(crate) use self::{
     images::{
         get_images,
         Image,
+        ImagesResponse,
     },
     user::{
         get_user,
