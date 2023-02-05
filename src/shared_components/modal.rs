@@ -67,6 +67,7 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                         ]}
                     >
                         <Button
+                            id={"close_modal_button"}
                             text={ "X" }
                             onclick={close_modal}
                         />

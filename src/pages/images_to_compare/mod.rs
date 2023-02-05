@@ -1,6 +1,7 @@
 mod change_user_modal;
 mod header;
 mod image_list;
+mod instructions_modal;
 
 use yew::{
     classes,
@@ -16,6 +17,7 @@ use yew::{
 use self::{
     header::Header,
     image_list::ImageList,
+    instructions_modal::InstructionsModal,
 };
 use crate::{
     dom::DOM,
@@ -32,6 +34,7 @@ use crate::{
 #[function_component(ImagesToCompare)]
 pub(crate) fn images_to_compare() -> Html {
     let show_fatal_error_modal = use_state_eq(|| false);
+    let show_instructions_modal = use_state_eq(|| true);
     let loading = use_state_eq(|| true);
     let image_list =
         use_state_eq(|| ImagesResponse::default().to_vec());
@@ -45,7 +48,15 @@ pub(crate) fn images_to_compare() -> Html {
         })
     };
 
+    let close_instructions_modal = {
+        let show_instructions_modal = show_instructions_modal.clone();
+        Callback::from(move |_| {
+            show_instructions_modal.set(false);
+        })
+    };
+
     {
+        let show_instructions_modal = show_instructions_modal.clone();
         let show_fatal_error_modal = show_fatal_error_modal.clone();
         let loading = loading.clone();
         let image_list = image_list.clone();
@@ -62,6 +73,9 @@ pub(crate) fn images_to_compare() -> Html {
                     match (images_response, user_response) {
                         (Ok(images), Ok(user)) => {
                             image_list.set(images);
+                            if user.votes > 0 {
+                                show_instructions_modal.set(false);
+                            }
                             user_info.set(user);
                             loading.set(false);
                             let debug_string =
@@ -104,6 +118,9 @@ pub(crate) fn images_to_compare() -> Html {
                     onclick={on_image_select}
                 />
             </section>
+            if *show_instructions_modal && !*show_fatal_error_modal {
+                <InstructionsModal onclose={close_instructions_modal} />
+            }
             if *show_fatal_error_modal {
                 <FatalErrorModal onclose={close_fatal_error_modal} />
             }
@@ -144,11 +161,8 @@ mod tests {
     async fn button_to_finish_comparing_exists() {
         render_yew_component!(ImagesToCompare);
 
-        let finish_comparing_button_text = "I'm done with 0 votes!";
-
-        assert!(DOM::has_button_with_inner_html(
-            finish_comparing_button_text
-        ));
+        assert!(DOM::get_button_by_id("finish_comparing_button")
+            .is_some());
     }
 
     #[wasm_bindgen_test]
@@ -157,12 +171,12 @@ mod tests {
 
         let user =
             get_user().await.expect("Request to return Ok response");
-        let finish_comparing_button_text =
+        let expected_text =
             format!("I'm done with {} votes!", user.votes);
+        let button = DOM::get_button_by_id("finish_comparing_button")
+            .expect("finish_comparing_button to be present");
 
-        assert!(DOM::has_button_with_inner_html(
-            &finish_comparing_button_text
-        ));
+        assert_eq!(button.inner_html(), expected_text);
     }
 
     #[wasm_bindgen_test]
@@ -206,5 +220,18 @@ mod tests {
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 0);
         wasm_sleep!(100);
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
+    }
+
+    #[wasm_bindgen_test]
+    async fn if_user_has_0_votes_show_instructions_modal() {
+        render_yew_component!(ImagesToCompare);
+
+        let user =
+            get_user().await.expect("Request to return Ok response");
+
+        match DOM::get_element_by_id("instructions_modal") {
+            Some(_) => assert_eq!(user.votes, 0),
+            None => assert_ne!(user.votes, 0),
+        };
     }
 }

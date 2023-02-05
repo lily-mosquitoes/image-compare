@@ -9,6 +9,7 @@ use yew::{
 
 #[derive(Properties, PartialEq)]
 pub(crate) struct ButtonProps {
+    pub(crate) id: String,
     pub(crate) text: String,
     pub(crate) onclick: Callback<()>,
 }
@@ -22,6 +23,7 @@ pub(crate) fn button(props: &ButtonProps) -> Html {
 
     html! {
         <button
+            id={props.id.clone()}
             class={classes!["text-5xl", "drop-shadow-2xl"]}
             onclick={onclick}
         >

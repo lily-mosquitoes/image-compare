@@ -7,8 +7,18 @@ pub(crate) struct User {
 }
 
 #[cfg(test)]
+lazy_static::lazy_static! {
+    static ref VOTES_FOR_TESTING: bool = rand::random();
+}
+
+#[cfg(test)]
 pub(crate) async fn get_user() -> Result<User, ()> {
-    Ok(User::default())
+    let mut user = User::default();
+    if *VOTES_FOR_TESTING {
+        user.votes = 1;
+    }
+
+    Ok(user)
 }
 
 #[cfg(not(test))]
@@ -16,7 +26,8 @@ pub(crate) async fn get_user() -> Result<User, ()> {
     yew::platform::time::sleep(std::time::Duration::from_millis(500))
         .await;
 
-    let user = User::default();
+    let mut user = User::default();
+    user.votes = 1;
 
     Ok(user)
 }

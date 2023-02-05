@@ -85,6 +85,16 @@ impl DOM {
 
 #[cfg(test)]
 impl DOM {
+    pub(crate) fn get_button_by_id(
+        id: &str,
+    ) -> Option<web_sys::Element> {
+        let element = DOM::get_element_by_id(id)?;
+        match &element.tag_name() == "BUTTON" {
+            true => Some(element),
+            false => None,
+        }
+    }
+
     pub(crate) fn has_button_with_inner_html(
         inner_html: &str,
     ) -> bool {

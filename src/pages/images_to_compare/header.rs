@@ -50,10 +50,12 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             ]}
         >
             <Button
+                id={"finish_comparing_button"}
                 text={ votes_count_text.clone() }
                 onclick={Callback::from(move |_| ())}
             />
             <Button
+                id={"chage_user_button"}
                 text={ "Change user" }
                 onclick={open_change_user_modal}
             />
