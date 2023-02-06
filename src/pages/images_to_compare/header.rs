@@ -41,9 +41,8 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             id="header"
             class={classes![
                 "bg-stone-200",
-                "h-28",
                 "drop-shadow-2xl",
-                "px-10",
+                "p-10",
                 "flex",
                 "flex-row",
                 "justify-between",
@@ -56,7 +55,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             />
             <Button
                 id={"chage_user_button"}
-                text={ "Change user" }
+                text={ "Reset user" }
                 onclick={open_change_user_modal}
             />
             if *show_change_user_modal {

@@ -2,6 +2,7 @@ mod change_user_modal;
 mod header;
 mod image_list;
 mod instructions_modal;
+mod question_mark;
 
 use yew::{
     classes,
@@ -18,6 +19,7 @@ use self::{
     header::Header,
     image_list::ImageList,
     instructions_modal::InstructionsModal,
+    question_mark::QuestionMark,
 };
 use crate::{
     dom::DOM,
@@ -28,7 +30,10 @@ use crate::{
         ImagesResponse,
         User,
     },
-    shared_components::FatalErrorModal,
+    shared_components::{
+        FatalErrorModal,
+        Footer,
+    },
 };
 
 #[function_component(ImagesToCompare)]
@@ -45,6 +50,13 @@ pub(crate) fn images_to_compare() -> Html {
         let show_fatal_error_modal = show_fatal_error_modal.clone();
         Callback::from(move |_| {
             show_fatal_error_modal.set(false);
+        })
+    };
+
+    let open_instructions_modal = {
+        let show_instructions_modal = show_instructions_modal.clone();
+        Callback::from(move |_| {
+            show_instructions_modal.set(true);
         })
     };
 
@@ -109,15 +121,29 @@ pub(crate) fn images_to_compare() -> Html {
     };
 
     html! {
-        <section id="compare">
+        <section id="compare" class={classes!["flex", "flex-col", "h-full"]}>
             <Header user={(*user_info).clone()}/>
-            <section class={classes!["flex", "flex-row"]}>
+            <section class={classes!["flex-1", "flex", "flex-row"]}>
                 <ImageList
                     loading={(*loading).clone()}
                     images={(*image_list).clone()}
                     onclick={on_image_select}
                 />
             </section>
+            <Footer>
+                <button
+                    id={"open_instructions_modal_button"}
+                    class={classes!["self-end"]}
+                    onclick={open_instructions_modal}
+                >
+                  <QuestionMark
+                    class={classes![
+                        "h-16",
+                        "text-gray-100",
+                    ]}
+                  />
+                </button>
+            </Footer>
             if *show_instructions_modal && !*show_fatal_error_modal {
                 <InstructionsModal onclose={close_instructions_modal} />
             }
@@ -150,7 +176,7 @@ mod tests {
     async fn button_to_change_user_exists() {
         render_yew_component!(ImagesToCompare);
 
-        let change_user_button_text = "Change user";
+        let change_user_button_text = "Reset user";
 
         assert!(DOM::has_button_with_inner_html(
             change_user_button_text
@@ -233,5 +259,34 @@ mod tests {
             Some(_) => assert_eq!(user.votes, 0),
             None => assert_ne!(user.votes, 0),
         };
+    }
+
+    #[wasm_bindgen_test]
+    async fn button_to_show_instructions_modal_exists() {
+        render_yew_component!(ImagesToCompare);
+
+        assert!(DOM::get_button_by_id(
+            "open_instructions_modal_button"
+        )
+        .is_some());
+    }
+
+    #[wasm_bindgen_test]
+    async fn button_to_show_instructions_modal_works() {
+        render_yew_component!(ImagesToCompare);
+
+        let button =
+            DOM::get_button_by_id("open_instructions_modal_button")
+                .expect(
+                    "open_instructions_modal_button to be present",
+                )
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
+
+        button.click();
+        wasm_sleep!(50);
+        assert!(
+            DOM::get_element_by_id("instructions_modal").is_some()
+        );
     }
 }

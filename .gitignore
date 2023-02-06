@@ -1,6 +1,11 @@
+# build artifacts
 /target
 /dist
+
+# tailwind
 /node_modules
-/icon.svg
 styles.css
 !/tailwind-src
+
+# tmp
+icon.svg
