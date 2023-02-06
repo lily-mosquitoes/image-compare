@@ -50,14 +50,16 @@ pub(super) fn header(props: &HeaderProps) -> Html {
         >
             <Button
                 id={"finish_comparing_button"}
-                text={ votes_count_text.clone() }
                 onclick={Callback::from(move |_| ())}
-            />
+            >
+                { votes_count_text.clone() }
+            </Button>
             <Button
                 id={"chage_user_button"}
-                text={ "Reset user" }
                 onclick={open_change_user_modal}
-            />
+            >
+                { "Reset user" }
+            </Button>
             if *show_change_user_modal {
                 <ChangeUserModal
                     onclose={close_change_user_modal}

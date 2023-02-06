@@ -9,7 +9,10 @@ use yew::{
 
 use crate::{
     request::Image,
-    shared_components::Loading,
+    shared_components::{
+        Button,
+        Loading,
+    },
 };
 
 #[derive(Properties, PartialEq)]
@@ -35,24 +38,22 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
 
             if props.loading {
                 html! {
-                    <button
+                    <Button
+                        id={"loading_status_button".to_string()}
                         class={classes![
-                            "drop-shadow-2xl",
                             "m-10",
                             "p-1",
-                            "bg-transparent",
                         ]}
                         disabled=true
                     >
                         <Loading />
-                    </button>
+                    </Button>
                 }
             } else {
                 html! {
-                    <button
+                    <Button
                         id={image.id.to_string()}
                         class={classes![
-                            "drop-shadow-2xl",
                             "m-10",
                             "p-1",
                             "bg-transparent",
@@ -72,7 +73,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                                 src={image.src.clone()}
                             />
                         </div>
-                    </button>
+                    </Button>
                 }
             }
         })

@@ -31,6 +31,7 @@ use crate::{
         User,
     },
     shared_components::{
+        Button,
         FatalErrorModal,
         Footer,
     },
@@ -131,9 +132,8 @@ pub(crate) fn images_to_compare() -> Html {
                 />
             </section>
             <Footer>
-                <button
+                <Button
                     id={"open_instructions_modal_button"}
-                    class={classes!["self-end"]}
                     onclick={open_instructions_modal}
                 >
                   <QuestionMark
@@ -142,7 +142,7 @@ pub(crate) fn images_to_compare() -> Html {
                         "text-gray-100",
                     ]}
                   />
-                </button>
+                </Button>
             </Footer>
             if *show_instructions_modal && !*show_fatal_error_modal {
                 <InstructionsModal onclose={close_instructions_modal} />
