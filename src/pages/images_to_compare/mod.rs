@@ -124,12 +124,17 @@ pub(crate) fn images_to_compare() -> Html {
     html! {
         <section id="compare" class={classes!["flex", "flex-col", "h-full"]}>
             <Header user={(*user_info).clone()}/>
-            <section class={classes!["flex-1", "flex", "flex-row"]}>
-                <ImageList
-                    loading={(*loading).clone()}
-                    images={(*image_list).clone()}
-                    onclick={on_image_select}
-                />
+            <section id="content" class={classes!["flex-1"]}>
+                <section
+                    id="images_list"
+                    class={classes!["flex", "flex-row"]}
+                >
+                    <ImageList
+                        loading={(*loading).clone()}
+                        images={(*image_list).clone()}
+                        onclick={on_image_select}
+                    />
+                </section>
             </section>
             <Footer>
                 <Button
