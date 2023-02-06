@@ -8,15 +8,13 @@ pub(crate) struct User {
 
 #[cfg(test)]
 lazy_static::lazy_static! {
-    static ref VOTES_FOR_TESTING: bool = rand::random();
+    static ref VOTES_FOR_TESTING: u8 = rand::random();
 }
 
 #[cfg(test)]
 pub(crate) async fn get_user() -> Result<User, ()> {
     let mut user = User::default();
-    if *VOTES_FOR_TESTING {
-        user.votes = 1;
-    }
+    user.votes = (*VOTES_FOR_TESTING % 4) as usize;
 
     Ok(user)
 }
