@@ -40,7 +40,7 @@ use crate::{
 #[function_component(ImagesToCompare)]
 pub(crate) fn images_to_compare() -> Html {
     let show_fatal_error_modal = use_state_eq(|| false);
-    let show_instructions_modal = use_state_eq(|| true);
+    let show_instructions_modal = use_state_eq(|| false);
     let loading = use_state_eq(|| true);
     let images_to_compare = use_state_eq(|| None);
     let user_info = use_state_eq(|| User::default());
@@ -67,8 +67,8 @@ pub(crate) fn images_to_compare() -> Html {
     };
 
     {
-        let show_instructions_modal = show_instructions_modal.clone();
         let show_fatal_error_modal = show_fatal_error_modal.clone();
+        let show_instructions_modal = show_instructions_modal.clone();
         let loading = loading.clone();
         let images_to_compare = images_to_compare.clone();
         let images_to_compare_as_dependency =
@@ -84,15 +84,14 @@ pub(crate) fn images_to_compare() -> Html {
                         match (images_response, user_response) {
                             (Ok(images), Ok(user)) => {
                                 loading.set(false);
-                                if user.votes > 0 {
-                                    show_instructions_modal
-                                        .set(false);
+                                if user.votes == 0 {
+                                    show_instructions_modal.set(true);
                                 }
                                 user_info.set(user);
                                 images_to_compare.set(Some(images));
                             },
                             (_, _) => {
-                                show_fatal_error_modal.set(true)
+                                show_fatal_error_modal.set(true);
                             },
                         }
                     });
