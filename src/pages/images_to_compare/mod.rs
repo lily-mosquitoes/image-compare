@@ -8,8 +8,7 @@ use yew::{
     classes,
     function_component,
     html,
-    use_effect,
-    use_state,
+    use_effect_with_deps,
     use_state_eq,
     Callback,
     Html,
@@ -22,10 +21,11 @@ use self::{
     question_mark::QuestionMark,
 };
 use crate::{
-    dom::DOM,
     request::{
         get_images,
         get_user,
+        post_chosen_image,
+        ChosenImage,
         Image,
         ImagesResponse,
         User,
@@ -42,10 +42,8 @@ pub(crate) fn images_to_compare() -> Html {
     let show_fatal_error_modal = use_state_eq(|| false);
     let show_instructions_modal = use_state_eq(|| true);
     let loading = use_state_eq(|| true);
-    let image_list =
-        use_state_eq(|| ImagesResponse::default().to_vec());
+    let images_to_compare = use_state_eq(|| None);
     let user_info = use_state_eq(|| User::default());
-    let selected_image = use_state(|| None);
 
     let close_fatal_error_modal = {
         let show_fatal_error_modal = show_fatal_error_modal.clone();
@@ -72,53 +70,62 @@ pub(crate) fn images_to_compare() -> Html {
         let show_instructions_modal = show_instructions_modal.clone();
         let show_fatal_error_modal = show_fatal_error_modal.clone();
         let loading = loading.clone();
-        let image_list = image_list.clone();
+        let images_to_compare = images_to_compare.clone();
+        let images_to_compare_as_dependency =
+            images_to_compare.clone();
         let user_info = user_info.clone();
 
-        use_effect(move || {
-            if *loading && !*show_fatal_error_modal {
-                let t = wasm_bindgen::JsValue::from("changing...");
-                web_sys::console::log_1(&t);
-
-                wasm_bindgen_futures::spawn_local(async move {
-                    let images_response = get_images().await;
-                    let user_response = get_user().await;
-                    match (images_response, user_response) {
-                        (Ok(images), Ok(user)) => {
-                            image_list.set(images);
-                            if user.votes > 0 {
-                                show_instructions_modal.set(false);
-                            }
-                            user_info.set(user);
-                            loading.set(false);
-                            let debug_string =
-                                wasm_bindgen::JsValue::from(
-                                    "changed",
-                                );
-                            web_sys::console::log_1(&debug_string);
-                        },
-                        (_, _) => show_fatal_error_modal.set(true),
-                    }
-                });
-            }
-        });
+        use_effect_with_deps(
+            move |_| {
+                if *loading && !*show_fatal_error_modal {
+                    wasm_bindgen_futures::spawn_local(async move {
+                        let images_response = get_images().await;
+                        let user_response = get_user().await;
+                        match (images_response, user_response) {
+                            (Ok(images), Ok(user)) => {
+                                loading.set(false);
+                                if user.votes > 0 {
+                                    show_instructions_modal
+                                        .set(false);
+                                }
+                                user_info.set(user);
+                                images_to_compare.set(Some(images));
+                            },
+                            (_, _) => {
+                                show_fatal_error_modal.set(true)
+                            },
+                        }
+                    });
+                }
+            },
+            images_to_compare_as_dependency,
+        );
     }
 
     let on_image_select = {
+        let show_fatal_error_modal = show_fatal_error_modal.clone();
         let loading = loading.clone();
-        let selected_image = selected_image.clone();
+        let images_to_compare = images_to_compare.clone();
 
         Callback::from(move |image: Image| {
             loading.set(true);
-            let debug_string = wasm_bindgen::JsValue::from(format!(
-                "image chosen: {},  user agent: {:?}, language: {:?}",
-                &image.id.to_string(),
-                DOM::user_agent(),
-                DOM::language(),
-            ));
-            web_sys::console::log_1(&debug_string);
-            selected_image.set(Some(image));
+            let show_fatal_error_modal =
+                show_fatal_error_modal.clone();
+            let images_to_compare = images_to_compare.clone();
+            wasm_bindgen_futures::spawn_local(async move {
+                let response =
+                    post_chosen_image(ChosenImage::from(image)).await;
+                match response {
+                    Ok(_) => images_to_compare.set(None),
+                    Err(_) => show_fatal_error_modal.set(true),
+                }
+            });
         })
+    };
+
+    let image_list_to_display = match (*images_to_compare).clone() {
+        Some(images) => images.to_vec(),
+        None => ImagesResponse::default().to_vec(),
     };
 
     html! {
@@ -131,7 +138,7 @@ pub(crate) fn images_to_compare() -> Html {
                 >
                     <ImageList
                         loading={(*loading).clone()}
-                        images={(*image_list).clone()}
+                        images={image_list_to_display}
                         onclick={on_image_select}
                     />
                 </section>

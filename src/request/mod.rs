@@ -10,6 +10,8 @@ use serde::Deserialize;
 pub(crate) use self::{
     images::{
         get_images,
+        post_chosen_image,
+        ChosenImage,
         Image,
         ImagesResponse,
     },

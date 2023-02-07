@@ -1,5 +1,12 @@
 use wasm_bindgen::JsValue;
 
+macro_rules! console_error {
+    ($str:tt) => {
+        web_sys::console::error_1(&wasm_bindgen::JsValue::from($str));
+    };
+}
+pub(crate) use console_error;
+
 pub(crate) struct DOM;
 
 impl DOM {
