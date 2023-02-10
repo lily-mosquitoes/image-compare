@@ -1,22 +1,9 @@
 use serde::Deserialize;
 
-#[derive(Clone, PartialEq, Deserialize, Default)]
+#[derive(Clone, PartialEq, Default, Deserialize)]
 pub(crate) struct User {
     pub(crate) votes: usize,
     pub(crate) average_chosen_lambda: Option<f64>,
-}
-
-#[cfg(test)]
-lazy_static::lazy_static! {
-    static ref VOTES_FOR_TESTING: u8 = rand::random();
-}
-
-#[cfg(test)]
-pub(crate) async fn get_user() -> Result<User, ()> {
-    let mut user = User::default();
-    user.votes = (*VOTES_FOR_TESTING % 4) as usize;
-
-    Ok(user)
 }
 
 #[cfg(not(test))]
@@ -28,4 +15,29 @@ pub(crate) async fn get_user() -> Result<User, ()> {
     user.votes = 1;
 
     Ok(user)
+}
+
+#[cfg(test)]
+use std::sync::atomic::{
+    AtomicBool,
+    AtomicUsize,
+    Ordering,
+};
+
+#[cfg(test)]
+pub(crate) static GET_USER_RETURNS_OK: AtomicBool =
+    AtomicBool::new(true);
+
+#[cfg(test)]
+pub(crate) static VOTES_TO_DISPLAY: AtomicUsize = AtomicUsize::new(0);
+
+#[cfg(test)]
+pub(crate) async fn get_user() -> Result<User, ()> {
+    if GET_USER_RETURNS_OK.load(Ordering::SeqCst) {
+        let mut user = User::default();
+        user.votes = VOTES_TO_DISPLAY.load(Ordering::SeqCst);
+        Ok(user)
+    } else {
+        Err(())
+    }
 }

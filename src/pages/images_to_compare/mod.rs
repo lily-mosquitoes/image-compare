@@ -167,6 +167,8 @@ pub(crate) fn images_to_compare() -> Html {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::atomic::Ordering;
+
     use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
         wasm_bindgen_test,
@@ -177,7 +179,14 @@ mod tests {
     use crate::{
         dom::DOM,
         render_yew_component,
-        request::get_user,
+        request::{
+            get_user,
+            images::GET_IMAGES_RETURNS_OK,
+            user::{
+                GET_USER_RETURNS_OK,
+                VOTES_TO_DISPLAY,
+            },
+        },
         wasm_sleep,
     };
 
@@ -204,10 +213,14 @@ mod tests {
 
     #[wasm_bindgen_test]
     async fn button_to_finish_comparing_shows_user_votes() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        VOTES_TO_DISPLAY.store(rand::random(), Ordering::SeqCst);
+
         render_yew_component!(ImagesToCompare);
 
         let user =
-            get_user().await.expect("Request to return Ok response");
+            get_user().await.expect("request to return Ok response");
         let expected_text =
             format!("I'm done with {} votes!", user.votes);
         let button = DOM::get_button_by_id("finish_comparing_button")
@@ -217,7 +230,30 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    async fn show_fatal_error_modal_when_get_user_returns_error() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(false, Ordering::SeqCst);
+
+        render_yew_component!(ImagesToCompare);
+
+        assert!(DOM::get_element_by_id("fatal_error_modal").is_some());
+    }
+
+    #[wasm_bindgen_test()]
+    async fn show_fatal_error_modal_when_get_images_returns_error() {
+        GET_IMAGES_RETURNS_OK.store(false, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+
+        render_yew_component!(ImagesToCompare);
+
+        assert!(DOM::get_element_by_id("fatal_error_modal").is_some());
+    }
+
+    #[wasm_bindgen_test]
     async fn two_images_to_compare_exist() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+
         render_yew_component!(ImagesToCompare);
 
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
@@ -225,6 +261,9 @@ mod tests {
 
     #[wasm_bindgen_test]
     async fn choosing_first_image_loads_new_images() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+
         render_yew_component!(ImagesToCompare);
 
         let images = DOM::get_images().expect("Images to be present");
@@ -235,14 +274,17 @@ mod tests {
             .expect("Element to be castable to HtmlElement");
 
         image.click();
-        wasm_sleep!(50);
+        wasm_sleep!(50); // allow page to re-render
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 0);
-        wasm_sleep!(100);
+        wasm_sleep!(100); // allow images to actually load
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
     }
 
     #[wasm_bindgen_test]
     async fn choosing_second_image_loads_new_images() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+
         render_yew_component!(ImagesToCompare);
 
         let images = DOM::get_images().expect("Images to be present");
@@ -253,23 +295,23 @@ mod tests {
             .expect("Element to be castable to HtmlElement");
 
         image.click();
-        wasm_sleep!(50);
+        wasm_sleep!(50); // allow page to re-render
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 0);
-        wasm_sleep!(100);
+        wasm_sleep!(100); // allow images to actually load
         assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
     }
 
     #[wasm_bindgen_test]
-    async fn if_user_has_0_votes_show_instructions_modal() {
+    async fn when_user_has_0_votes_show_instructions_modal() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
+
         render_yew_component!(ImagesToCompare);
 
-        let user =
-            get_user().await.expect("Request to return Ok response");
-
-        match DOM::get_element_by_id("instructions_modal") {
-            Some(_) => assert_eq!(user.votes, 0),
-            None => assert_ne!(user.votes, 0),
-        };
+        assert!(
+            DOM::get_element_by_id("instructions_modal").is_some()
+        );
     }
 
     #[wasm_bindgen_test]
@@ -295,7 +337,7 @@ mod tests {
                 .expect("Element to be castable to HtmlElement");
 
         button.click();
-        wasm_sleep!(50);
+        wasm_sleep!(50); // allow page to re-render
         assert!(
             DOM::get_element_by_id("instructions_modal").is_some()
         );

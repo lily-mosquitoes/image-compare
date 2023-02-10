@@ -23,13 +23,6 @@ impl ImagesResponse {
     }
 }
 
-#[cfg(test)]
-pub(crate) async fn get_images() -> Result<ImagesResponse, ()> {
-    crate::wasm_sleep!(50);
-
-    Ok(ImagesResponse::default())
-}
-
 #[cfg(not(test))]
 pub(crate) async fn get_images() -> Result<ImagesResponse, ()> {
     yew::platform::time::sleep(std::time::Duration::from_millis(500))
@@ -47,6 +40,28 @@ pub(crate) async fn get_images() -> Result<ImagesResponse, ()> {
     };
 
     Ok(images_response)
+}
+
+#[cfg(test)]
+use std::sync::atomic::{
+    AtomicBool,
+    Ordering,
+};
+
+#[cfg(test)]
+pub(crate) static GET_IMAGES_RETURNS_OK: AtomicBool =
+    AtomicBool::new(true);
+
+#[cfg(test)]
+pub(crate) async fn get_images() -> Result<ImagesResponse, ()> {
+    // sleep a bit to allow test to see the loading status
+    crate::wasm_sleep!(50);
+
+    if GET_IMAGES_RETURNS_OK.load(Ordering::SeqCst) {
+        Ok(ImagesResponse::default())
+    } else {
+        Err(())
+    }
 }
 
 #[derive(Serialize)]
