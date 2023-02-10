@@ -39,9 +39,9 @@ use crate::{
 
 #[function_component(ImagesToCompare)]
 pub(crate) fn images_to_compare() -> Html {
+    let loading = use_state_eq(|| true);
     let show_fatal_error_modal = use_state_eq(|| false);
     let show_instructions_modal = use_state_eq(|| false);
-    let loading = use_state_eq(|| true);
     let images_to_compare = use_state_eq(|| None);
     let user_info = use_state_eq(|| User::default());
 
@@ -66,44 +66,9 @@ pub(crate) fn images_to_compare() -> Html {
         })
     };
 
-    {
-        let show_fatal_error_modal = show_fatal_error_modal.clone();
-        let show_instructions_modal = show_instructions_modal.clone();
-        let loading = loading.clone();
-        let images_to_compare = images_to_compare.clone();
-        let images_to_compare_as_dependency =
-            images_to_compare.clone();
-        let user_info = user_info.clone();
-
-        use_effect_with_deps(
-            move |_| {
-                if *loading && !*show_fatal_error_modal {
-                    wasm_bindgen_futures::spawn_local(async move {
-                        let images_response = get_images().await;
-                        let user_response = get_user().await;
-                        match (images_response, user_response) {
-                            (Ok(images), Ok(user)) => {
-                                loading.set(false);
-                                if user.votes == 0 {
-                                    show_instructions_modal.set(true);
-                                }
-                                user_info.set(user);
-                                images_to_compare.set(Some(images));
-                            },
-                            (_, _) => {
-                                show_fatal_error_modal.set(true);
-                            },
-                        }
-                    });
-                }
-            },
-            images_to_compare_as_dependency,
-        );
-    }
-
     let on_image_select = {
-        let show_fatal_error_modal = show_fatal_error_modal.clone();
         let loading = loading.clone();
+        let show_fatal_error_modal = show_fatal_error_modal.clone();
         let images_to_compare = images_to_compare.clone();
 
         Callback::from(move |image: Image| {
@@ -121,6 +86,43 @@ pub(crate) fn images_to_compare() -> Html {
             });
         })
     };
+
+    let fetch_images_to_compare = {
+        let loading = loading.clone();
+        let show_fatal_error_modal = show_fatal_error_modal.clone();
+        let show_instructions_modal = show_instructions_modal.clone();
+        let images_to_compare = images_to_compare.clone();
+        let user_info = user_info.clone();
+
+        if *loading && !*show_fatal_error_modal {
+            wasm_bindgen_futures::spawn_local(async move {
+                let images_response = get_images().await;
+                let user_response = get_user().await;
+                match (images_response, user_response) {
+                    (Ok(images), Ok(user)) => {
+                        loading.set(false);
+                        if user.votes == 0 {
+                            show_instructions_modal.set(true);
+                        }
+                        user_info.set(user);
+                        images_to_compare.set(Some(images));
+                    },
+                    (_, _) => {
+                        show_fatal_error_modal.set(true);
+                    },
+                }
+            });
+        }
+    };
+
+    {
+        let images_to_compare = images_to_compare.clone();
+
+        use_effect_with_deps(
+            move |_| fetch_images_to_compare,
+            images_to_compare,
+        );
+    }
 
     let image_list_to_display = match (*images_to_compare).clone() {
         Some(images) => images.to_vec(),
