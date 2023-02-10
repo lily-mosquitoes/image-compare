@@ -27,3 +27,37 @@ pub(crate) struct Response<T, E> {
     pub(crate) data: Option<T>,
     pub(crate) error: Option<E>,
 }
+
+#[cfg(test)]
+mod tests {
+    use chrono::Utc;
+    use wasm_bindgen_test::{
+        wasm_bindgen_test,
+        wasm_bindgen_test_configure,
+    };
+
+    use super::Response;
+    wasm_bindgen_test_configure!(run_in_browser);
+
+    #[wasm_bindgen_test]
+    fn response_struct_is_deserializable_with_data_field() {
+        let value = serde_json::json!({
+            "timestamp": Utc::now(),
+            "data": 0,
+        });
+
+        assert!(serde_json::from_value::<Response<usize, ()>>(value)
+            .is_ok());
+    }
+
+    #[wasm_bindgen_test]
+    fn response_struct_is_deserializable_with_error_field() {
+        let value = serde_json::json!({
+            "timestamp": Utc::now(),
+            "error": 0,
+        });
+
+        assert!(serde_json::from_value::<Response<(), usize>>(value)
+            .is_ok());
+    }
+}

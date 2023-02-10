@@ -84,8 +84,10 @@ impl ChosenImage {
 pub(crate) async fn post_chosen_image(
     chosen_image: ChosenImage,
 ) -> Result<(), ()> {
-    let debug_string =
-        wasm_bindgen::JsValue::from(format!("image was chosen"));
+    let debug_string = wasm_bindgen::JsValue::from(format!(
+        "image was chosen: {}",
+        chosen_image.image.id
+    ));
     web_sys::console::log_1(&debug_string);
 
     Ok(())
@@ -101,6 +103,7 @@ mod tests {
     use super::{
         ChosenImage,
         Image,
+        ImagesResponse,
     };
     use crate::dom::DOM;
     wasm_bindgen_test_configure!(run_in_browser);
@@ -117,5 +120,24 @@ mod tests {
         let test_struct = ChosenImage::from(Image::default());
 
         assert_eq!(test_struct.language, DOM::language());
+    }
+
+    #[wasm_bindgen_test]
+    fn chosen_image_struct_is_serializable() {
+        let test_struct = ChosenImage::from(Image::default());
+
+        assert!(serde_json::to_value(test_struct).is_ok())
+    }
+
+    #[wasm_bindgen_test]
+    fn images_response_struct_is_deserializable() {
+        let value = serde_json::json!({
+            "image1": Image::default(),
+            "image2": Image::default(),
+        });
+
+        assert!(
+            serde_json::from_value::<ImagesResponse>(value).is_ok()
+        );
     }
 }

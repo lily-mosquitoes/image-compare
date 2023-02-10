@@ -41,3 +41,24 @@ pub(crate) async fn get_user() -> Result<User, ()> {
         Err(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use wasm_bindgen_test::{
+        wasm_bindgen_test,
+        wasm_bindgen_test_configure,
+    };
+
+    use super::User;
+    wasm_bindgen_test_configure!(run_in_browser);
+
+    #[wasm_bindgen_test]
+    fn user_struct_is_deserializable() {
+        let value = serde_json::json!({
+            "votes": 4,
+            "average_chosen_lambda": 0.65
+        });
+
+        assert!(serde_json::from_value::<User>(value).is_ok());
+    }
+}
