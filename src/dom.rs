@@ -1,5 +1,3 @@
-use wasm_bindgen::JsValue;
-
 macro_rules! console_error {
     ($str:tt) => {
         web_sys::console::error_1(&wasm_bindgen::JsValue::from($str));
@@ -21,6 +19,23 @@ impl DOM {
     pub(crate) fn body_first_element_child(
     ) -> Option<web_sys::Element> {
         DOM::document()?.body()?.first_element_child()
+    }
+
+    pub(crate) fn user_agent() -> Option<String> {
+        DOM::window()?.navigator().user_agent().ok()
+    }
+
+    pub(crate) fn language() -> Option<String> {
+        DOM::window()?.navigator().language()
+    }
+}
+
+#[cfg(test)]
+impl DOM {
+    pub(crate) fn get_element_by_id(
+        id: &str,
+    ) -> Option<web_sys::Element> {
+        DOM::document()?.get_element_by_id(id)
     }
 
     pub(crate) fn get_images() -> Option<Vec<web_sys::Element>> {
@@ -46,52 +61,15 @@ impl DOM {
         }
     }
 
-    pub(crate) fn get_element_by_id(
+    pub(crate) fn get_images_by_id(
         id: &str,
-    ) -> Option<web_sys::Element> {
-        DOM::document()?.get_element_by_id(id)
+    ) -> Option<Vec<web_sys::Element>> {
+        let mut images = DOM::get_images()?;
+        images.retain(|x| x.id().as_str() == id);
+
+        Some(images)
     }
 
-    // uses DomTokenList
-    pub(crate) fn add_class_to_element_by_id(
-        class: &str,
-        id: &str,
-    ) -> Result<(), JsValue> {
-        if let Some(element) = DOM::get_element_by_id(id) {
-            element.class_list().add_1(class)
-        } else {
-            Err(JsValue::from_str(&format!(
-                "could not find element #{}",
-                id
-            )))
-        }
-    }
-
-    pub(crate) fn remove_class_from_element_by_id(
-        class: &str,
-        id: &str,
-    ) -> Result<(), JsValue> {
-        if let Some(element) = DOM::get_element_by_id(id) {
-            element.class_list().remove_1(class)
-        } else {
-            Err(JsValue::from_str(&format!(
-                "could not find element #{}",
-                id
-            )))
-        }
-    }
-
-    pub(crate) fn user_agent() -> Option<String> {
-        DOM::window()?.navigator().user_agent().ok()
-    }
-
-    pub(crate) fn language() -> Option<String> {
-        DOM::window()?.navigator().language()
-    }
-}
-
-#[cfg(test)]
-impl DOM {
     pub(crate) fn get_button_by_id(
         id: &str,
     ) -> Option<web_sys::Element> {

@@ -52,7 +52,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
             } else {
                 html! {
                     <Button
-                        id={image.id.to_string()}
+                        id={"image_to_compare_button"}
                         class={classes![
                             "m-10",
                             "p-1",
@@ -69,6 +69,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                             ]}
                         >
                             <img
+                                id={"image_to_compare"}
                                 class={classes!["w-full", "object-contain"]}
                                 src={image.src.clone()}
                             />

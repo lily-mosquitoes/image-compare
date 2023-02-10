@@ -256,7 +256,12 @@ mod tests {
 
         render_yew_component!(ImagesToCompare);
 
-        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
+        assert_eq!(
+            DOM::get_images_by_id("image_to_compare")
+                .unwrap_or(vec![])
+                .len(),
+            2
+        );
     }
 
     #[wasm_bindgen_test]
@@ -266,7 +271,8 @@ mod tests {
 
         render_yew_component!(ImagesToCompare);
 
-        let images = DOM::get_images().expect("Images to be present");
+        let images = DOM::get_images_by_id("image_to_compare")
+            .expect("Images to compare to be present");
 
         let image = images[0]
             .clone()
@@ -275,9 +281,14 @@ mod tests {
 
         image.click();
         wasm_sleep!(50); // allow page to re-render
-        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 0);
+        assert!(DOM::get_images_by_id("image_to_compare").is_none());
         wasm_sleep!(100); // allow images to actually load
-        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
+        assert_eq!(
+            DOM::get_images_by_id("image_to_compare")
+                .unwrap_or(vec![])
+                .len(),
+            2
+        );
     }
 
     #[wasm_bindgen_test]
@@ -287,7 +298,8 @@ mod tests {
 
         render_yew_component!(ImagesToCompare);
 
-        let images = DOM::get_images().expect("Images to be present");
+        let images = DOM::get_images_by_id("image_to_compare")
+            .expect("Images to compare to be present");
 
         let image = images[1]
             .clone()
@@ -296,9 +308,14 @@ mod tests {
 
         image.click();
         wasm_sleep!(50); // allow page to re-render
-        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 0);
+        assert!(DOM::get_images_by_id("image_to_compare").is_none());
         wasm_sleep!(100); // allow images to actually load
-        assert_eq!(DOM::get_images().unwrap_or(vec![]).len(), 2);
+        assert_eq!(
+            DOM::get_images_by_id("image_to_compare")
+                .unwrap_or(vec![])
+                .len(),
+            2
+        );
     }
 
     #[wasm_bindgen_test]
