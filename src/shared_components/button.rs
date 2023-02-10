@@ -32,8 +32,13 @@ pub(crate) fn button(props: &ButtonProps) -> Html {
         <button
             id={props.id.clone()}
             class={classes![
+                "p-0",
+                "md:p-3",
                 "text-5xl",
                 "drop-shadow-2xl",
+                "rounded-xl",
+                "bg-transparent",
+                "hover:bg-black/[0.4]",
                 props.class.clone(),
             ]}
             onclick={onclick}
