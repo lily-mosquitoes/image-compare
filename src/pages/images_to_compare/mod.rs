@@ -2,7 +2,6 @@ mod change_user_modal;
 mod header;
 mod image_list;
 mod instructions_modal;
-mod question_mark;
 
 use yew::{
     classes,
@@ -18,9 +17,9 @@ use self::{
     header::Header,
     image_list::ImageList,
     instructions_modal::InstructionsModal,
-    question_mark::QuestionMark,
 };
 use crate::{
+    assets::QuestionMarkCircle,
     request::{
         get_images,
         get_user,
@@ -149,12 +148,15 @@ pub(crate) fn images_to_compare() -> Html {
                     id={"open_instructions_modal_button"}
                     onclick={open_instructions_modal}
                 >
-                  <QuestionMark
-                    class={classes![
-                        "h-16",
-                        "text-gray-100",
-                    ]}
-                  />
+                    <QuestionMarkCircle
+                        class={classes![
+                            "h-16",
+                            "stroke-gray-100",
+                        ]}
+                    />
+                    <span class={classes!["sr-only"]}>
+                        { "Instructions" }
+                    </span>
                 </Button>
             </Footer>
             if *show_instructions_modal && !*show_fatal_error_modal {

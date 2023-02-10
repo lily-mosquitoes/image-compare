@@ -1,3 +1,4 @@
+pub(crate) mod assets;
 pub(crate) mod dom;
 pub(crate) mod pages;
 pub(crate) mod request;

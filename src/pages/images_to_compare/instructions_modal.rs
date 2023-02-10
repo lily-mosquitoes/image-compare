@@ -27,3 +27,24 @@ pub(super) fn instructions_modal(
         </Modal>
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use wasm_bindgen_test::{
+        wasm_bindgen_test,
+        wasm_bindgen_test_configure,
+    };
+
+    use super::InstructionsModal;
+    use crate::{
+        dom::DOM,
+        render_yew_component,
+        wasm_sleep,
+    };
+    wasm_bindgen_test_configure!(run_in_browser);
+
+    #[wasm_bindgen_test]
+    fn todo() {
+        // assert!(false);
+    }
+}
