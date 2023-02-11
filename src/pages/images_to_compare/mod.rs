@@ -1,4 +1,5 @@
 mod change_user_modal;
+mod dot_button;
 mod header;
 mod image_list;
 mod instructions_card;

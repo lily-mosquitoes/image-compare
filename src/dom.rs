@@ -16,6 +16,12 @@ impl DOM {
         DOM::window()?.document()
     }
 
+    pub(crate) fn get_element_by_id(
+        id: &str,
+    ) -> Option<web_sys::Element> {
+        DOM::document()?.get_element_by_id(id)
+    }
+
     pub(crate) fn body_first_element_child(
     ) -> Option<web_sys::Element> {
         DOM::document()?.body()?.first_element_child()
@@ -32,12 +38,6 @@ impl DOM {
 
 #[cfg(test)]
 impl DOM {
-    pub(crate) fn get_element_by_id(
-        id: &str,
-    ) -> Option<web_sys::Element> {
-        DOM::document()?.get_element_by_id(id)
-    }
-
     pub(crate) fn get_images() -> Option<Vec<web_sys::Element>> {
         let images = DOM::document()?.images();
 

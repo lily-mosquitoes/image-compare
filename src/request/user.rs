@@ -12,7 +12,7 @@ pub(crate) async fn get_user() -> Result<User, ()> {
         .await;
 
     let mut user = User::default();
-    user.votes = 1;
+    user.votes = 0;
 
     Ok(user)
 }

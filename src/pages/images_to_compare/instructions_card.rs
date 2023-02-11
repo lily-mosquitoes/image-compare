@@ -20,7 +20,13 @@ pub(super) fn instructions_card(
     html! {
         <div
             id={props.id.clone()}
-            class={classes!["text-5xl"]}
+            class={classes![
+                "p-1",
+                "w-full",
+                "shrink-0",
+                "snap-center",
+                "text-5xl",
+            ]}
         >
             {for props.children.iter()}
         </div>

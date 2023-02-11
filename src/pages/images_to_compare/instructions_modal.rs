@@ -2,14 +2,22 @@ use yew::{
     classes,
     function_component,
     html,
+    use_effect,
+    use_state_eq,
     AttrValue,
     Callback,
     Html,
     Properties,
 };
 
-use super::instructions_card::InstructionsCard;
-use crate::shared_components::Modal;
+use super::{
+    dot_button::DotButton,
+    instructions_card::InstructionsCard,
+};
+use crate::{
+    dom::DOM,
+    shared_components::Modal,
+};
 
 static ABOUT_THE_PROJECT_EN: &str =
     include_str!("../../markdown/about_the_project-EN.md");
@@ -34,6 +42,26 @@ pub(super) struct InstructionsModalProps {
 pub(super) fn instructions_modal(
     props: &InstructionsModalProps,
 ) -> Html {
+    let number_of_cards = use_state_eq(|| 0);
+    let currently_visible_card = use_state_eq(|| 0);
+
+    let get_number_of_cards = || -> u32 {
+        match DOM::get_element_by_id("instructions_cards") {
+            Some(element) => element.child_element_count(),
+            None => 0,
+        }
+    };
+
+    {
+        let number_of_cards = number_of_cards.clone();
+        let get_number_of_cards = get_number_of_cards.clone();
+
+        use_effect(move || {
+            let n = get_number_of_cards();
+            number_of_cards.set(n);
+        });
+    }
+
     let about_the_project =
         markdown_to_yew_html(ABOUT_THE_PROJECT_EN);
 
@@ -47,15 +75,52 @@ pub(super) fn instructions_modal(
             id={"instructions_modal"}
             onclose={props.onclose.clone()}
         >
-            <InstructionsCard id={"about_the_project"}>
-                { about_the_project }
-            </InstructionsCard>
-            <InstructionsCard id={"how_to_participate"}>
-                { how_to_participate }
-            </InstructionsCard>
-            <InstructionsCard id={"disclaimer"}>
-                { disclaimer }
-            </InstructionsCard>
+            <section
+                id={"instructions_cards"}
+                class={classes![
+                    "flex",
+                    "flex-row",
+                    "items-stretch",
+                    "overflow-scroll",
+                    "snap-x",
+                    "snap-mandatory",
+                    "snap-always",
+                    "scrollbar-hide",
+                ]}
+            >
+                <InstructionsCard id={"about_the_project"}>
+                    { about_the_project }
+                </InstructionsCard>
+                <InstructionsCard id={"how_to_participate"}>
+                    { how_to_participate }
+                </InstructionsCard>
+                <InstructionsCard id={"disclaimer"}>
+                    { disclaimer }
+                </InstructionsCard>
+            </section>
+            <section
+                id={"instructions_cards_buttons"}
+                class={classes![
+                    "mt-8",
+                    "p-8",
+                    "flex",
+                    "flex-row",
+                    "gap-10",
+                    "justify-center",
+                ]}
+            >
+                {
+                    (0..*number_of_cards).map(|index| {
+                        let selected = index == *currently_visible_card;
+                        html! {
+                            <DotButton
+                                index={index}
+                                selected={selected}
+                            />
+                        }
+                    }).collect::<Html>()
+                }
+            </section>
         </Modal>
     }
 }
