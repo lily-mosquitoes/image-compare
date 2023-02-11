@@ -84,6 +84,26 @@ pub(super) fn instructions_modal(
         })
     };
 
+    let scroll_to = |index: u32| {
+        let currently_visible_card = *currently_visible_card as i32;
+        let number_of_cards = *number_of_cards as i32;
+
+        Callback::from(move |_| {
+            match DOM::get_element_by_id("instructions_cards") {
+                Some(element) => {
+                    let card_length =
+                        element.scroll_width() / number_of_cards;
+                    let modifier =
+                        index as i32 - currently_visible_card;
+                    let scroll_amount = element.scroll_left()
+                        + (card_length * modifier);
+                    element.set_scroll_left(scroll_amount);
+                },
+                None => (),
+            }
+        })
+    };
+
     let about_the_project =
         markdown_to_yew_html(ABOUT_THE_PROJECT_EN);
 
@@ -108,6 +128,7 @@ pub(super) fn instructions_modal(
                     "snap-mandatory",
                     "snap-always",
                     "scrollbar-hide",
+                    "scroll-smooth",
                 ]}
                 onscroll={onscroll}
             >
@@ -139,6 +160,7 @@ pub(super) fn instructions_modal(
                             <DotButton
                                 index={index}
                                 selected={selected}
+                                onclick={scroll_to(index)}
                             />
                         }
                     }).collect::<Html>()
