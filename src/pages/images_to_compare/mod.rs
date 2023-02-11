@@ -191,7 +191,7 @@ mod tests {
                 VOTES_TO_DISPLAY,
             },
         },
-        wasm_sleep,
+        wasm_sleep_in_ms,
     };
 
     wasm_bindgen_test_configure!(run_in_browser);
@@ -199,6 +199,7 @@ mod tests {
     #[wasm_bindgen_test]
     async fn button_to_change_user_exists() {
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         let change_user_button_text = "Reset user";
 
@@ -210,6 +211,7 @@ mod tests {
     #[wasm_bindgen_test]
     async fn button_to_finish_comparing_exists() {
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         assert!(DOM::get_button_by_id("finish_comparing_button")
             .is_some());
@@ -222,6 +224,7 @@ mod tests {
         VOTES_TO_DISPLAY.store(rand::random(), Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         let user =
             get_user().await.expect("request to return Ok response");
@@ -239,6 +242,7 @@ mod tests {
         GET_USER_RETURNS_OK.store(false, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         assert!(DOM::get_element_by_id("fatal_error_modal").is_some());
     }
@@ -249,6 +253,7 @@ mod tests {
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         assert!(DOM::get_element_by_id("fatal_error_modal").is_some());
     }
@@ -259,6 +264,7 @@ mod tests {
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         assert_eq!(
             DOM::get_images_by_id("image_to_compare")
@@ -274,6 +280,7 @@ mod tests {
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         let images = DOM::get_images_by_id("image_to_compare")
             .expect("Images to compare to be present");
@@ -284,9 +291,9 @@ mod tests {
             .expect("Element to be castable to HtmlElement");
 
         image.click();
-        wasm_sleep!(50); // allow page to re-render
+        wasm_sleep_in_ms(50).await; // allow page to re-render
         assert!(DOM::get_images_by_id("image_to_compare").is_none());
-        wasm_sleep!(100); // allow images to actually load
+        wasm_sleep_in_ms(100).await; // allow images to actually load
         assert_eq!(
             DOM::get_images_by_id("image_to_compare")
                 .unwrap_or(vec![])
@@ -301,6 +308,7 @@ mod tests {
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         let images = DOM::get_images_by_id("image_to_compare")
             .expect("Images to compare to be present");
@@ -311,9 +319,9 @@ mod tests {
             .expect("Element to be castable to HtmlElement");
 
         image.click();
-        wasm_sleep!(50); // allow page to re-render
+        wasm_sleep_in_ms(50).await; // allow page to re-render
         assert!(DOM::get_images_by_id("image_to_compare").is_none());
-        wasm_sleep!(100); // allow images to actually load
+        wasm_sleep_in_ms(100).await; // allow images to actually load
         assert_eq!(
             DOM::get_images_by_id("image_to_compare")
                 .unwrap_or(vec![])
@@ -329,6 +337,7 @@ mod tests {
         VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         assert!(
             DOM::get_element_by_id("instructions_modal").is_some()
@@ -338,6 +347,7 @@ mod tests {
     #[wasm_bindgen_test]
     async fn button_to_show_instructions_modal_exists() {
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         assert!(DOM::get_button_by_id(
             "open_instructions_modal_button"
@@ -348,6 +358,7 @@ mod tests {
     #[wasm_bindgen_test]
     async fn button_to_show_instructions_modal_works() {
         render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
 
         let button =
             DOM::get_button_by_id("open_instructions_modal_button")
@@ -358,7 +369,7 @@ mod tests {
                 .expect("Element to be castable to HtmlElement");
 
         button.click();
-        wasm_sleep!(50); // allow page to re-render
+        wasm_sleep_in_ms(50).await; // allow page to re-render
         assert!(
             DOM::get_element_by_id("instructions_modal").is_some()
         );

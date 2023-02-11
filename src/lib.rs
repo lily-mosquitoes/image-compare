@@ -55,15 +55,10 @@ pub(crate) mod helpers_for_tests {
         html_escape::decode_html_entities(&html).into_owned()
     }
 
-    macro_rules! wasm_sleep {
-        ($time_in_ms:literal) => {
-            yew::platform::time::sleep(
-                std::time::Duration::from_millis($time_in_ms),
-            )
-            .await;
-        };
+    pub(crate) async fn wasm_sleep_in_ms(amount: u64) {
+        let duration = std::time::Duration::from_millis(amount);
+        yew::platform::time::sleep(duration).await;
     }
-    pub(crate) use wasm_sleep;
 
     macro_rules! render_yew_component {
         ($component:ident) => {
@@ -72,16 +67,6 @@ pub(crate) mod helpers_for_tests {
                     .expect("element with id #output to be present"),
             )
             .render();
-
-            crate::helpers_for_tests::wasm_sleep!(150);
-        };
-        ($component:ident, $props:path) => {
-            yew::Renderer::<$component>::with_root_and_props(
-                crate::dom::DOM::get_element_by_id("output")
-                    .expect("element with id #output to be present"),
-                $props,
-            )
-            .render()
         };
     }
     pub(crate) use render_yew_component;

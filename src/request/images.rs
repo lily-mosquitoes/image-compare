@@ -55,7 +55,7 @@ pub(crate) static GET_IMAGES_RETURNS_OK: AtomicBool =
 #[cfg(test)]
 pub(crate) async fn get_images() -> Result<ImagesResponse, ()> {
     // sleep a bit to allow test to see the loading status
-    crate::wasm_sleep!(50);
+    crate::wasm_sleep_in_ms(50).await;
 
     if GET_IMAGES_RETURNS_OK.load(Ordering::SeqCst) {
         Ok(ImagesResponse::default())

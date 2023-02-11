@@ -57,6 +57,7 @@ mod tests {
     use super::InstructionsModal;
     use crate::{
         dom::DOM,
+        helpers_for_tests::wasm_sleep_in_ms,
         markdown_to_decoded_html,
         render_yew_component,
     };
@@ -74,6 +75,7 @@ mod tests {
     #[wasm_bindgen_test]
     async fn about_the_project_text_is_visible() {
         render_yew_component!(TestInstructionsModal);
+        wasm_sleep_in_ms(150).await;
 
         let expected =
             include_str!("../../markdown/about_the_project-EN.md");
