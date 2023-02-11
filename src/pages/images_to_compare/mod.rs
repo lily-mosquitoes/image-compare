@@ -1,6 +1,7 @@
 mod change_user_modal;
 mod header;
 mod image_list;
+mod instructions_card;
 mod instructions_modal;
 
 use yew::{
