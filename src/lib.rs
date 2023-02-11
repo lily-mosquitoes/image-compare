@@ -43,10 +43,18 @@ pub fn app() -> Html {
 }
 
 #[cfg(test)]
-pub(crate) use macros_for_tests::*;
+pub(crate) use helpers_for_tests::*;
 
 #[cfg(test)]
-pub(crate) mod macros_for_tests {
+pub(crate) mod helpers_for_tests {
+    pub(crate) fn markdown_to_decoded_html(text: &str) -> String {
+        let html = markdown::to_html(text);
+        // new lines between elements do not get rendered to the DOM
+        let html = html.trim().replace(">\n<", "><");
+        // encoded characters are escaped when rendered to the DOM
+        html_escape::decode_html_entities(&html).into_owned()
+    }
+
     macro_rules! wasm_sleep {
         ($time_in_ms:literal) => {
             yew::platform::time::sleep(
@@ -65,7 +73,15 @@ pub(crate) mod macros_for_tests {
             )
             .render();
 
-            crate::macros_for_tests::wasm_sleep!(150);
+            crate::helpers_for_tests::wasm_sleep!(150);
+        };
+        ($component:ident, $props:path) => {
+            yew::Renderer::<$component>::with_root_and_props(
+                crate::dom::DOM::get_element_by_id("output")
+                    .expect("element with id #output to be present"),
+                $props,
+            )
+            .render()
         };
     }
     pub(crate) use render_yew_component;
