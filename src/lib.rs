@@ -46,7 +46,7 @@ pub fn app() -> Html {
 pub(crate) use helpers_for_tests::*;
 
 #[cfg(test)]
-pub(crate) mod helpers_for_tests {
+mod helpers_for_tests {
     pub(crate) fn markdown_to_decoded_html(text: &str) -> String {
         let html = markdown::to_html(text);
         // new lines between elements do not get rendered to the DOM

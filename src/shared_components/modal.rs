@@ -10,6 +10,7 @@ use yew::{
 };
 
 use crate::{
+    assets::XMark,
     dom::DOM,
     shared_components::Button,
 };
@@ -53,8 +54,6 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                         "w-4/5",
                         "rounded-xl",
                         "bg-stone-200",
-                        "border-4",
-                        "border-white",
                         "drop-shadow-2xl",
                     ]}
                 >
@@ -70,7 +69,15 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                             id={"close_modal_button"}
                             onclick={close_modal}
                         >
-                            { "X" }
+                            <XMark
+                                class={classes![
+                                    "h-16",
+                                    "stroke-black",
+                                ]}
+                            />
+                            <span class={classes!["sr-only"]}>
+                                { "Close" }
+                            </span>
                         </Button>
                     </section>
                     <section
