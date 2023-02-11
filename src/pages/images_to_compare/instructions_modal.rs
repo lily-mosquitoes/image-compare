@@ -117,7 +117,7 @@ pub(super) fn instructions_modal(
             id={"instructions_modal"}
             onclose={props.onclose.clone()}
         >
-            <div
+            <section
                 id={"instructions_cards"}
                 class={classes![
                     "flex",
@@ -141,7 +141,7 @@ pub(super) fn instructions_modal(
                 <InstructionsCard id={"disclaimer"}>
                     { disclaimer }
                 </InstructionsCard>
-            </div>
+            </section>
             <section
                 id={"instructions_cards_buttons"}
                 class={classes![
