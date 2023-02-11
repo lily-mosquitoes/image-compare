@@ -15,7 +15,10 @@ use super::{
     instructions_card::InstructionsCard,
 };
 use crate::{
-    dom::DOM,
+    dom::{
+        console_error,
+        DOM,
+    },
     shared_components::Modal,
 };
 
@@ -62,6 +65,25 @@ pub(super) fn instructions_modal(
         });
     }
 
+    let onscroll = {
+        let currently_visible_card = currently_visible_card.clone();
+        let number_of_cards = *number_of_cards;
+
+        Callback::from(move |_| {
+            match DOM::get_element_by_id("instructions_cards") {
+                Some(element) => {
+                    let card_length = element.scroll_width()
+                        / number_of_cards as i32;
+                    let index = (element.scroll_left()
+                        + (card_length / 2))
+                        / card_length;
+                    currently_visible_card.set(index as u32);
+                },
+                None => (),
+            }
+        })
+    };
+
     let about_the_project =
         markdown_to_yew_html(ABOUT_THE_PROJECT_EN);
 
@@ -75,7 +97,7 @@ pub(super) fn instructions_modal(
             id={"instructions_modal"}
             onclose={props.onclose.clone()}
         >
-            <section
+            <div
                 id={"instructions_cards"}
                 class={classes![
                     "flex",
@@ -87,6 +109,7 @@ pub(super) fn instructions_modal(
                     "snap-always",
                     "scrollbar-hide",
                 ]}
+                onscroll={onscroll}
             >
                 <InstructionsCard id={"about_the_project"}>
                     { about_the_project }
@@ -97,7 +120,7 @@ pub(super) fn instructions_modal(
                 <InstructionsCard id={"disclaimer"}>
                     { disclaimer }
                 </InstructionsCard>
-            </section>
+            </div>
             <section
                 id={"instructions_cards_buttons"}
                 class={classes![
