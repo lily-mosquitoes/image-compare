@@ -62,7 +62,8 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                         class={classes![
                             "flex",
                             "justify-end",
-                            "p-8",
+                            "px-8",
+                            "pt-8",
                         ]}
                     >
                         <Button
@@ -82,7 +83,11 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                     </section>
                     <section
                         id="modal_body"
-                        class={classes!["flex", "flex-col", "p-8"]}
+                        class={classes![
+                            "flex",
+                            "flex-col",
+                            "p-8",
+                        ]}
                     >
                         {for props.children.iter()}
                     </section>

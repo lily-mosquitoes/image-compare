@@ -25,6 +25,9 @@ pub(super) fn instructions_card(
                 "w-full",
                 "shrink-0",
                 "snap-center",
+                "flex",
+                "flex-col",
+                "gap-8",
                 "text-5xl",
             ]}
         >
