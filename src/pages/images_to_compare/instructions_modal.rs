@@ -4,7 +4,6 @@ use yew::{
     html,
     use_effect,
     use_state_eq,
-    AttrValue,
     Callback,
     Html,
     Properties,
@@ -15,10 +14,8 @@ use super::{
     instructions_card::InstructionsCard,
 };
 use crate::{
-    dom::{
-        console_error,
-        DOM,
-    },
+    dom::DOM,
+    pages::markdown_to_yew_html,
     shared_components::Modal,
 };
 
@@ -30,11 +27,6 @@ static HOW_TO_PARTICIPATE_EN: &str =
 
 static DISCLAIMER_EN: &str =
     include_str!("../../markdown/disclaimer-EN.md");
-
-fn markdown_to_yew_html(text: &str) -> Html {
-    let html_string = markdown::to_html(text);
-    Html::from_html_unchecked(AttrValue::from(html_string))
-}
 
 #[derive(Properties, PartialEq)]
 pub(super) struct InstructionsModalProps {

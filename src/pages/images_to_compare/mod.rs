@@ -184,6 +184,7 @@ mod tests {
     use super::ImagesToCompare;
     use crate::{
         dom::DOM,
+        markdown_to_decoded_html,
         render_yew_component,
         request::{
             get_user,
@@ -203,11 +204,11 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        let change_user_button_text = "Reset user";
+        let expected =
+            include_str!("../../markdown/change_user_button-EN.md");
+        let expected = markdown_to_decoded_html(expected);
 
-        assert!(DOM::has_button_with_inner_html(
-            change_user_button_text
-        ));
+        assert!(DOM::has_button_with_inner_html(&expected));
     }
 
     #[wasm_bindgen_test]
@@ -230,12 +231,17 @@ mod tests {
 
         let user =
             get_user().await.expect("request to return Ok response");
-        let expected_text =
-            format!("I'm done with {} votes!", user.votes);
+
+        let expected = include_str!(
+            "../../markdown/finish_comparing_button-EN.md"
+        )
+        .replace("{votes}", &user.votes.to_string());
+        let expected = markdown_to_decoded_html(&expected);
+
         let button = DOM::get_button_by_id("finish_comparing_button")
             .expect("finish_comparing_button to be present");
 
-        assert_eq!(button.inner_html(), expected_text);
+        assert_eq!(button.inner_html(), expected);
     }
 
     #[wasm_bindgen_test]

@@ -10,9 +10,16 @@ use yew::{
 
 use super::change_user_modal::ChangeUserModal;
 use crate::{
+    pages::markdown_to_yew_html,
     request::User,
     shared_components::Button,
 };
+
+static CHANGE_USER_BUTTON: &str =
+    include_str!("../../markdown/change_user_button-EN.md");
+
+static FINISH_COMPARING_BUTTON: &str =
+    include_str!("../../markdown/finish_comparing_button-EN.md");
 
 #[derive(Properties, PartialEq)]
 pub(super) struct HeaderProps {
@@ -33,8 +40,12 @@ pub(super) fn header(props: &HeaderProps) -> Html {
         Callback::from(move |_| show_change_user_modal.set(false))
     };
 
-    let votes_count_text =
-        format!("I'm done with {} votes!", props.user.votes.clone());
+    let change_user_button = markdown_to_yew_html(CHANGE_USER_BUTTON);
+
+    let finish_comparing_button = FINISH_COMPARING_BUTTON
+        .replace("{votes}", &props.user.votes.to_string());
+    let finish_comparing_button =
+        markdown_to_yew_html(&finish_comparing_button);
 
     html! {
         <section
@@ -52,13 +63,13 @@ pub(super) fn header(props: &HeaderProps) -> Html {
                 id={"finish_comparing_button"}
                 onclick={Callback::from(move |_| ())}
             >
-                { votes_count_text.clone() }
+                { finish_comparing_button }
             </Button>
             <Button
                 id={"chage_user_button"}
                 onclick={open_change_user_modal}
             >
-                { "Reset user" }
+                { change_user_button }
             </Button>
             if *show_change_user_modal {
                 <ChangeUserModal
