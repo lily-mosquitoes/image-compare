@@ -66,7 +66,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
                 { finish_comparing_button }
             </Button>
             <Button
-                id={"chage_user_button"}
+                id={"change_user_button"}
                 onclick={open_change_user_modal}
             >
                 { change_user_button }

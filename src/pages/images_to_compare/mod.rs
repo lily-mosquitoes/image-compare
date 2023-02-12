@@ -212,6 +212,56 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    async fn change_user_modal_is_closed_by_default() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        assert!(DOM::get_element_by_id("change_user_modal").is_none());
+    }
+
+    #[wasm_bindgen_test]
+    async fn button_to_change_user_shows_change_user_modal() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        let button = DOM::get_button_by_id("change_user_button")
+            .expect("Element #change_user_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+        assert!(DOM::get_element_by_id("change_user_modal").is_some());
+    }
+
+    #[wasm_bindgen_test]
+    async fn change_user_modal_can_be_closed() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        let open_button = DOM::get_button_by_id("change_user_button")
+            .expect("Element #change_user_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        open_button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        let close_button =
+            DOM::get_button_by_id("close_change_user_modal_button")
+                .expect(
+                    "Element #close_change_user_modal_button to be \
+                     present",
+                )
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
+
+        close_button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+        assert!(DOM::get_element_by_id("change_user_modal").is_none());
+    }
+
+    #[wasm_bindgen_test]
     async fn button_to_finish_comparing_exists() {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
@@ -353,6 +403,21 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    async fn when_user_has_more_than_0_votes_do_not_show_instructions_modal(
+    ) {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        VOTES_TO_DISPLAY.store(1, Ordering::SeqCst);
+
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        assert!(
+            DOM::get_element_by_id("instructions_modal").is_none()
+        );
+    }
+
+    #[wasm_bindgen_test]
     async fn button_to_show_instructions_modal_exists() {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
@@ -365,13 +430,18 @@ mod tests {
 
     #[wasm_bindgen_test]
     async fn button_to_show_instructions_modal_works() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        VOTES_TO_DISPLAY.store(1, Ordering::SeqCst);
+
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
         let button =
             DOM::get_button_by_id("open_instructions_modal_button")
                 .expect(
-                    "open_instructions_modal_button to be present",
+                    "Element #open_instructions_modal_button to be \
+                     present",
                 )
                 .dyn_into::<web_sys::HtmlElement>()
                 .expect("Element to be castable to HtmlElement");
@@ -380,6 +450,31 @@ mod tests {
         wasm_sleep_in_ms(50).await; // allow page to re-render
         assert!(
             DOM::get_element_by_id("instructions_modal").is_some()
+        );
+    }
+
+    #[wasm_bindgen_test]
+    async fn instructions_modal_can_be_closed() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
+
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        let button =
+            DOM::get_button_by_id("close_instructions_modal_button")
+                .expect(
+                    "Element #close_instructions_modal_button to be \
+                     present",
+                )
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
+
+        button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+        assert!(
+            DOM::get_element_by_id("instructions_modal").is_none()
         );
     }
 }

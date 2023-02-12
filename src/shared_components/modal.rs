@@ -67,7 +67,10 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                         ]}
                     >
                         <Button
-                            id={"close_modal_button"}
+                            id={format!(
+                                "close_{}_button",
+                                props.id.clone()
+                            )}
                             onclick={close_modal}
                         >
                             <XMark
@@ -134,6 +137,7 @@ mod tests {
         render_yew_component!(TestModal);
         wasm_sleep_in_ms(50).await;
 
-        assert!(DOM::get_button_by_id("close_modal_button").is_some());
+        assert!(DOM::get_button_by_id("close_test_modal_button")
+            .is_some());
     }
 }

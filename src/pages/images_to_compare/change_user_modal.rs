@@ -36,7 +36,7 @@ pub(super) struct ChangeUserModalProps {
 pub(super) fn change_user_modal(
     props: &ChangeUserModalProps,
 ) -> Html {
-    let navigator = use_navigator().expect("Navitor to be present");
+    let navigator = use_navigator();
 
     let change_user_content =
         markdown_to_yew_html(CHANGE_USER_CONTENT_EN);
@@ -47,10 +47,14 @@ pub(super) fn change_user_modal(
     let confirm_reset_user_button =
         markdown_to_yew_html(CONFIRM_RESET_USER_BUTTON_EN);
 
-    let reset_user = Callback::from(move |_| {
+    let reset_user = {
         // TODO: remove cookies
-        navigator.push(&Route::Root)
-    });
+        Callback::from(move |_| {
+            if let Some(nav) = navigator.clone() {
+                nav.push(&Route::Root)
+            }
+        })
+    };
 
     html! {
         <Modal
