@@ -262,6 +262,32 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    async fn change_user_modal_can_be_closed_by_cancel_button() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        let open_button = DOM::get_button_by_id("change_user_button")
+            .expect("Element #change_user_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        open_button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        let close_button =
+            DOM::get_button_by_id("change_user_cancel_button")
+                .expect(
+                    "Element #change_user_cancel_buttonto be present",
+                )
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
+
+        close_button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+        assert!(DOM::get_element_by_id("change_user_modal").is_none());
+    }
+
+    #[wasm_bindgen_test]
     async fn button_to_finish_comparing_exists() {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
