@@ -7,10 +7,6 @@
   @apply text-6xl;
 }
 
-#instructions_cards p {
-  @apply leading-normal;
-}
-
 #instructions_cards a {
   @apply underline text-emerald-700 hover:text-emerald-500; 
 }

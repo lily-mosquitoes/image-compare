@@ -29,6 +29,7 @@ pub(super) fn instructions_card(
                 "flex-col",
                 "gap-8",
                 "text-5xl",
+                "leading-normal",
             ]}
         >
             {for props.children.iter()}

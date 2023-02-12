@@ -97,3 +97,43 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
         modal_host.into(),
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use wasm_bindgen_test::{
+        wasm_bindgen_test,
+        wasm_bindgen_test_configure,
+    };
+    use yew::{
+        function_component,
+        html,
+        Html,
+    };
+
+    use super::Modal;
+    use crate::{
+        dom::DOM,
+        render_yew_component,
+        wasm_sleep_in_ms,
+    };
+    wasm_bindgen_test_configure!(run_in_browser);
+
+    #[function_component(TestModal)]
+    fn test_modal() -> Html {
+        html! {
+            <div>
+                <Modal id={"test_modal"} onclose={|_| ()}>
+                    { "test" }
+                </Modal>
+            </div>
+        }
+    }
+
+    #[wasm_bindgen_test]
+    async fn close_modal_button_exists() {
+        render_yew_component!(TestModal);
+        wasm_sleep_in_ms(50).await;
+
+        assert!(DOM::get_button_by_id("close_modal_button").is_some());
+    }
+}
