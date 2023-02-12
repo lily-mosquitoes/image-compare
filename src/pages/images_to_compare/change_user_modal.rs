@@ -10,6 +10,10 @@ use yew_router::hooks::use_navigator;
 
 use crate::{
     assets::ExclamationTriangle,
+    dom::{
+        console_error,
+        DOM,
+    },
     pages::markdown_to_yew_html,
     routes::Route,
     shared_components::{
@@ -48,8 +52,14 @@ pub(super) fn change_user_modal(
         markdown_to_yew_html(CONFIRM_RESET_USER_BUTTON_EN);
 
     let reset_user = {
-        // TODO: remove cookies
         Callback::from(move |_| {
+            let unset_cookie =
+                "session=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            match DOM::set_cookie_string(unset_cookie) {
+                Ok(_) => (),
+                Err(error) => console_error!(error),
+            };
+
             if let Some(nav) = navigator.clone() {
                 nav.push(&Route::Root)
             }
@@ -125,6 +135,7 @@ pub(super) fn change_user_modal(
 
 #[cfg(test)]
 mod tests {
+    use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
         wasm_bindgen_test,
         wasm_bindgen_test_configure,
@@ -194,5 +205,31 @@ mod tests {
         let expected = markdown_to_decoded_html(expected);
 
         assert!(DOM::has_button_with_inner_html(&expected));
+    }
+
+    #[wasm_bindgen_test]
+    async fn confirm_reset_user_button_removes_session_cookie() {
+        render_yew_component!(TestChangeUserModal);
+        wasm_sleep_in_ms(50).await;
+
+        let cookie = "session=testvalue;path=/;samesite=lax";
+        DOM::set_cookie_string(cookie)
+            .expect("Session cookie to be set");
+
+        let button =
+            DOM::get_button_by_id("change_user_confirm_button")
+                .expect(
+                    "Element #change_user_confirm_button to be \
+                     present",
+                )
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
+
+        button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        let cookie_string = DOM::get_cookie_string()
+            .expect("Cookies to be obtainable");
+        assert!(!cookie_string.contains("session="));
     }
 }

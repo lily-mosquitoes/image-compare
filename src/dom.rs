@@ -1,6 +1,8 @@
+use wasm_bindgen::JsCast;
+
 macro_rules! console_error {
     ($str:tt) => {
-        web_sys::console::error_1(&wasm_bindgen::JsValue::from($str));
+        web_sys::console::error_1(&wasm_bindgen::JsValue::from($str))
     };
 }
 pub(crate) use console_error;
@@ -33,6 +35,15 @@ impl DOM {
 
     pub(crate) fn language() -> Option<String> {
         DOM::window()?.navigator().language()
+    }
+
+    pub(crate) fn set_cookie_string(value: &str) -> Result<(), &str> {
+        DOM::document()
+            .ok_or("Document not redendered correctly")?
+            .dyn_into::<web_sys::HtmlDocument>()
+            .or(Err("Document not castable to HtmlDocument"))?
+            .set_cookie(value)
+            .or(Err("Unable to set cookie string"))
     }
 }
 
@@ -101,5 +112,15 @@ impl DOM {
             index += 1;
         }
         found
+    }
+
+    pub(crate) fn get_cookie_string() -> Result<String, &'static str>
+    {
+        DOM::document()
+            .ok_or("Document not redendered correctly")?
+            .dyn_into::<web_sys::HtmlDocument>()
+            .or(Err("Document not castable to HtmlDocument"))?
+            .cookie()
+            .or(Err("Unable to get cookie string"))
     }
 }
