@@ -56,7 +56,13 @@ pub(super) fn change_user_modal(
             let unset_cookie =
                 "session=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
             match DOM::set_cookie_string(unset_cookie) {
-                Ok(_) => (),
+                Ok(_) => {
+                    // mock, delete later
+                    crate::request::user::MOCK_VOTES.store(
+                        0,
+                        std::sync::atomic::Ordering::SeqCst,
+                    );
+                },
                 Err(error) => console_error!(error),
             };
 

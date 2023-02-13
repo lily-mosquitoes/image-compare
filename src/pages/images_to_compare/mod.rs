@@ -95,24 +95,26 @@ pub(crate) fn images_to_compare() -> Html {
         let images_to_compare = images_to_compare.clone();
         let user_info = user_info.clone();
 
-        if *loading && !*show_fatal_error_modal {
-            wasm_bindgen_futures::spawn_local(async move {
-                let images_response = get_images().await;
-                let user_response = get_user().await;
-                match (images_response, user_response) {
-                    (Ok(images), Ok(user)) => {
-                        loading.set(false);
-                        if user.votes == 0 {
-                            show_instructions_modal.set(true);
-                        }
-                        user_info.set(user);
-                        images_to_compare.set(Some(images));
-                    },
-                    (_, _) => {
-                        show_fatal_error_modal.set(true);
-                    },
-                }
-            });
+        || {
+            if *loading && !*show_fatal_error_modal {
+                wasm_bindgen_futures::spawn_local(async move {
+                    let images_response = get_images().await;
+                    let user_response = get_user().await;
+                    match (images_response, user_response) {
+                        (Ok(images), Ok(user)) => {
+                            loading.set(false);
+                            if user.votes == 0 {
+                                show_instructions_modal.set(true);
+                            }
+                            user_info.set(user);
+                            images_to_compare.set(Some(images));
+                        },
+                        (_, _) => {
+                            show_fatal_error_modal.set(true);
+                        },
+                    }
+                });
+            }
         }
     };
 
@@ -120,7 +122,7 @@ pub(crate) fn images_to_compare() -> Html {
         let images_to_compare = images_to_compare.clone();
 
         use_effect_with_deps(
-            move |_| fetch_images_to_compare,
+            move |_| fetch_images_to_compare(),
             images_to_compare,
         );
     }

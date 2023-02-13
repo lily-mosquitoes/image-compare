@@ -6,13 +6,17 @@ pub(crate) struct User {
     pub(crate) average_chosen_lambda: Option<f64>,
 }
 
+pub(crate) static MOCK_VOTES: std::sync::atomic::AtomicUsize =
+    std::sync::atomic::AtomicUsize::new(0);
+
 #[cfg(not(test))]
 pub(crate) async fn get_user() -> Result<User, ()> {
     yew::platform::time::sleep(std::time::Duration::from_millis(500))
         .await;
 
     let mut user = User::default();
-    user.votes = 0;
+    user.votes =
+        MOCK_VOTES.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
 
     Ok(user)
 }
