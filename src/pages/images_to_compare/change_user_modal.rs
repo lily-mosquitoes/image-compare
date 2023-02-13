@@ -31,6 +31,42 @@ static CONFIRM_RESET_USER_BUTTON_EN: &str =
 static CANCEL_ACTION_BUTTON_EN: &str =
     include_str!("../../markdown/cancel_action_button-EN.md");
 
+struct SessionCookie {
+    value: Option<String>,
+    expired: bool,
+}
+
+impl SessionCookie {
+    fn to_string(&self) -> String {
+        let value = match &self.value {
+            Some(s) => s.as_str(),
+            None => "",
+        };
+
+        let expires = match self.expired {
+            true => ";expires=Thu, 01 Jan 1970 00:00:00 GMT",
+            false => "",
+        };
+
+        format!("session={};path=/;samesite=lax{}", value, expires)
+    }
+
+    fn expire() -> Self {
+        SessionCookie {
+            value: None,
+            expired: true,
+        }
+    }
+
+    #[cfg(test)]
+    fn with_value(value: &str) -> Self {
+        SessionCookie {
+            value: Some(value.to_string()),
+            expired: false,
+        }
+    }
+}
+
 #[derive(Properties, PartialEq)]
 pub(super) struct ChangeUserModalProps {
     pub(super) onclose: Callback<()>,
@@ -53,10 +89,8 @@ pub(super) fn change_user_modal(
 
     let reset_user = {
         Callback::from(move |_| {
-            let unset_cookie = "session=;path=/;samesite=lax;\
-                                expires=Thu, 01 Jan 1970 00:00:00 \
-                                GMT";
-            match DOM::set_cookie_string(unset_cookie) {
+            let unset_cookie = SessionCookie::expire();
+            match DOM::set_cookie_string(&unset_cookie.to_string()) {
                 Ok(_) => {
                     // mock, delete later
                     crate::request::user::MOCK_VOTES.store(
@@ -153,7 +187,10 @@ mod tests {
         Html,
     };
 
-    use super::ChangeUserModal;
+    use super::{
+        ChangeUserModal,
+        SessionCookie,
+    };
     use crate::{
         dom::DOM,
         markdown_to_decoded_html,
@@ -215,12 +252,21 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    fn struct_session_cookie_gives_unset_expired_cookie() {
+        let cookie = SessionCookie::expire();
+        let expected = "session=;path=/;samesite=lax;expires=Thu, \
+                        01 Jan 1970 00:00:00 GMT";
+
+        assert_eq!(cookie.to_string(), expected);
+    }
+
+    #[wasm_bindgen_test]
     async fn confirm_reset_user_button_removes_session_cookie() {
         render_yew_component!(TestChangeUserModal);
         wasm_sleep_in_ms(50).await;
 
-        let cookie = "session=testvalue;path=/;samesite=lax";
-        DOM::set_cookie_string(cookie)
+        let cookie = SessionCookie::with_value("testvalue");
+        DOM::set_cookie_string(&cookie.to_string())
             .expect("Session cookie to be set");
 
         let button =
