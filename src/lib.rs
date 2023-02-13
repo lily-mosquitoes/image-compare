@@ -49,6 +49,9 @@ pub(crate) use helpers_for_tests::*;
 mod helpers_for_tests {
     pub(crate) fn markdown_to_decoded_html(text: &str) -> String {
         let html = markdown::to_html(text);
+        // insert target="_blank" on links
+        let html =
+            html.replace("<a href", "<a target=\"_blank\" href");
         // new lines between elements do not get rendered to the DOM
         let html = html.trim().replace(">\n<", "><");
         // encoded characters are escaped when rendered to the DOM
