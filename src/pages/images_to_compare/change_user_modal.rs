@@ -53,8 +53,9 @@ pub(super) fn change_user_modal(
 
     let reset_user = {
         Callback::from(move |_| {
-            let unset_cookie =
-                "session=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            let unset_cookie = "session=;path=/;samesite=lax;\
+                                expires=Thu, 01 Jan 1970 00:00:00 \
+                                GMT";
             match DOM::set_cookie_string(unset_cookie) {
                 Ok(_) => {
                     // mock, delete later
