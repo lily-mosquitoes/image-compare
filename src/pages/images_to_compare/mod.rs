@@ -175,7 +175,10 @@ pub(crate) fn images_to_compare() -> Html {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::atomic::Ordering;
+    use std::{
+        path::PathBuf,
+        sync::atomic::Ordering,
+    };
 
     use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
@@ -186,6 +189,7 @@ mod tests {
     use super::ImagesToCompare;
     use crate::{
         dom::DOM,
+        load_file_from_language,
         markdown_to_decoded_html,
         render_yew_component,
         request::{
@@ -197,20 +201,31 @@ mod tests {
             },
         },
         wasm_sleep_in_ms,
+        AVAILABLE_LANGUAGES,
+        SELECTED_LANGUAGE,
     };
 
     wasm_bindgen_test_configure!(run_in_browser);
 
     #[wasm_bindgen_test]
     async fn button_to_change_user_exists() {
-        render_yew_component!(ImagesToCompare);
-        wasm_sleep_in_ms(150).await;
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            SELECTED_LANGUAGE
+                .store(selected_language, Ordering::SeqCst);
 
-        let expected =
-            include_str!("../../markdown/change_user_button-EN.md");
-        let expected = markdown_to_decoded_html(expected);
+            render_yew_component!(ImagesToCompare);
+            wasm_sleep_in_ms(150).await;
 
-        assert!(DOM::has_button_with_inner_html(&expected));
+            let expected = load_file_from_language(
+                PathBuf::from("change_user_button.md"),
+                selected_language,
+            );
+            let expected =
+                markdown_to_decoded_html(expected.unwrap_or(""));
+
+            assert!(DOM::has_button_with_inner_html(&expected));
+        }
     }
 
     #[wasm_bindgen_test]
@@ -304,22 +319,33 @@ mod tests {
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
         VOTES_TO_DISPLAY.store(rand::random(), Ordering::SeqCst);
 
-        render_yew_component!(ImagesToCompare);
-        wasm_sleep_in_ms(150).await;
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            SELECTED_LANGUAGE
+                .store(selected_language, Ordering::SeqCst);
 
-        let user =
-            get_user().await.expect("request to return Ok response");
+            render_yew_component!(ImagesToCompare);
+            wasm_sleep_in_ms(150).await;
 
-        let expected = include_str!(
-            "../../markdown/finish_comparing_button-EN.md"
-        )
-        .replace("{votes}", &user.votes.to_string());
-        let expected = markdown_to_decoded_html(&expected);
+            let user = get_user()
+                .await
+                .expect("request to return Ok response");
 
-        let button = DOM::get_button_by_id("finish_comparing_button")
-            .expect("finish_comparing_button to be present");
+            let expected = load_file_from_language(
+                PathBuf::from("finish_comparing_button.md"),
+                selected_language,
+            );
+            let expected = expected
+                .unwrap_or("")
+                .replace("{votes}", &user.votes.to_string());
+            let expected = markdown_to_decoded_html(&expected);
 
-        assert_eq!(button.inner_html(), expected);
+            let button =
+                DOM::get_button_by_id("finish_comparing_button")
+                    .expect("finish_comparing_button to be present");
+
+            assert_eq!(button.inner_html(), expected);
+        }
     }
 
     #[wasm_bindgen_test]

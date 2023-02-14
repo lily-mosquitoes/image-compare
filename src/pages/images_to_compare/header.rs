@@ -1,3 +1,8 @@
+use std::{
+    path::PathBuf,
+    sync::atomic::Ordering,
+};
+
 use yew::{
     classes,
     function_component,
@@ -10,16 +15,12 @@ use yew::{
 
 use super::change_user_modal::ChangeUserModal;
 use crate::{
+    load_file_from_language,
     pages::markdown_to_yew_html,
     request::User,
     shared_components::Button,
+    SELECTED_LANGUAGE,
 };
-
-static CHANGE_USER_BUTTON: &str =
-    include_str!("../../markdown/change_user_button-EN.md");
-
-static FINISH_COMPARING_BUTTON: &str =
-    include_str!("../../markdown/finish_comparing_button-EN.md");
 
 #[derive(Properties, PartialEq)]
 pub(super) struct HeaderProps {
@@ -40,9 +41,21 @@ pub(super) fn header(props: &HeaderProps) -> Html {
         Callback::from(move |_| show_change_user_modal.set(false))
     };
 
-    let change_user_button = markdown_to_yew_html(CHANGE_USER_BUTTON);
+    let selected_language = SELECTED_LANGUAGE.load(Ordering::SeqCst);
 
-    let finish_comparing_button = FINISH_COMPARING_BUTTON
+    let change_user_button = load_file_from_language(
+        PathBuf::from("change_user_button.md"),
+        selected_language,
+    );
+    let change_user_button =
+        markdown_to_yew_html(change_user_button.unwrap_or(""));
+
+    let finish_comparing_button = load_file_from_language(
+        PathBuf::from("finish_comparing_button.md"),
+        selected_language,
+    );
+    let finish_comparing_button = finish_comparing_button
+        .unwrap_or("")
         .replace("{votes}", &props.user.votes.to_string());
     let finish_comparing_button =
         markdown_to_yew_html(&finish_comparing_button);

@@ -1,3 +1,8 @@
+use std::{
+    path::PathBuf,
+    sync::atomic::Ordering,
+};
+
 use yew::{
     classes,
     function_component,
@@ -15,18 +20,11 @@ use super::{
 };
 use crate::{
     dom::DOM,
+    load_file_from_language,
     pages::markdown_to_yew_html,
     shared_components::Modal,
+    SELECTED_LANGUAGE,
 };
-
-static ABOUT_THE_PROJECT_EN: &str =
-    include_str!("../../markdown/about_the_project-EN.md");
-
-static HOW_TO_PARTICIPATE_EN: &str =
-    include_str!("../../markdown/how_to_participate-EN.md");
-
-static DISCLAIMER_EN: &str =
-    include_str!("../../markdown/disclaimer-EN.md");
 
 #[derive(Properties, PartialEq)]
 pub(super) struct InstructionsModalProps {
@@ -96,13 +94,27 @@ pub(super) fn instructions_modal(
         })
     };
 
+    let selected_language = SELECTED_LANGUAGE.load(Ordering::SeqCst);
+
+    let about_the_project = load_file_from_language(
+        PathBuf::from("about_the_project.md"),
+        selected_language,
+    );
     let about_the_project =
-        markdown_to_yew_html(ABOUT_THE_PROJECT_EN);
+        markdown_to_yew_html(about_the_project.unwrap_or(""));
 
+    let how_to_participate = load_file_from_language(
+        PathBuf::from("how_to_participate.md"),
+        selected_language,
+    );
     let how_to_participate =
-        markdown_to_yew_html(HOW_TO_PARTICIPATE_EN);
+        markdown_to_yew_html(how_to_participate.unwrap_or(""));
 
-    let disclaimer = markdown_to_yew_html(DISCLAIMER_EN);
+    let disclaimer = load_file_from_language(
+        PathBuf::from("disclaimer.md"),
+        selected_language,
+    );
+    let disclaimer = markdown_to_yew_html(disclaimer.unwrap_or(""));
 
     html! {
         <Modal
@@ -164,6 +176,11 @@ pub(super) fn instructions_modal(
 
 #[cfg(test)]
 mod tests {
+    use std::{
+        path::PathBuf,
+        sync::atomic::Ordering,
+    };
+
     use wasm_bindgen_test::{
         wasm_bindgen_test,
         wasm_bindgen_test_configure,
@@ -178,8 +195,11 @@ mod tests {
     use crate::{
         dom::DOM,
         helpers_for_tests::wasm_sleep_in_ms,
+        load_file_from_language,
         markdown_to_decoded_html,
         render_yew_component,
+        AVAILABLE_LANGUAGES,
+        SELECTED_LANGUAGE,
     };
     wasm_bindgen_test_configure!(run_in_browser);
 
@@ -194,46 +214,73 @@ mod tests {
 
     #[wasm_bindgen_test]
     async fn about_the_project_text_is_visible() {
-        render_yew_component!(TestInstructionsModal);
-        wasm_sleep_in_ms(50).await;
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            SELECTED_LANGUAGE
+                .store(selected_language, Ordering::SeqCst);
 
-        let expected =
-            include_str!("../../markdown/about_the_project-EN.md");
-        let expected = markdown_to_decoded_html(expected);
+            render_yew_component!(TestInstructionsModal);
+            wasm_sleep_in_ms(50).await;
 
-        let text = DOM::get_element_by_id("about_the_project")
-            .expect("Element #about_the_project to exist");
+            let expected = load_file_from_language(
+                PathBuf::from("about_the_project.md"),
+                selected_language,
+            );
+            let expected =
+                markdown_to_decoded_html(expected.unwrap_or(""));
 
-        assert_eq!(text.inner_html(), expected);
+            let text = DOM::get_element_by_id("about_the_project")
+                .expect("Element #about_the_project to exist");
+
+            assert_eq!(text.inner_html(), expected);
+        }
     }
 
     #[wasm_bindgen_test]
     async fn how_to_participate_text_is_visible() {
-        render_yew_component!(TestInstructionsModal);
-        wasm_sleep_in_ms(50).await;
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            SELECTED_LANGUAGE
+                .store(selected_language, Ordering::SeqCst);
 
-        let expected =
-            include_str!("../../markdown/how_to_participate-EN.md");
-        let expected = markdown_to_decoded_html(expected);
+            render_yew_component!(TestInstructionsModal);
+            wasm_sleep_in_ms(50).await;
 
-        let text = DOM::get_element_by_id("how_to_participate")
-            .expect("Element #how_to_participate to exist");
+            let expected = load_file_from_language(
+                PathBuf::from("how_to_participate.md"),
+                selected_language,
+            );
+            let expected =
+                markdown_to_decoded_html(expected.unwrap_or(""));
 
-        assert_eq!(text.inner_html(), expected);
+            let text = DOM::get_element_by_id("how_to_participate")
+                .expect("Element #how_to_participate to exist");
+
+            assert_eq!(text.inner_html(), expected);
+        }
     }
 
     #[wasm_bindgen_test]
     async fn disclaimer_text_is_visible() {
-        render_yew_component!(TestInstructionsModal);
-        wasm_sleep_in_ms(50).await;
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            SELECTED_LANGUAGE
+                .store(selected_language, Ordering::SeqCst);
 
-        let expected =
-            include_str!("../../markdown/disclaimer-EN.md");
-        let expected = markdown_to_decoded_html(expected);
+            render_yew_component!(TestInstructionsModal);
+            wasm_sleep_in_ms(50).await;
 
-        let text = DOM::get_element_by_id("disclaimer")
-            .expect("Element #disclaimer to exist");
+            let expected = load_file_from_language(
+                PathBuf::from("disclaimer.md"),
+                selected_language,
+            );
+            let expected =
+                markdown_to_decoded_html(expected.unwrap_or(""));
 
-        assert_eq!(text.inner_html(), expected);
+            let text = DOM::get_element_by_id("disclaimer")
+                .expect("Element #disclaimer to exist");
+
+            assert_eq!(text.inner_html(), expected);
+        }
     }
 }

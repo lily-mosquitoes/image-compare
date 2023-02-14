@@ -5,6 +5,16 @@ pub(crate) mod request;
 pub(crate) mod routes;
 pub(crate) mod shared_components;
 
+use std::{
+    path::PathBuf,
+    sync::atomic::AtomicUsize,
+};
+
+use include_dir::{
+    include_dir,
+    Dir,
+};
+use lazy_static::lazy_static;
 use yew::{
     classes,
     function_component,
@@ -21,24 +31,56 @@ use crate::routes::{
     Route,
 };
 
+static MARKDOWN_DIR: Dir =
+    include_dir!("$CARGO_MANIFEST_DIR/src/markdown");
+
+lazy_static! {
+    pub(crate) static ref AVAILABLE_LANGUAGES: Vec<PathBuf> =
+        MARKDOWN_DIR
+            .dirs()
+            .map(|d| d.path().to_path_buf())
+            .collect();
+}
+
+pub(crate) fn load_file_from_language<'a>(
+    file: PathBuf,
+    lang: usize,
+) -> Option<&'static str> {
+    match (
+        AVAILABLE_LANGUAGES.len(),
+        AVAILABLE_LANGUAGES.len() > lang,
+    ) {
+        (0, _) => None,
+        (_, valid) => {
+            let index = if valid { lang } else { 0 };
+            let mut path = AVAILABLE_LANGUAGES[index].clone();
+            path.push(file);
+            MARKDOWN_DIR.get_file(&path)?.contents_utf8()
+        },
+    }
+}
+
+pub(crate) static SELECTED_LANGUAGE: AtomicUsize =
+    AtomicUsize::new(0);
+
 #[function_component(App)]
 pub fn app() -> Html {
     html! {
-        <section
-            id={"main"}
-            class={classes![
-                "h-screen",
-                "font-hyperlegible",
-                "bg-gradient-to-tr",
-                "from-stone-700",
-                "via-stone-700",
-                "to-stone-500",
-            ]}
-        >
-            <BrowserRouter>
-                    <Switch<Route> render={switch} />
-            </BrowserRouter>
-        </section>
+        <BrowserRouter>
+            <section
+                id={"main"}
+                class={classes![
+                    "h-screen",
+                    "font-hyperlegible",
+                    "bg-gradient-to-tr",
+                    "from-stone-700",
+                    "via-stone-700",
+                    "to-stone-500",
+                ]}
+            >
+                <Switch<Route> render={switch} />
+            </section>
+        </BrowserRouter>
     }
 }
 

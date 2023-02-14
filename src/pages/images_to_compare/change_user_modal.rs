@@ -1,3 +1,8 @@
+use std::{
+    path::PathBuf,
+    sync::atomic::Ordering,
+};
+
 use yew::{
     classes,
     function_component,
@@ -14,22 +19,15 @@ use crate::{
         console_error,
         DOM,
     },
+    load_file_from_language,
     pages::markdown_to_yew_html,
     routes::Route,
     shared_components::{
         Button,
         Modal,
     },
+    SELECTED_LANGUAGE,
 };
-
-static CHANGE_USER_CONTENT_EN: &str =
-    include_str!("../../markdown/change_user_content-EN.md");
-
-static CONFIRM_RESET_USER_BUTTON_EN: &str =
-    include_str!("../../markdown/confirm_reset_user_button-EN.md");
-
-static CANCEL_ACTION_BUTTON_EN: &str =
-    include_str!("../../markdown/cancel_action_button-EN.md");
 
 struct SessionCookie {
     value: Option<String>,
@@ -78,14 +76,28 @@ pub(super) fn change_user_modal(
 ) -> Html {
     let navigator = use_navigator();
 
+    let selected_language = SELECTED_LANGUAGE.load(Ordering::SeqCst);
+
+    let change_user_content = load_file_from_language(
+        PathBuf::from("change_user_content.md"),
+        selected_language,
+    );
     let change_user_content =
-        markdown_to_yew_html(CHANGE_USER_CONTENT_EN);
+        markdown_to_yew_html(change_user_content.unwrap_or(""));
 
+    let cancel_action_button = load_file_from_language(
+        PathBuf::from("cancel_action_button.md"),
+        selected_language,
+    );
     let cancel_action_button =
-        markdown_to_yew_html(CANCEL_ACTION_BUTTON_EN);
+        markdown_to_yew_html(cancel_action_button.unwrap_or(""));
 
+    let confirm_reset_user_button = load_file_from_language(
+        PathBuf::from("confirm_reset_user_button.md"),
+        selected_language,
+    );
     let confirm_reset_user_button =
-        markdown_to_yew_html(CONFIRM_RESET_USER_BUTTON_EN);
+        markdown_to_yew_html(confirm_reset_user_button.unwrap_or(""));
 
     let reset_user = {
         Callback::from(move |_| {
@@ -176,6 +188,11 @@ pub(super) fn change_user_modal(
 
 #[cfg(test)]
 mod tests {
+    use std::{
+        path::PathBuf,
+        sync::atomic::Ordering,
+    };
+
     use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
         wasm_bindgen_test,
@@ -193,9 +210,12 @@ mod tests {
     };
     use crate::{
         dom::DOM,
+        load_file_from_language,
         markdown_to_decoded_html,
         render_yew_component,
         wasm_sleep_in_ms,
+        AVAILABLE_LANGUAGES,
+        SELECTED_LANGUAGE,
     };
     wasm_bindgen_test_configure!(run_in_browser);
 
@@ -210,45 +230,72 @@ mod tests {
 
     #[wasm_bindgen_test]
     async fn change_user_content_text_is_visible() {
-        render_yew_component!(TestChangeUserModal);
-        wasm_sleep_in_ms(50).await;
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            SELECTED_LANGUAGE
+                .store(selected_language, Ordering::SeqCst);
 
-        let expected =
-            include_str!("../../markdown/change_user_content-EN.md");
-        let expected = markdown_to_decoded_html(expected);
+            render_yew_component!(TestChangeUserModal);
+            wasm_sleep_in_ms(50).await;
 
-        let text =
-            DOM::get_element_by_id("change_user_warning_content")
-                .expect(
-                    "Element #change_user_warning_content to exist",
-                );
+            let expected = load_file_from_language(
+                PathBuf::from("change_user_content.md"),
+                selected_language,
+            );
+            let expected =
+                markdown_to_decoded_html(expected.unwrap_or(""));
 
-        assert_eq!(text.inner_html(), expected);
+            let text =
+                DOM::get_element_by_id("change_user_warning_content")
+                    .expect(
+                        "Element #change_user_warning_content to \
+                         exist",
+                    );
+
+            assert_eq!(text.inner_html(), expected);
+        }
     }
 
     #[wasm_bindgen_test]
     async fn cancel_action_button_exists() {
-        render_yew_component!(TestChangeUserModal);
-        wasm_sleep_in_ms(50).await;
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            SELECTED_LANGUAGE
+                .store(selected_language, Ordering::SeqCst);
 
-        let expected =
-            include_str!("../../markdown/cancel_action_button-EN.md");
-        let expected = markdown_to_decoded_html(expected);
+            render_yew_component!(TestChangeUserModal);
+            wasm_sleep_in_ms(50).await;
 
-        assert!(DOM::has_button_with_inner_html(&expected));
+            let expected = load_file_from_language(
+                PathBuf::from("cancel_action_button.md"),
+                selected_language,
+            );
+            let expected =
+                markdown_to_decoded_html(expected.unwrap_or(""));
+
+            assert!(DOM::has_button_with_inner_html(&expected));
+        }
     }
 
     #[wasm_bindgen_test]
     async fn confirm_reset_user_button_exists() {
-        render_yew_component!(TestChangeUserModal);
-        wasm_sleep_in_ms(50).await;
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            SELECTED_LANGUAGE
+                .store(selected_language, Ordering::SeqCst);
 
-        let expected = include_str!(
-            "../../markdown/confirm_reset_user_button-EN.md"
-        );
-        let expected = markdown_to_decoded_html(expected);
+            render_yew_component!(TestChangeUserModal);
+            wasm_sleep_in_ms(50).await;
 
-        assert!(DOM::has_button_with_inner_html(&expected));
+            let expected = load_file_from_language(
+                PathBuf::from("confirm_reset_user_button.md"),
+                selected_language,
+            );
+            let expected =
+                markdown_to_decoded_html(expected.unwrap_or(""));
+
+            assert!(DOM::has_button_with_inner_html(&expected));
+        }
     }
 
     #[wasm_bindgen_test]
