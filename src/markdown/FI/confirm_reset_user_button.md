@@ -1,0 +1,1 @@
+Kyllä, nollaa käyttäjä
