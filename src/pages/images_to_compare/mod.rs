@@ -202,7 +202,7 @@ mod tests {
         },
         wasm_sleep_in_ms,
         AVAILABLE_LANGUAGES,
-        SELECTED_LANGUAGE,
+        DEFAULT_LANGUAGE,
     };
 
     wasm_bindgen_test_configure!(run_in_browser);
@@ -210,10 +210,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn change_user_button_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("change_user_button.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -223,16 +223,15 @@ mod tests {
     #[wasm_bindgen_test]
     async fn button_to_change_user_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(ImagesToCompare);
             wasm_sleep_in_ms(150).await;
 
             let expected = load_file_from_language(
                 PathBuf::from("change_user_button.md"),
-                selected_language,
+                language_index,
             );
             let expected =
                 markdown_to_decoded_html(expected.unwrap_or(""));
@@ -329,10 +328,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn finish_comparing_button_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("finish_comparing_button.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -346,9 +345,8 @@ mod tests {
         VOTES_TO_DISPLAY.store(rand::random(), Ordering::SeqCst);
 
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(ImagesToCompare);
             wasm_sleep_in_ms(150).await;
@@ -359,7 +357,7 @@ mod tests {
 
             let expected = load_file_from_language(
                 PathBuf::from("finish_comparing_button.md"),
-                selected_language,
+                language_index,
             );
             let expected = expected
                 .unwrap_or("")

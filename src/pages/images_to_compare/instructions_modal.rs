@@ -1,12 +1,10 @@
-use std::{
-    path::PathBuf,
-    sync::atomic::Ordering,
-};
+use std::path::PathBuf;
 
 use yew::{
     classes,
     function_component,
     html,
+    use_context,
     use_effect,
     use_state_eq,
     Callback,
@@ -23,7 +21,8 @@ use crate::{
     load_file_from_language,
     pages::markdown_to_yew_html,
     shared_components::Modal,
-    SELECTED_LANGUAGE,
+    Language,
+    LanguageContext,
 };
 
 #[derive(Properties, PartialEq)]
@@ -35,6 +34,10 @@ pub(super) struct InstructionsModalProps {
 pub(super) fn instructions_modal(
     props: &InstructionsModalProps,
 ) -> Html {
+    let language = match use_context::<LanguageContext>() {
+        Some(ctx) => (*ctx).clone(),
+        None => Language::default(),
+    };
     let number_of_cards = use_state_eq(|| 0);
     let currently_visible_card = use_state_eq(|| 0);
 
@@ -94,25 +97,23 @@ pub(super) fn instructions_modal(
         })
     };
 
-    let selected_language = SELECTED_LANGUAGE.load(Ordering::SeqCst);
-
     let about_the_project = load_file_from_language(
         PathBuf::from("about_the_project.md"),
-        selected_language,
+        language.index,
     );
     let about_the_project =
         markdown_to_yew_html(about_the_project.unwrap_or(""));
 
     let how_to_participate = load_file_from_language(
         PathBuf::from("how_to_participate.md"),
-        selected_language,
+        language.index,
     );
     let how_to_participate =
         markdown_to_yew_html(how_to_participate.unwrap_or(""));
 
     let disclaimer = load_file_from_language(
         PathBuf::from("disclaimer.md"),
-        selected_language,
+        language.index,
     );
     let disclaimer = markdown_to_yew_html(disclaimer.unwrap_or(""));
 
@@ -199,7 +200,7 @@ mod tests {
         markdown_to_decoded_html,
         render_yew_component,
         AVAILABLE_LANGUAGES,
-        SELECTED_LANGUAGE,
+        DEFAULT_LANGUAGE,
     };
     wasm_bindgen_test_configure!(run_in_browser);
 
@@ -215,10 +216,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn about_the_project_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("about_the_project.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -228,16 +229,15 @@ mod tests {
     #[wasm_bindgen_test]
     async fn about_the_project_text_is_visible() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(TestInstructionsModal);
             wasm_sleep_in_ms(50).await;
 
             let expected = load_file_from_language(
                 PathBuf::from("about_the_project.md"),
-                selected_language,
+                language_index,
             );
             let expected =
                 markdown_to_decoded_html(expected.unwrap_or(""));
@@ -252,10 +252,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn how_to_participate_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("how_to_participate.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -265,16 +265,15 @@ mod tests {
     #[wasm_bindgen_test]
     async fn how_to_participate_text_is_visible() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(TestInstructionsModal);
             wasm_sleep_in_ms(50).await;
 
             let expected = load_file_from_language(
                 PathBuf::from("how_to_participate.md"),
-                selected_language,
+                language_index,
             );
             let expected =
                 markdown_to_decoded_html(expected.unwrap_or(""));
@@ -289,10 +288,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn disclaimer_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("disclaimer.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -302,16 +301,15 @@ mod tests {
     #[wasm_bindgen_test]
     async fn disclaimer_text_is_visible() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(TestInstructionsModal);
             wasm_sleep_in_ms(50).await;
 
             let expected = load_file_from_language(
                 PathBuf::from("disclaimer.md"),
-                selected_language,
+                language_index,
             );
             let expected =
                 markdown_to_decoded_html(expected.unwrap_or(""));

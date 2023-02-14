@@ -1,5 +1,3 @@
-use std::sync::atomic::Ordering;
-
 use yew::{
     classes,
     function_component,
@@ -9,11 +7,7 @@ use yew::{
     Properties,
 };
 
-use crate::{
-    shared_components::Button,
-    AVAILABLE_LANGUAGES,
-    SELECTED_LANGUAGE,
-};
+use crate::shared_components::LanguageButton;
 
 #[derive(Properties, PartialEq, Default)]
 pub(crate) struct FooterProps {
@@ -22,22 +16,6 @@ pub(crate) struct FooterProps {
 
 #[function_component(Footer)]
 pub(crate) fn footer(props: &FooterProps) -> Html {
-    let available_languages: Vec<String> = AVAILABLE_LANGUAGES
-        .iter()
-        .map(|x| format!("{}", x.display()))
-        .collect();
-
-    let index = SELECTED_LANGUAGE.load(Ordering::SeqCst);
-
-    let selected_language = match (
-        AVAILABLE_LANGUAGES.len() > 0,
-        AVAILABLE_LANGUAGES.len() > index,
-    ) {
-        (true, true) => available_languages[index].clone(),
-        (true, false) => available_languages[0].clone(),
-        (false, _) => "".to_string(),
-    };
-
     html! {
         <footer
             id="footer"
@@ -50,17 +28,7 @@ pub(crate) fn footer(props: &FooterProps) -> Html {
                 "justify-between",
             ]}
         >
-            <Button
-                id={"select_language_button"}
-                class={classes![
-                    "text-gray-300",
-                    "border-2",
-                    "border-gray-300",
-                    "aspect-square",
-                ]}
-            >
-                { selected_language }
-            </Button>
+            <LanguageButton />
             {for props.children.iter()}
         </footer>
     }
@@ -70,6 +38,7 @@ pub(crate) fn footer(props: &FooterProps) -> Html {
 mod tests {
     use std::sync::atomic::Ordering;
 
+    use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
         wasm_bindgen_test,
         wasm_bindgen_test_configure,
@@ -81,7 +50,7 @@ mod tests {
         render_yew_component,
         wasm_sleep_in_ms,
         AVAILABLE_LANGUAGES,
-        SELECTED_LANGUAGE,
+        DEFAULT_LANGUAGE,
     };
     wasm_bindgen_test_configure!(run_in_browser);
 
@@ -96,11 +65,10 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    async fn select_language_button_shows_selected_language() {
+    async fn select_language_button_shows_current_language() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(Footer);
             wasm_sleep_in_ms(50).await;
@@ -111,16 +79,115 @@ mod tests {
                         "Element #select_language_button to exist",
                     );
 
-            let index = selected_language;
-            let expected = if AVAILABLE_LANGUAGES.len() > index {
-                format!("{}", AVAILABLE_LANGUAGES[index].display())
-            } else if AVAILABLE_LANGUAGES.len() > 0 {
-                format!("{}", AVAILABLE_LANGUAGES[0].display())
-            } else {
-                "".to_string()
-            };
+            let expected =
+                if AVAILABLE_LANGUAGES.len() > language_index {
+                    format!(
+                        "{}",
+                        AVAILABLE_LANGUAGES[language_index].display()
+                    )
+                } else if AVAILABLE_LANGUAGES.len() > 0 {
+                    format!("{}", AVAILABLE_LANGUAGES[0].display())
+                } else {
+                    "".to_string()
+                };
 
             assert_eq!(button.inner_html(), expected);
+        }
+    }
+
+    #[wasm_bindgen_test]
+    async fn language_menu_is_hidden_by_default() {
+        render_yew_component!(Footer);
+        wasm_sleep_in_ms(50).await;
+
+        assert!(DOM::get_element_by_id("language_menu").is_none())
+    }
+
+    #[wasm_bindgen_test]
+    async fn select_language_button_shows_language_menu() {
+        render_yew_component!(Footer);
+        wasm_sleep_in_ms(50).await;
+
+        let button = DOM::get_button_by_id("select_language_button")
+            .expect("Element #select_language_button to exist")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        assert!(DOM::get_element_by_id("language_menu").is_some());
+    }
+
+    #[wasm_bindgen_test]
+    async fn select_language_button_hides_language_menu_if_open() {
+        render_yew_component!(Footer);
+        wasm_sleep_in_ms(50).await;
+
+        let button = DOM::get_button_by_id("select_language_button")
+            .expect("Element #select_language_button to exist")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        assert!(DOM::get_element_by_id("language_menu").is_none());
+    }
+
+    #[wasm_bindgen_test]
+    async fn language_menu_contains_available_languages() {
+        render_yew_component!(Footer);
+        wasm_sleep_in_ms(50).await;
+
+        let button = DOM::get_button_by_id("select_language_button")
+            .expect("Element #select_language_button to exist")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        let menu_items = DOM::get_element_by_id("language_menu")
+            .expect("Element #language_menu to exist")
+            .inner_html();
+
+        for language in AVAILABLE_LANGUAGES.iter() {
+            assert!(menu_items
+                .contains(&format!("<p>{}</p>", language.display())))
+        }
+    }
+
+    #[wasm_bindgen_test]
+    async fn language_menu_buttons_change_current_language() {
+        render_yew_component!(Footer);
+        wasm_sleep_in_ms(50).await;
+
+        for language in AVAILABLE_LANGUAGES.iter() {
+            let button =
+                DOM::get_button_by_id("select_language_button")
+                    .expect(
+                        "Element #select_language_button to exist",
+                    )
+                    .dyn_into::<web_sys::HtmlElement>()
+                    .expect("Element to be castable to HtmlElement");
+
+            button.click();
+            wasm_sleep_in_ms(50).await; // allow page to re-render
+
+            let id = format!("{}", language.display());
+            let menu_button = DOM::get_button_by_id(&id)
+                .expect(&format!("Element #{} to exist", &id))
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
+
+            menu_button.click();
+            wasm_sleep_in_ms(50).await; // allow page to re-render
+
+            assert_eq!(button.inner_html(), id);
         }
     }
 }

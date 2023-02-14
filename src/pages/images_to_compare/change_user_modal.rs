@@ -1,12 +1,10 @@
-use std::{
-    path::PathBuf,
-    sync::atomic::Ordering,
-};
+use std::path::PathBuf;
 
 use yew::{
     classes,
     function_component,
     html,
+    use_context,
     Callback,
     Html,
     Properties,
@@ -26,7 +24,8 @@ use crate::{
         Button,
         Modal,
     },
-    SELECTED_LANGUAGE,
+    Language,
+    LanguageContext,
 };
 
 struct SessionCookie {
@@ -75,26 +74,28 @@ pub(super) fn change_user_modal(
     props: &ChangeUserModalProps,
 ) -> Html {
     let navigator = use_navigator();
-
-    let selected_language = SELECTED_LANGUAGE.load(Ordering::SeqCst);
+    let language = match use_context::<LanguageContext>() {
+        Some(ctx) => (*ctx).clone(),
+        None => Language::default(),
+    };
 
     let change_user_content = load_file_from_language(
         PathBuf::from("change_user_content.md"),
-        selected_language,
+        language.index,
     );
     let change_user_content =
         markdown_to_yew_html(change_user_content.unwrap_or(""));
 
     let cancel_action_button = load_file_from_language(
         PathBuf::from("cancel_action_button.md"),
-        selected_language,
+        language.index,
     );
     let cancel_action_button =
         markdown_to_yew_html(cancel_action_button.unwrap_or(""));
 
     let confirm_reset_user_button = load_file_from_language(
         PathBuf::from("confirm_reset_user_button.md"),
-        selected_language,
+        language.index,
     );
     let confirm_reset_user_button =
         markdown_to_yew_html(confirm_reset_user_button.unwrap_or(""));
@@ -215,7 +216,7 @@ mod tests {
         render_yew_component,
         wasm_sleep_in_ms,
         AVAILABLE_LANGUAGES,
-        SELECTED_LANGUAGE,
+        DEFAULT_LANGUAGE,
     };
     wasm_bindgen_test_configure!(run_in_browser);
 
@@ -231,10 +232,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn change_user_content_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("change_user_content.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -244,16 +245,15 @@ mod tests {
     #[wasm_bindgen_test]
     async fn change_user_content_text_is_visible() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(TestChangeUserModal);
             wasm_sleep_in_ms(50).await;
 
             let expected = load_file_from_language(
                 PathBuf::from("change_user_content.md"),
-                selected_language,
+                language_index,
             );
             let expected =
                 markdown_to_decoded_html(expected.unwrap_or(""));
@@ -272,10 +272,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn cancel_action_button_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("cancel_action_button.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -285,16 +285,15 @@ mod tests {
     #[wasm_bindgen_test]
     async fn cancel_action_button_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(TestChangeUserModal);
             wasm_sleep_in_ms(50).await;
 
             let expected = load_file_from_language(
                 PathBuf::from("cancel_action_button.md"),
-                selected_language,
+                language_index,
             );
             let expected =
                 markdown_to_decoded_html(expected.unwrap_or(""));
@@ -306,10 +305,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn confirm_reset_user_button_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("confirm_reset_user_button.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -319,16 +318,15 @@ mod tests {
     #[wasm_bindgen_test]
     async fn confirm_reset_user_button_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(TestChangeUserModal);
             wasm_sleep_in_ms(50).await;
 
             let expected = load_file_from_language(
                 PathBuf::from("confirm_reset_user_button.md"),
-                selected_language,
+                language_index,
             );
             let expected =
                 markdown_to_decoded_html(expected.unwrap_or(""));

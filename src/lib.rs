@@ -7,7 +7,11 @@ pub(crate) mod shared_components;
 
 use std::{
     path::PathBuf,
-    sync::atomic::AtomicUsize,
+    rc::Rc,
+    sync::atomic::{
+        AtomicUsize,
+        Ordering,
+    },
 };
 
 use include_dir::{
@@ -19,7 +23,11 @@ use yew::{
     classes,
     function_component,
     html,
+    use_reducer_eq,
+    ContextProvider,
     Html,
+    Reducible,
+    UseReducerHandle,
 };
 use yew_router::{
     router::BrowserRouter,
@@ -60,26 +68,51 @@ pub(crate) fn load_file_from_language<'a>(
     }
 }
 
-pub(crate) static SELECTED_LANGUAGE: AtomicUsize =
-    AtomicUsize::new(0);
+pub(crate) static DEFAULT_LANGUAGE: AtomicUsize = AtomicUsize::new(0);
+
+#[derive(Clone, PartialEq)]
+pub(crate) struct Language {
+    pub(crate) index: usize,
+}
+
+impl Default for Language {
+    fn default() -> Self {
+        let index = DEFAULT_LANGUAGE.load(Ordering::SeqCst);
+        Self { index }
+    }
+}
+
+impl Reducible for Language {
+    type Action = usize;
+
+    fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
+        Self { index: action }.into()
+    }
+}
+
+pub(crate) type LanguageContext = UseReducerHandle<Language>;
 
 #[function_component(App)]
 pub fn app() -> Html {
+    let language = use_reducer_eq(|| Language::default());
+
     html! {
         <BrowserRouter>
-            <section
-                id={"main"}
-                class={classes![
-                    "h-screen",
-                    "font-hyperlegible",
-                    "bg-gradient-to-tr",
-                    "from-stone-700",
-                    "via-stone-700",
-                    "to-stone-500",
-                ]}
-            >
-                <Switch<Route> render={switch} />
-            </section>
+            <ContextProvider<LanguageContext> context={language}>
+                <section
+                    id={"main"}
+                    class={classes![
+                        "h-screen",
+                        "font-hyperlegible",
+                        "bg-gradient-to-tr",
+                        "from-stone-700",
+                        "via-stone-700",
+                        "to-stone-500",
+                    ]}
+                >
+                    <Switch<Route> render={switch} />
+                </section>
+            </ContextProvider<LanguageContext>>
         </BrowserRouter>
     }
 }

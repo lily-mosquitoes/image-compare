@@ -1,12 +1,10 @@
-use std::{
-    path::PathBuf,
-    sync::atomic::Ordering,
-};
+use std::path::PathBuf;
 
 use yew::{
     classes,
     function_component,
     html,
+    use_context,
     Callback,
     Html,
     Properties,
@@ -16,7 +14,8 @@ use crate::{
     load_file_from_language,
     pages::markdown_to_yew_html,
     shared_components::Modal,
-    SELECTED_LANGUAGE,
+    Language,
+    LanguageContext,
 };
 
 #[derive(Properties, PartialEq)]
@@ -28,11 +27,14 @@ pub(crate) struct FatalErrorModalProps {
 pub(crate) fn fatal_error_modal(
     props: &FatalErrorModalProps,
 ) -> Html {
-    let selected_language = SELECTED_LANGUAGE.load(Ordering::SeqCst);
+    let language = match use_context::<LanguageContext>() {
+        Some(ctx) => (*ctx).clone(),
+        None => Language::default(),
+    };
 
     let fatal_error_message = load_file_from_language(
         PathBuf::from("fatal_error_message.md"),
-        selected_language,
+        language.index,
     );
     let fatal_error_message =
         markdown_to_yew_html(fatal_error_message.unwrap_or(""));
@@ -77,7 +79,7 @@ mod tests {
         render_yew_component,
         wasm_sleep_in_ms,
         AVAILABLE_LANGUAGES,
-        SELECTED_LANGUAGE,
+        DEFAULT_LANGUAGE,
     };
     wasm_bindgen_test_configure!(run_in_browser);
 
@@ -93,10 +95,10 @@ mod tests {
     #[wasm_bindgen_test]
     fn fatal_error_message_markdown_exists() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
             let file = load_file_from_language(
                 PathBuf::from("fatal_error_message.md"),
-                selected_language,
+                language_index,
             );
 
             assert!(file.is_some())
@@ -106,16 +108,15 @@ mod tests {
     #[wasm_bindgen_test]
     async fn fatal_error_message_is_visible() {
         // add 1 to len to run even if no languages are available
-        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            SELECTED_LANGUAGE
-                .store(selected_language, Ordering::SeqCst);
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
 
             render_yew_component!(TestFatalErrorModal);
             wasm_sleep_in_ms(50).await;
 
             let expected = load_file_from_language(
                 PathBuf::from("fatal_error_message.md"),
-                selected_language,
+                language_index,
             );
             let expected =
                 markdown_to_decoded_html(expected.unwrap_or(""));
