@@ -61,6 +61,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                             id={"image_to_compare"}
                             class={classes!["w-full", "object-contain"]}
                             src={image.src.clone()}
+                            alt=""
                         />
                     </Button>
                 }
