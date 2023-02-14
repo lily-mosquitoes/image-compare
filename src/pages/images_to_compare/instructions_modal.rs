@@ -213,6 +213,19 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    fn about_the_project_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("about_the_project.md"),
+                selected_language,
+            );
+
+            assert!(file.is_some())
+        }
+    }
+
+    #[wasm_bindgen_test]
     async fn about_the_project_text_is_visible() {
         // add 1 to len to run even if no languages are available
         for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
@@ -237,6 +250,19 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    fn how_to_participate_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("how_to_participate.md"),
+                selected_language,
+            );
+
+            assert!(file.is_some())
+        }
+    }
+
+    #[wasm_bindgen_test]
     async fn how_to_participate_text_is_visible() {
         // add 1 to len to run even if no languages are available
         for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
@@ -257,6 +283,19 @@ mod tests {
                 .expect("Element #how_to_participate to exist");
 
             assert_eq!(text.inner_html(), expected);
+        }
+    }
+
+    #[wasm_bindgen_test]
+    fn disclaimer_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("disclaimer.md"),
+                selected_language,
+            );
+
+            assert!(file.is_some())
         }
     }
 

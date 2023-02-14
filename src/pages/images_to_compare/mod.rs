@@ -208,6 +208,19 @@ mod tests {
     wasm_bindgen_test_configure!(run_in_browser);
 
     #[wasm_bindgen_test]
+    fn change_user_button_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("change_user_button.md"),
+                selected_language,
+            );
+
+            assert!(file.is_some())
+        }
+    }
+
+    #[wasm_bindgen_test]
     async fn button_to_change_user_exists() {
         // add 1 to len to run even if no languages are available
         for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
@@ -311,6 +324,19 @@ mod tests {
 
         assert!(DOM::get_button_by_id("finish_comparing_button")
             .is_some());
+    }
+
+    #[wasm_bindgen_test]
+    fn finish_comparing_button_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("finish_comparing_button.md"),
+                selected_language,
+            );
+
+            assert!(file.is_some())
+        }
     }
 
     #[wasm_bindgen_test]

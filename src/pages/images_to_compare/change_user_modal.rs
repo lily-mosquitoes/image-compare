@@ -229,6 +229,19 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    fn change_user_content_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("change_user_content.md"),
+                selected_language,
+            );
+
+            assert!(file.is_some())
+        }
+    }
+
+    #[wasm_bindgen_test]
     async fn change_user_content_text_is_visible() {
         // add 1 to len to run even if no languages are available
         for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
@@ -257,6 +270,19 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
+    fn cancel_action_button_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("cancel_action_button.md"),
+                selected_language,
+            );
+
+            assert!(file.is_some())
+        }
+    }
+
+    #[wasm_bindgen_test]
     async fn cancel_action_button_exists() {
         // add 1 to len to run even if no languages are available
         for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
@@ -274,6 +300,19 @@ mod tests {
                 markdown_to_decoded_html(expected.unwrap_or(""));
 
             assert!(DOM::has_button_with_inner_html(&expected));
+        }
+    }
+
+    #[wasm_bindgen_test]
+    fn confirm_reset_user_button_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for selected_language in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("confirm_reset_user_button.md"),
+                selected_language,
+            );
+
+            assert!(file.is_some())
         }
     }
 
