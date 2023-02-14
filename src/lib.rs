@@ -47,11 +47,11 @@ pub(crate) fn load_file_from_language<'a>(
     lang: usize,
 ) -> Option<&'static str> {
     match (
-        AVAILABLE_LANGUAGES.len(),
+        AVAILABLE_LANGUAGES.len() > 0,
         AVAILABLE_LANGUAGES.len() > lang,
     ) {
-        (0, _) => None,
-        (_, valid) => {
+        (false, _) => None,
+        (true, valid) => {
             let index = if valid { lang } else { 0 };
             let mut path = AVAILABLE_LANGUAGES[index].clone();
             path.push(file);
