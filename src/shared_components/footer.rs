@@ -56,6 +56,7 @@ pub(crate) fn footer(props: &FooterProps) -> Html {
                     "text-gray-300",
                     "border-2",
                     "border-gray-300",
+                    "aspect-square",
                 ]}
             >
                 { selected_language }
