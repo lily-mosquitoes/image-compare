@@ -10,3 +10,7 @@
 #instructions_cards a {
   @apply underline text-emerald-700 hover:text-emerald-500; 
 }
+
+body {
+  @apply bg-stone-800
+}

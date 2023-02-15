@@ -20,6 +20,9 @@ pub(crate) fn footer(props: &FooterProps) -> Html {
         <footer
             id="footer"
             class={classes![
+                "fixed",
+                "bottom-0",
+                "w-full",
                 "bg-stone-800",
                 "p-12",
                 "shrink-0",
