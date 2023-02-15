@@ -119,7 +119,7 @@ pub(crate) fn language_button() -> Html {
                 ]}
                 onclick={toggle_language_menu}
             >
-                <p>{ selected_language }</p>
+                { selected_language }
             </Button>
         </>
     }

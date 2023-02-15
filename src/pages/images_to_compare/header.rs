@@ -120,6 +120,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             }
             if *show_finish_comparing_modal {
                 <FinishComparingModal
+                    user={props.user.clone()}
                     onclose={close_finish_comparing_modal}
                 />
             }

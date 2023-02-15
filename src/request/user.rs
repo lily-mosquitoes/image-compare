@@ -14,9 +14,11 @@ pub(crate) async fn get_user() -> Result<User, ()> {
     yew::platform::time::sleep(std::time::Duration::from_millis(500))
         .await;
 
-    let mut user = User::default();
-    user.votes =
-        MOCK_VOTES.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    let user = User {
+        votes: MOCK_VOTES
+            .fetch_add(1, std::sync::atomic::Ordering::SeqCst),
+        average_chosen_lambda: Some(0.65),
+    };
 
     Ok(user)
 }

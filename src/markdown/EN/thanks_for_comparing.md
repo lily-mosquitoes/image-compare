@@ -1,7 +1,9 @@
 **Thanks for helping us!**
 
 It seems your current preference is for
-images denoised using λ ≈ {lambda}!
+images denoised using:
+
+λ ≈ {lambda}
 
 You may safely close the browser tab now
 without loosing your current number of votes,

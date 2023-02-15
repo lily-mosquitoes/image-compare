@@ -1,7 +1,9 @@
 **Kiitos, että autat meitä!**
 
 Näyttää siltä, että nykyinen valintasi on
-kuvien kohinat on poistettu käyttämällä λ ≈ {lambda}!
+kuvien kohinat on poistettu käyttämällä:
+
+λ ≈ {lambda}
 
 Voit sulkea selaimen välilehden turvallisesti nyt
 menettämättä nykyistä äänimäärääsi,
