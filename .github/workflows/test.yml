@@ -1,0 +1,22 @@
+name: Test
+on:
+  push:
+    branches-ignore:
+      - main
+  pull-request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Wasm-Pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      
+      - name: Test Firefox
+        run: wasm-pack test --headless --firefox
+
+      - name: Test Chrome
+        run: wasm-pack test --headless --chrome 

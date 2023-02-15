@@ -1,0 +1,55 @@
+name: Deploy to S3
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Wasm-Pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      
+      - name: Test Firefox
+        run: wasm-pack test --headless --firefox
+
+      - name: Test Chrome
+        run: wasm-pack test --headless --chrome
+
+  DeployToS3:
+    needs: Test
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TRUNK_VERSION: 0.16.0
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Trunk
+        run: wget -qO- https://github.com/thedodd/trunk/releases/download/${TRUNK_VERSION}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
+
+      - name: Install Tailwind
+        run: npm install
+
+      - name: Build CSS
+        run: npm run tailwind-minify
+
+      - name: Build WASM
+        run: trunk build --release
+
+      - name: Deploy to S3
+        uses: reggionick/s3-deploy@v3
+        with:
+          folder: dist
+          bucket: ${{ secrets.S3_BUCKET }}
+          bucket-region: ${{ secrets.S3_BUCKET_REGION }}
+          delete-removed: true
+          no-cache: true
+
