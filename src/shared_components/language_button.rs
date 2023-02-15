@@ -70,7 +70,7 @@ pub(crate) fn language_button() -> Html {
                     class={classes![
                         "fixed",
                         "z-10",
-                        "bottom-56",
+                        "bottom-64",
                     ]}
                 >
                     <section
@@ -114,7 +114,7 @@ pub(crate) fn language_button() -> Html {
                     "text-gray-300",
                     "border-2",
                     "border-gray-300",
-                    "w-[2em]",
+                    "w-[2.7em]",
                     "aspect-square",
                 ]}
                 onclick={toggle_language_menu}

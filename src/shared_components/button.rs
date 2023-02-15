@@ -32,8 +32,7 @@ pub(crate) fn button(props: &ButtonProps) -> Html {
         <button
             id={props.id.clone()}
             class={classes![
-                "p-0",
-                "md:p-3",
+                "p-8",
                 "text-5xl",
                 "drop-shadow-2xl",
                 "rounded-xl",

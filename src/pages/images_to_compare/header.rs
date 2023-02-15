@@ -85,7 +85,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             class={classes![
                 "bg-stone-200",
                 "drop-shadow-2xl",
-                "p-10",
+                "p-8",
                 "flex",
                 "flex-row",
                 "justify-between",
@@ -94,12 +94,21 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             <Button
                 id={"finish_comparing_button"}
                 onclick={open_finish_comparing_modal}
+                class={classes![
+                    "border-2",
+                    "border-gray-400",
+                ]}
             >
                 { finish_comparing_button }
             </Button>
             <Button
                 id={"change_user_button"}
                 onclick={open_change_user_modal}
+                class={classes![
+                    "border-2",
+                    "border-gray-400",
+                ]}
+
             >
                 { change_user_button }
             </Button>
