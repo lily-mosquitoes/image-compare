@@ -89,6 +89,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
                 "flex",
                 "flex-row",
                 "justify-between",
+                "gap-8",
             ]}
         >
             <Button
