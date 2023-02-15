@@ -142,6 +142,9 @@ pub(super) fn change_user_modal(
             <section
                 id={"change_user_warning_content"}
                 class={classes![
+                    "flex",
+                    "flex-col",
+                    "gap-8",
                     "text-5xl",
                     "leading-normal",
                     "text-center",

@@ -1,4 +1,4 @@
-# How to Participare?
+# How to Participate?
 
 Here we will show you two images which have
 been [denoised](https://en.wikipedia.org/wiki/Noise_reduction#In_images)

@@ -11,7 +11,10 @@ use yew::{
     Properties,
 };
 
-use super::change_user_modal::ChangeUserModal;
+use super::{
+    change_user_modal::ChangeUserModal,
+    finish_comparing_modal::FinishComparingModal,
+};
 use crate::{
     load_file_from_language,
     pages::markdown_to_yew_html,
@@ -33,6 +36,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
         None => Language::default(),
     };
     let show_change_user_modal = use_state_eq(|| false);
+    let show_finish_comparing_modal = use_state_eq(|| false);
 
     let open_change_user_modal = {
         let show_change_user_modal = show_change_user_modal.clone();
@@ -42,6 +46,20 @@ pub(super) fn header(props: &HeaderProps) -> Html {
     let close_change_user_modal = {
         let show_change_user_modal = show_change_user_modal.clone();
         Callback::from(move |_| show_change_user_modal.set(false))
+    };
+
+    let open_finish_comparing_modal = {
+        let show_finish_comparing_modal =
+            show_finish_comparing_modal.clone();
+        Callback::from(move |_| show_finish_comparing_modal.set(true))
+    };
+
+    let close_finish_comparing_modal = {
+        let show_finish_comparing_modal =
+            show_finish_comparing_modal.clone();
+        Callback::from(move |_| {
+            show_finish_comparing_modal.set(false)
+        })
     };
 
     let change_user_button = load_file_from_language(
@@ -75,7 +93,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
         >
             <Button
                 id={"finish_comparing_button"}
-                onclick={Callback::from(move |_| ())}
+                onclick={open_finish_comparing_modal}
             >
                 { finish_comparing_button }
             </Button>
@@ -88,6 +106,11 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             if *show_change_user_modal {
                 <ChangeUserModal
                     onclose={close_change_user_modal}
+                />
+            }
+            if *show_finish_comparing_modal {
+                <FinishComparingModal
+                    onclose={close_finish_comparing_modal}
                 />
             }
         </section>

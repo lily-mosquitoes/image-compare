@@ -1,5 +1,6 @@
 mod change_user_modal;
 mod dot_button;
+mod finish_comparing_modal;
 mod header;
 mod image_list;
 mod instructions_card;
@@ -370,6 +371,63 @@ mod tests {
 
             assert_eq!(button.inner_html(), expected);
         }
+    }
+
+    #[wasm_bindgen_test]
+    async fn finish_comparing_modal_is_closed_by_default() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        assert!(DOM::get_element_by_id("finish_comparing_modal")
+            .is_none());
+    }
+
+    #[wasm_bindgen_test]
+    async fn button_to_finish_comparing_shows_change_user_modal() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        let button = DOM::get_button_by_id("finish_comparing_button")
+            .expect("Element #finish_comparing_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+        assert!(DOM::get_element_by_id("finish_comparing_modal")
+            .is_some());
+    }
+
+    #[wasm_bindgen_test]
+    async fn finish_comparing_modal_can_be_closed() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        let open_button =
+            DOM::get_button_by_id("finish_comparing_button")
+                .expect(
+                    "Element #finish_comparing_button to be present",
+                )
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
+
+        open_button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        let close_button = DOM::get_button_by_id(
+            "close_finish_comparing_modal_button",
+        )
+        .expect(
+            "Element #close_finish_comparing_modal_button to be \
+             present",
+        )
+        .dyn_into::<web_sys::HtmlElement>()
+        .expect("Element to be castable to HtmlElement");
+
+        close_button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+        assert!(DOM::get_element_by_id("finish_comparing_modal")
+            .is_none());
     }
 
     #[wasm_bindgen_test]
