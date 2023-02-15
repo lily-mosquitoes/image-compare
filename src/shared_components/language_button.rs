@@ -114,11 +114,12 @@ pub(crate) fn language_button() -> Html {
                     "text-gray-300",
                     "border-2",
                     "border-gray-300",
+                    "w-[2em]",
                     "aspect-square",
                 ]}
                 onclick={toggle_language_menu}
             >
-                { selected_language }
+                <p>{ selected_language }</p>
             </Button>
         </>
     }
