@@ -1,6 +1,9 @@
 {
+  "authors": "Lílian Ferreira de Freitas <lily.mosquitoes@gmail.com>",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
-    "tailwind": "npx tailwindcss -i ./tailwind-src/styles.css -o ./styles.css --watch"
+    "tailwind-watch": "npx tailwindcss -i ./tailwind-src/styles.css -o ./styles.css --watch",
+    "tailwind-minify": "npx tailwindcss -i ./tailwind-src/styles.css -o ./styles.css --minify"
   },
   "devDependencies": {
     "tailwindcss": "^3.2.4"

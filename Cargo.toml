@@ -1,7 +1,9 @@
 [package]
 name = "image-compare"
+authors = ["Lílian Ferreira de Freitas <lily.mosquitoes@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
+license = "AGPL-3.0-or-later"
 
 [dependencies]
 yew = { version = "0.20", features = ["csr"] }
