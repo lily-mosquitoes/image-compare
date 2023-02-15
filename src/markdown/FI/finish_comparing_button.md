@@ -1,1 +1,1 @@
-Olen valmis {votes} äänellä!
+{votes} äänestystä riittää minulle!
