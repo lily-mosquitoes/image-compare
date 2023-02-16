@@ -6,6 +6,3 @@
 /node_modules
 styles.css
 !/tailwind-src
-
-# tmp
-icon.svg
