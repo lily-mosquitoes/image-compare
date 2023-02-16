@@ -42,7 +42,7 @@ jobs:
         run: npm run tailwind-minify
 
       - name: Build WASM
-        run: trunk build --release
+        run: ./trunk build --release
 
       - name: Deploy to S3
         uses: reggionick/s3-deploy@v3
