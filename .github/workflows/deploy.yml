@@ -32,6 +32,9 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Install WASM target
+        run: rustup target add wasm32-unknown-unknown
+
       - name: Install Trunk
         run: wget -qO- https://github.com/thedodd/trunk/releases/download/${{ env.TRUNK_VERSION }}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
 
