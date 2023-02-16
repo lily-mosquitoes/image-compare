@@ -31,6 +31,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.S3_BUCKET_REGION }}
 
       - name: Install WASM target
         run: rustup target add wasm32-unknown-unknown
@@ -48,11 +53,4 @@ jobs:
         run: ./trunk build --release
 
       - name: Deploy to S3
-        uses: reggionick/s3-deploy@v3
-        with:
-          folder: dist
-          bucket: ${{ secrets.S3_BUCKET }}
-          bucket-region: ${{ secrets.S3_BUCKET_REGION }}
-          delete-removed: true
-          no-cache: true
-
+        run: aws s3 sync dist s3://${{ secrets.S3_BUCKET }} --region ${{ secrets.S3_BUCKET_REGION }} --delete
