@@ -25,7 +25,7 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TRUNK_VERSION: 0.16.0
+      TRUNK_VERSION: v0.16.0
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
