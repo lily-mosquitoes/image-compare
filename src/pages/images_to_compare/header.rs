@@ -86,6 +86,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
                 "bg-stone-200",
                 "drop-shadow-2xl",
                 "p-8",
+                "lg:p-2",
                 "flex",
                 "flex-row",
                 "justify-between",

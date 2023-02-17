@@ -33,7 +33,9 @@ pub(super) fn dot_button(props: &DotButtonProps) -> Html {
             class={classes![
                 "rounded-full",
                 "w-16",
+                "lg:w-8",
                 "h-16",
+                "lg:h-8",
                 "p-3",
                 bg_classes,
             ]}

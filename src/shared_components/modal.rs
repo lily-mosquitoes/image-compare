@@ -50,8 +50,10 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                     id="modal_content"
                     class={classes![
                         "mt-24",
+                        "lg:mt-8",
                         "mx-auto",
                         "w-4/5",
+                        "lg:w-1/3",
                         "rounded-xl",
                         "bg-stone-200",
                         "drop-shadow-2xl",
@@ -63,7 +65,9 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                             "flex",
                             "justify-end",
                             "px-8",
+                            "lg:px-4",
                             "pt-8",
+                            "lg:pt-4",
                         ]}
                     >
                         <Button
@@ -71,11 +75,16 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                                 "close_{}_button",
                                 props.id.clone()
                             )}
+                            // class={classes![
+                            //     "p-8",
+                            //     "lg:p-3",
+                            // ]}
                             onclick={close_modal}
                         >
                             <XMark
                                 class={classes![
                                     "h-16",
+                                    "lg:h-8",
                                     "stroke-black",
                                 ]}
                             />
@@ -89,7 +98,9 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
                         class={classes![
                             "flex",
                             "flex-col",
-                            "p-8",
+                            "px-8",
+                            "py-8",
+                            "lg:py-0",
                         ]}
                     >
                         {for props.children.iter()}

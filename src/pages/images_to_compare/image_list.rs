@@ -41,7 +41,10 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                     <Button
                         id={"loading_status_button".to_string()}
                         class={classes![
-                            "m-10",
+                            "w-2/3",
+                            "lg:w-1/4",
+                            "m-8",
+                            "lg:m-6",
                         ]}
                         disabled=true
                     >
@@ -53,13 +56,16 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                     <Button
                         id={"image_to_compare_button"}
                         class={classes![
-                            "m-10",
+                            "w-2/3",
+                            "lg:w-1/4",
+                            "m-8",
+                            "lg:m-6",
                         ]}
                         onclick={on_image_select}
                     >
                         <img
                             id={"image_to_compare"}
-                            class={classes!["w-full", "object-contain"]}
+                            class={classes!["w-full"]}
                             src={image.src.clone()}
                             alt=""
                         />

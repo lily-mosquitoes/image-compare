@@ -8,13 +8,12 @@ use yew::{
 #[function_component(Loading)]
 pub(crate) fn loading() -> Html {
     html! {
-        <div role="status" class={classes!["p-12"]}>
+        <div role="status">
             <svg
                 aria-hidden="true"
                 class={classes![
-                    "inline",
                     "w-full",
-                    "p-8",
+                    "p-24",
                     "animate-spin",
                     "text-gray-600",
                     "fill-gray-300",
@@ -32,9 +31,6 @@ pub(crate) fn loading() -> Html {
                     fill="currentFill"
                 />
             </svg>
-            <span class={classes!["sr-only"]}>
-                { "Loading..." }
-            </span>
         </div>
     }
 }

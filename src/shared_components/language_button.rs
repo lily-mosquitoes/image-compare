@@ -71,6 +71,7 @@ pub(crate) fn language_button() -> Html {
                         "fixed",
                         "z-10",
                         "bottom-64",
+                        "lg:bottom-20",
                     ]}
                 >
                     <section
@@ -79,10 +80,12 @@ pub(crate) fn language_button() -> Html {
                             "bg-stone-800",
                             "drop-shadow-2xl",
                             "p-12",
+                            "lg:p-4",
                             "rounded-xl",
                             "flex",
                             "flex-col",
                             "gap-8",
+                            "lg:gap-2",
                         ]}
                     >
                         {

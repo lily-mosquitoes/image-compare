@@ -134,20 +134,42 @@ pub(crate) fn images_to_compare() -> Html {
     };
 
     html! {
-        <section id="compare" class={classes!["flex", "flex-col", "h-full"]}>
+        <section
+            id="compare"
+            class={classes!["h-full", "max-h-full","flex", "flex-col"]}
+        >
             <Header user={(*user_info).clone()}/>
-            <section id="content" class={classes!["flex-1"]}>
-                <section
-                    id="images_list"
-                    class={classes!["flex", "flex-row"]}
-                >
-                    <ImageList
-                        loading={(*loading).clone()}
-                        images={image_list_to_display}
-                        onclick={on_image_select}
-                    />
-                </section>
+            <section
+                id="prompt"
+                class={classes![
+                    "self-center",
+                    "pt-8",
+                    "lg:pt-4",
+                    "text-5xl",
+                    "lg:text-xl",
+                    "text-gray-200"
+                ]}
+            >
+                {"Which is best?"}
             </section>
+            <section
+                id="images_list"
+                class={classes![
+                    "flex-1",
+                    "flex",
+                    "flex-col",
+                    "lg:flex-row",
+                    "items-center",
+                    "lg:justify-center",
+                ]}
+            >
+                <ImageList
+                    loading={(*loading).clone()}
+                    images={image_list_to_display}
+                    onclick={on_image_select}
+                />
+            </section>
+            // </section>
             <Footer>
                 <Button
                     id={"open_instructions_modal_button"}
@@ -156,6 +178,7 @@ pub(crate) fn images_to_compare() -> Html {
                     <QuestionMarkCircle
                         class={classes![
                             "h-16",
+                            "lg:h-8",
                             "stroke-gray-100",
                         ]}
                     />

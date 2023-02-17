@@ -21,11 +21,13 @@ pub(crate) fn footer(props: &FooterProps) -> Html {
             id="footer"
             class={classes![
                 "fixed",
+                "lg:relative",
                 "bottom-0",
+                "shrink-0",
                 "w-full",
                 "bg-stone-800",
                 "p-12",
-                "shrink-0",
+                "lg:p-2",
                 "flex",
                 "flex-row",
                 "justify-between",

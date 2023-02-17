@@ -151,6 +151,7 @@ pub(super) fn instructions_modal(
                 id={"instructions_cards_buttons"}
                 class={classes![
                     "mt-8",
+                    "lg:mt-0",
                     "p-8",
                     "flex",
                     "flex-row",

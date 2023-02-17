@@ -63,6 +63,7 @@ pub(super) fn finish_comparing_modal(
                 <CheckBadge
                     class={classes![
                         "h-32",
+                        "lg:h-16",
                         "stroke-emerald-600",
                     ]}
                 />
@@ -74,6 +75,7 @@ pub(super) fn finish_comparing_modal(
                     "flex-col",
                     "gap-8",
                     "text-5xl",
+                    "lg:text-xl",
                     "leading-normal",
                     "text-center",
                     "my-8",

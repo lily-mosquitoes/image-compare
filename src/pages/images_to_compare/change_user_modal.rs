@@ -132,12 +132,10 @@ pub(super) fn change_user_modal(
                 <ExclamationTriangle
                     class={classes![
                         "h-32",
+                        "lg:h-16",
                         "stroke-rose-600",
                     ]}
                 />
-                <span class={classes!["sr-only"]}>
-                    { "Warning" }
-                </span>
             </section>
             <section
                 id={"change_user_warning_content"}
@@ -146,6 +144,7 @@ pub(super) fn change_user_modal(
                     "flex-col",
                     "gap-8",
                     "text-5xl",
+                    "lg:text-xl",
                     "leading-normal",
                     "text-center",
                     "my-8",

@@ -4,13 +4,14 @@
 
 /* styles for rendered markdown */
 #instructions_cards h1 {
-  @apply text-6xl;
+  @apply text-6xl lg:text-2xl;
 }
 
 #instructions_cards a {
   @apply underline text-emerald-700 hover:text-emerald-500; 
 }
 
+/* avoid bottom white band on firefox mobile */
 body {
-  @apply bg-stone-800
+  @apply bg-stone-800;
 }

@@ -103,6 +103,7 @@ pub fn app() -> Html {
                     id={"main"}
                     class={classes![
                         "h-screen",
+                        // "max-h-screen",
                         "font-hyperlegible",
                         "bg-gradient-to-tr",
                         "from-stone-700",
