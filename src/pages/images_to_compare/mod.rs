@@ -5,6 +5,7 @@ mod header;
 mod image_list;
 mod instructions_card;
 mod instructions_modal;
+mod prompt;
 
 use yew::{
     classes,
@@ -20,6 +21,7 @@ use self::{
     header::Header,
     image_list::ImageList,
     instructions_modal::InstructionsModal,
+    prompt::Prompt,
 };
 use crate::{
     assets::QuestionMarkCircle,
@@ -139,19 +141,7 @@ pub(crate) fn images_to_compare() -> Html {
             class={classes!["h-full", "max-h-full","flex", "flex-col"]}
         >
             <Header user={(*user_info).clone()}/>
-            <section
-                id="prompt"
-                class={classes![
-                    "self-center",
-                    "pt-8",
-                    "lg:pt-4",
-                    "text-5xl",
-                    "lg:text-xl",
-                    "text-gray-200"
-                ]}
-            >
-                {"Which is best?"}
-            </section>
+            <Prompt />
             <section
                 id="images_list"
                 class={classes![
