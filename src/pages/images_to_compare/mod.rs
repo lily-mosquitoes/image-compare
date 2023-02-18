@@ -164,7 +164,7 @@ pub(crate) fn images_to_compare() -> Html {
                 id="images_list"
                 class={classes![
                     "flex-1",
-                    "overflow-y-hidden",
+                    "overflow-hidden",
                     "flex",
                     "flex-col",
                     "md:flex-row",
