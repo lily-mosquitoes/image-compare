@@ -32,10 +32,8 @@ pub(super) fn dot_button(props: &DotButtonProps) -> Html {
             key={format!("card-{}", props.index)}
             class={classes![
                 "rounded-full",
-                "w-16",
-                "lg:w-8",
-                "h-16",
-                "lg:h-8",
+                "w-8",
+                "h-8",
                 "p-3",
                 bg_classes,
             ]}

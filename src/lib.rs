@@ -102,8 +102,7 @@ pub fn app() -> Html {
                 <section
                     id={"main"}
                     class={classes![
-                        "h-screen",
-                        // "max-h-screen",
+                        "h-full",
                         "font-hyperlegible",
                         "bg-gradient-to-tr",
                         "from-stone-700",

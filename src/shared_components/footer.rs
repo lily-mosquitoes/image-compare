@@ -20,14 +20,9 @@ pub(crate) fn footer(props: &FooterProps) -> Html {
         <footer
             id="footer"
             class={classes![
-                "fixed",
-                "lg:relative",
-                "bottom-0",
                 "shrink-0",
-                "w-full",
                 "bg-stone-800",
-                "p-12",
-                "lg:p-2",
+                "p-2",
                 "flex",
                 "flex-row",
                 "justify-between",
@@ -37,8 +32,7 @@ pub(crate) fn footer(props: &FooterProps) -> Html {
             <LanguageButton />
             <a href="https://github.com/lily-mosquitoes">
                 <p class={classes![
-                    "text-3xl",
-                    "lg:text-base",
+                    "text-base",
                     "text-gray-500"
                 ]}>
                     { "Made by Lílian" }

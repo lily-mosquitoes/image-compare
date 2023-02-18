@@ -70,8 +70,7 @@ pub(crate) fn language_button() -> Html {
                     class={classes![
                         "fixed",
                         "z-10",
-                        "bottom-64",
-                        "lg:bottom-20",
+                        "bottom-20",
                     ]}
                 >
                     <section
@@ -79,13 +78,11 @@ pub(crate) fn language_button() -> Html {
                         class={classes![
                             "bg-stone-800",
                             "drop-shadow-2xl",
-                            "p-12",
-                            "lg:p-4",
+                            "p-4",
                             "rounded-xl",
                             "flex",
                             "flex-col",
-                            "gap-8",
-                            "lg:gap-2",
+                            "gap-2",
                         ]}
                     >
                         {
@@ -97,7 +94,7 @@ pub(crate) fn language_button() -> Html {
                                         id={l.clone()}
                                         key={l.clone()}
                                         class={classes![
-                                            "text-5xl",
+                                            "text-xl",
                                             "text-gray-300",
                                             "aspect-square",
                                         ]}

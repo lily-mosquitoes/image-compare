@@ -27,9 +27,8 @@ pub(super) fn instructions_card(
                 "snap-center",
                 "flex",
                 "flex-col",
-                "gap-8",
-                "text-5xl",
-                "lg:text-xl",
+                "gap-4",
+                "text-xl",
                 "leading-normal",
             ]}
         >

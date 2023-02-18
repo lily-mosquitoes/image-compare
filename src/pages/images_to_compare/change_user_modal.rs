@@ -105,7 +105,7 @@ pub(super) fn change_user_modal(
             let unset_cookie = SessionCookie::expire();
             match DOM::set_cookie_string(&unset_cookie.to_string()) {
                 Ok(_) => {
-                    // mock, delete later
+                    // mock, delete later TODO
                     crate::request::user::MOCK_VOTES.store(
                         0,
                         std::sync::atomic::Ordering::SeqCst,
@@ -131,8 +131,7 @@ pub(super) fn change_user_modal(
             >
                 <ExclamationTriangle
                     class={classes![
-                        "h-32",
-                        "lg:h-16",
+                        "h-16",
                         "stroke-rose-600",
                     ]}
                 />
@@ -142,9 +141,8 @@ pub(super) fn change_user_modal(
                 class={classes![
                     "flex",
                     "flex-col",
-                    "gap-8",
-                    "text-5xl",
-                    "lg:text-xl",
+                    "gap-4",
+                    "text-xl",
                     "leading-normal",
                     "text-center",
                     "my-8",
@@ -159,7 +157,8 @@ pub(super) fn change_user_modal(
                     "self-center",
                     "flex",
                     "flex-row",
-                    "gap-8",
+                    "gap-2",
+                    "md:gap-4",
                 ]}
             >
                 <Button

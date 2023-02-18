@@ -34,10 +34,8 @@ pub(super) fn prompt() -> Html {
             id="which_is_best_prompt"
             class={classes![
                 "self-center",
-                "pt-8",
-                "lg:pt-4",
-                "text-5xl",
-                "lg:text-xl",
+                "pt-4",
+                "text-xl",
                 "text-gray-200"
             ]}
         >

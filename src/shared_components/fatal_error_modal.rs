@@ -46,7 +46,14 @@ pub(crate) fn fatal_error_modal(
         >
             <section
                 id={"fatal_error_message"}
-                class={classes!["text-5xl"]}
+                class={classes![
+                    "py-8",
+                    "flex",
+                    "flex-col",
+                    "gap-4",
+                    "text-xl",
+                    "text-center",
+                ]}
             >
                 { fatal_error_message }
             </section>

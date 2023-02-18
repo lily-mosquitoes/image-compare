@@ -150,8 +150,7 @@ pub(super) fn instructions_modal(
             <section
                 id={"instructions_cards_buttons"}
                 class={classes![
-                    "mt-8",
-                    "lg:mt-0",
+                    "mt-0",
                     "p-8",
                     "flex",
                     "flex-row",

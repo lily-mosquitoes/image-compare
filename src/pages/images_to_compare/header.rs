@@ -85,12 +85,11 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             class={classes![
                 "bg-stone-200",
                 "drop-shadow-2xl",
-                "p-8",
-                "lg:p-2",
+                "p-2",
                 "flex",
                 "flex-row",
                 "justify-between",
-                "gap-8",
+                "gap-4",
             ]}
         >
             <Button

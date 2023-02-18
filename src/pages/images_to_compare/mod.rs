@@ -138,7 +138,7 @@ pub(crate) fn images_to_compare() -> Html {
     html! {
         <section
             id="compare"
-            class={classes!["h-full", "max-h-full","flex", "flex-col"]}
+            class={classes!["h-full", "flex", "flex-col"]}
         >
             <Header user={(*user_info).clone()}/>
             <Prompt />
@@ -146,11 +146,14 @@ pub(crate) fn images_to_compare() -> Html {
                 id="images_list"
                 class={classes![
                     "flex-1",
+                    "overflow-y-hidden",
                     "flex",
                     "flex-col",
-                    "lg:flex-row",
+                    "md:flex-row",
                     "items-center",
-                    "lg:justify-center",
+                    "md:justify-center",
+                    "gap-0",
+                    "md:gap-4",
                 ]}
             >
                 <ImageList
@@ -159,7 +162,6 @@ pub(crate) fn images_to_compare() -> Html {
                     onclick={on_image_select}
                 />
             </section>
-            // </section>
             <Footer>
                 <Button
                     id={"open_instructions_modal_button"}
@@ -167,8 +169,7 @@ pub(crate) fn images_to_compare() -> Html {
                 >
                     <QuestionMarkCircle
                         class={classes![
-                            "h-16",
-                            "lg:h-8",
+                            "h-8",
                             "stroke-gray-100",
                         ]}
                     />
