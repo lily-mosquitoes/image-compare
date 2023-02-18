@@ -30,12 +30,15 @@ pub(crate) fn footer(props: &FooterProps) -> Html {
             ]}
         >
             <LanguageButton />
-            <a href="https://github.com/lily-mosquitoes">
+            <a
+                target="_blank"
+                href="https://github.com/lily-mosquitoes/image-compare"
+            >
                 <p class={classes![
                     "text-base",
                     "text-gray-500"
                 ]}>
-                    { "Made by Lílian" }
+                    { "Made with ❤️ by Lílian" }
                 </p>
             </a>
             {for props.children.iter()}
