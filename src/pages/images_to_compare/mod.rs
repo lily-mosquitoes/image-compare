@@ -7,10 +7,13 @@ mod instructions_card;
 mod instructions_modal;
 mod prompt;
 
+use std::path::PathBuf;
+
 use yew::{
     classes,
     function_component,
     html,
+    use_context,
     use_effect_with_deps,
     use_state_eq,
     Callback,
@@ -25,6 +28,8 @@ use self::{
 };
 use crate::{
     assets::QuestionMarkCircle,
+    load_file_from_language,
+    pages::markdown_to_yew_html,
     request::{
         get_images,
         get_user,
@@ -39,15 +44,28 @@ use crate::{
         FatalErrorModal,
         Footer,
     },
+    Language,
+    LanguageContext,
 };
 
 #[function_component(ImagesToCompare)]
 pub(crate) fn images_to_compare() -> Html {
+    let language = match use_context::<LanguageContext>() {
+        Some(ctx) => (*ctx).clone(),
+        None => Language::default(),
+    };
     let loading = use_state_eq(|| true);
     let show_fatal_error_modal = use_state_eq(|| false);
     let show_instructions_modal = use_state_eq(|| false);
     let images_to_compare = use_state_eq(|| None);
     let user_info = use_state_eq(|| User::default());
+
+    let instructions_button_sr = load_file_from_language(
+        PathBuf::from("instructions_button_sr.md"),
+        language.index,
+    );
+    let instructions_button_sr =
+        markdown_to_yew_html(instructions_button_sr.unwrap_or(""));
 
     let close_fatal_error_modal = {
         let show_fatal_error_modal = show_fatal_error_modal.clone();
@@ -174,7 +192,7 @@ pub(crate) fn images_to_compare() -> Html {
                         ]}
                     />
                     <span class={classes!["sr-only"]}>
-                        { "Instructions" }
+                        { instructions_button_sr }
                     </span>
                 </Button>
             </Footer>
@@ -576,6 +594,48 @@ mod tests {
             "open_instructions_modal_button"
         )
         .is_some());
+    }
+
+    #[wasm_bindgen_test]
+    fn instructions_button_sr_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let file = load_file_from_language(
+                PathBuf::from("instructions_button_sr.md"),
+                language_index,
+            );
+
+            assert!(file.is_some())
+        }
+    }
+
+    #[wasm_bindgen_test]
+    async fn instructions_button_sr_text_is_rendered() {
+        // add 1 to len to run even if no languages are available
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
+
+            render_yew_component!(ImagesToCompare);
+            wasm_sleep_in_ms(50).await;
+
+            let expected = load_file_from_language(
+                PathBuf::from("instructions_button_sr.md"),
+                language_index,
+            );
+            let expected =
+                markdown_to_decoded_html(expected.unwrap_or(""));
+
+            let text = DOM::get_element_by_id(
+                "open_instructions_modal_button",
+            )
+            .expect(
+                "Element #open_instructions_modal_button to exist",
+            )
+            .last_element_child()
+            .expect("Last element child to exist");
+
+            assert_eq!(text.inner_html(), expected);
+        }
     }
 
     #[wasm_bindgen_test]
