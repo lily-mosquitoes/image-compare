@@ -23,10 +23,10 @@ pub(crate) enum Route {
 pub(crate) fn switch(routes: Route) -> Html {
     match routes {
         Route::Root => {
-            html! { <Redirect<Route> to={Route::ImagesToCompare} /> }
+            html! { <pages::ImagesToCompare /> }
         },
         Route::ImagesToCompare => {
-            html! { <pages::ImagesToCompare /> }
+            html! { <Redirect<Route> to={Route::ImagesToCompare} /> }
         },
         Route::NotFound => html! { <h1>{ "404" }</h1> },
     }
