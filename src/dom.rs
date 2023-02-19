@@ -45,6 +45,20 @@ impl DOM {
             .set_cookie(value)
             .or(Err("Unable to set cookie string"))
     }
+
+    pub(crate) fn set_document_language(
+        lang: &str,
+    ) -> Result<(), &str> {
+        DOM::document()
+            .ok_or("Document not rendered correctly")?
+            .document_element()
+            .ok_or("Document Element not redendered correctly")?
+            .dyn_into::<web_sys::HtmlElement>()
+            .or(Err("Document Element not castable to HtmlElement"))?
+            .set_lang(lang);
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
