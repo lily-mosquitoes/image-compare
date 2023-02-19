@@ -23,6 +23,7 @@ use yew::{
     classes,
     function_component,
     html,
+    use_effect,
     use_reducer_eq,
     ContextProvider,
     Html,
@@ -34,9 +35,12 @@ use yew_router::{
     switch::Switch,
 };
 
-use crate::routes::{
-    switch,
-    Route,
+use crate::{
+    dom::DOM,
+    routes::{
+        switch,
+        Route,
+    },
 };
 
 static MARKDOWN_DIR: Dir =
@@ -95,6 +99,27 @@ pub(crate) type LanguageContext = UseReducerHandle<Language>;
 #[function_component(App)]
 pub fn app() -> Html {
     let language = use_reducer_eq(|| Language::default());
+
+    {
+        let language = language.clone();
+        use_effect(move || {
+            let get_index_of_browser_language =
+                || -> Option<usize> {
+                    let browser_language =
+                        &(DOM::language()?.to_uppercase()[..2]);
+                    let browser_language =
+                        PathBuf::from(browser_language);
+                    let available_lang = AVAILABLE_LANGUAGES
+                        .iter()
+                        .enumerate()
+                        .find(|x| x.1 == &browser_language)?;
+                    Some(available_lang.0)
+                };
+            if let Some(index) = get_index_of_browser_language() {
+                language.dispatch(index)
+            }
+        });
+    }
 
     html! {
         <BrowserRouter>
