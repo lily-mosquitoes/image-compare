@@ -9,7 +9,6 @@ use yew::{
     Html,
     Properties,
 };
-use yew_router::hooks::use_navigator;
 
 use crate::{
     assets::ExclamationTriangle,
@@ -19,7 +18,6 @@ use crate::{
     },
     load_file_from_language,
     pages::markdown_to_yew_html,
-    routes::Route,
     shared_components::{
         Button,
         Modal,
@@ -73,7 +71,6 @@ pub(super) struct ChangeUserModalProps {
 pub(super) fn change_user_modal(
     props: &ChangeUserModalProps,
 ) -> Html {
-    let navigator = use_navigator();
     let language = match use_context::<LanguageContext>() {
         Some(ctx) => (*ctx).clone(),
         None => Language::default(),
@@ -114,8 +111,8 @@ pub(super) fn change_user_modal(
                 Err(error) => console_error!(error),
             };
 
-            if let Some(nav) = navigator.clone() {
-                nav.push(&Route::Root)
+            if let Some(window) = DOM::window() {
+                window.location().reload().unwrap_or(());
             }
         })
     };
