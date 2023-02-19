@@ -27,6 +27,7 @@ use crate::{
 #[derive(Properties, PartialEq)]
 pub(super) struct HeaderProps {
     pub(super) user: User,
+    pub(super) onreload: Callback<()>,
 }
 
 #[function_component(Header)]
@@ -116,6 +117,7 @@ pub(super) fn header(props: &HeaderProps) -> Html {
             if *show_change_user_modal {
                 <ChangeUserModal
                     onclose={close_change_user_modal}
+                    onconfirm={props.onreload.clone()}
                 />
             }
             if *show_finish_comparing_modal {

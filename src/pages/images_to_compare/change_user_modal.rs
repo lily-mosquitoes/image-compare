@@ -1,4 +1,6 @@
 use std::path::PathBuf;
+#[cfg(test)]
+use std::sync::atomic::Ordering;
 
 use yew::{
     classes,
@@ -10,6 +12,8 @@ use yew::{
     Properties,
 };
 
+#[cfg(test)]
+use crate::request::user::VOTES_TO_DISPLAY;
 use crate::{
     assets::ExclamationTriangle,
     dom::{
@@ -65,6 +69,7 @@ impl SessionCookie {
 #[derive(Properties, PartialEq)]
 pub(super) struct ChangeUserModalProps {
     pub(super) onclose: Callback<()>,
+    pub(super) onconfirm: Callback<()>,
 }
 
 #[function_component(ChangeUserModal)]
@@ -98,6 +103,8 @@ pub(super) fn change_user_modal(
         markdown_to_yew_html(confirm_reset_user_button.unwrap_or(""));
 
     let reset_user = {
+        let close_event = props.onclose.clone();
+        let confirmation_event = props.onconfirm.clone();
         Callback::from(move |_| {
             let unset_cookie = SessionCookie::expire();
             match DOM::set_cookie_string(&unset_cookie.to_string()) {
@@ -107,13 +114,14 @@ pub(super) fn change_user_modal(
                         0,
                         std::sync::atomic::Ordering::SeqCst,
                     );
+                    #[cfg(test)]
+                    VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
                 },
                 Err(error) => console_error!(error),
             };
 
-            if let Some(window) = DOM::window() {
-                window.location().reload().unwrap_or(());
-            }
+            close_event.emit(());
+            confirmation_event.emit(());
         })
     };
 
@@ -222,7 +230,10 @@ mod tests {
     fn test_change_user_modal() -> Html {
         html! {
             <div>
-                <ChangeUserModal onclose={|_| ()} />
+                <ChangeUserModal
+                    onclose={|_| ()}
+                    onconfirm={|_| ()}
+                />
             </div>
         }
     }

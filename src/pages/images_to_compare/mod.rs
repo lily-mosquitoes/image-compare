@@ -67,6 +67,15 @@ pub(crate) fn images_to_compare() -> Html {
     let instructions_button_sr =
         markdown_to_yew_html(instructions_button_sr.unwrap_or(""));
 
+    let reload = {
+        let loading = loading.clone();
+        let images_to_compare = images_to_compare.clone();
+        Callback::from(move |_| {
+            loading.set(true);
+            images_to_compare.set(None);
+        })
+    };
+
     let close_fatal_error_modal = {
         let show_fatal_error_modal = show_fatal_error_modal.clone();
         Callback::from(move |_| {
@@ -158,7 +167,10 @@ pub(crate) fn images_to_compare() -> Html {
             id="compare"
             class={classes!["h-full", "flex", "flex-col"]}
         >
-            <Header user={(*user_info).clone()}/>
+            <Header
+                user={(*user_info).clone()}
+                onreload={reload}
+            />
             <Prompt />
             <section
                 id="images_list"
@@ -339,7 +351,8 @@ mod tests {
         let close_button =
             DOM::get_button_by_id("change_user_cancel_button")
                 .expect(
-                    "Element #change_user_cancel_buttonto be present",
+                    "Element #change_user_cancel_button to be \
+                     present",
                 )
                 .dyn_into::<web_sys::HtmlElement>()
                 .expect("Element to be castable to HtmlElement");
@@ -347,6 +360,39 @@ mod tests {
         close_button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
         assert!(DOM::get_element_by_id("change_user_modal").is_none());
+    }
+
+    #[wasm_bindgen_test]
+    async fn confirm_reset_user_in_change_user_modal_reloads_page() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        VOTES_TO_DISPLAY.store(rand::random(), Ordering::SeqCst);
+
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        let open_button = DOM::get_button_by_id("change_user_button")
+            .expect("Element #change_user_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
+
+        open_button.click();
+        wasm_sleep_in_ms(50).await; // allow page to re-render
+
+        let confirm_button =
+            DOM::get_button_by_id("change_user_confirm_button")
+                .expect(
+                    "Element #change_user_confirm_button to be \
+                     present",
+                )
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
+
+        confirm_button.click();
+        wasm_sleep_in_ms(150).await; // allow page to re-render
+        assert!(
+            DOM::get_element_by_id("instructions_modal").is_some()
+        );
     }
 
     #[wasm_bindgen_test]
