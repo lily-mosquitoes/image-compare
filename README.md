@@ -19,7 +19,8 @@ and uses
 [Trunk](https://trunkrs.dev/)
 to bundle the Rust code to
 WebAssembly.[TailwindCSS](https://tailwindcss.com/docs)
-was used for styling.
+was used for styling, svg icons in `src/assets/` were obtained from
+[heroicons.com](https://heroicons.com/).
 
 ### Tests:
 
