@@ -14,7 +14,7 @@ use yew::{
     function_component,
     html,
     use_context,
-    use_effect_with_deps,
+    use_effect_with,
     use_state_eq,
     Callback,
     Html,
@@ -104,8 +104,7 @@ pub(crate) fn images_to_compare() -> Html {
 
         Callback::from(move |image: Image| {
             loading.set(true);
-            let show_fatal_error_modal =
-                show_fatal_error_modal.clone();
+            let show_fatal_error_modal = show_fatal_error_modal.clone();
             let images_to_compare = images_to_compare.clone();
             wasm_bindgen_futures::spawn_local(async move {
                 let response =
@@ -151,10 +150,7 @@ pub(crate) fn images_to_compare() -> Html {
     {
         let images_to_compare = images_to_compare.clone();
 
-        use_effect_with_deps(
-            move |_| fetch_images_to_compare(),
-            images_to_compare,
-        );
+        use_effect_with(images_to_compare, move |_| fetch_images_to_compare());
     }
 
     let image_list_to_display = match (*images_to_compare).clone() {
@@ -278,8 +274,7 @@ mod tests {
                 PathBuf::from("change_user_button.md"),
                 language_index,
             );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             assert!(DOM::has_button_with_inner_html(&expected));
         }
@@ -323,10 +318,7 @@ mod tests {
 
         let close_button =
             DOM::get_button_by_id("close_change_user_modal_button")
-                .expect(
-                    "Element #close_change_user_modal_button to be \
-                     present",
-                )
+                .expect("Element #close_change_user_modal_button to be present")
                 .dyn_into::<web_sys::HtmlElement>()
                 .expect("Element to be castable to HtmlElement");
 
@@ -348,14 +340,10 @@ mod tests {
         open_button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
 
-        let close_button =
-            DOM::get_button_by_id("change_user_cancel_button")
-                .expect(
-                    "Element #change_user_cancel_button to be \
-                     present",
-                )
-                .dyn_into::<web_sys::HtmlElement>()
-                .expect("Element to be castable to HtmlElement");
+        let close_button = DOM::get_button_by_id("change_user_cancel_button")
+            .expect("Element #change_user_cancel_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
 
         close_button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
@@ -381,18 +369,13 @@ mod tests {
 
         let confirm_button =
             DOM::get_button_by_id("change_user_confirm_button")
-                .expect(
-                    "Element #change_user_confirm_button to be \
-                     present",
-                )
+                .expect("Element #change_user_confirm_button to be present")
                 .dyn_into::<web_sys::HtmlElement>()
                 .expect("Element to be castable to HtmlElement");
 
         confirm_button.click();
         wasm_sleep_in_ms(150).await; // allow page to re-render
-        assert!(
-            DOM::get_element_by_id("instructions_modal").is_some()
-        );
+        assert!(DOM::get_element_by_id("instructions_modal").is_some());
     }
 
     #[wasm_bindgen_test]
@@ -400,8 +383,7 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        assert!(DOM::get_button_by_id("finish_comparing_button")
-            .is_some());
+        assert!(DOM::get_button_by_id("finish_comparing_button").is_some());
     }
 
     #[wasm_bindgen_test]
@@ -430,9 +412,7 @@ mod tests {
             render_yew_component!(ImagesToCompare);
             wasm_sleep_in_ms(150).await;
 
-            let user = get_user()
-                .await
-                .expect("request to return Ok response");
+            let user = get_user().await.expect("request to return Ok response");
 
             let expected = load_file_from_language(
                 PathBuf::from("finish_comparing_button.md"),
@@ -443,9 +423,8 @@ mod tests {
                 .replace("{votes}", &user.votes.to_string());
             let expected = markdown_to_decoded_html(&expected);
 
-            let button =
-                DOM::get_button_by_id("finish_comparing_button")
-                    .expect("finish_comparing_button to be present");
+            let button = DOM::get_button_by_id("finish_comparing_button")
+                .expect("finish_comparing_button to be present");
 
             assert_eq!(button.inner_html(), expected);
         }
@@ -456,8 +435,7 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        assert!(DOM::get_element_by_id("finish_comparing_modal")
-            .is_none());
+        assert!(DOM::get_element_by_id("finish_comparing_modal").is_none());
     }
 
     #[wasm_bindgen_test]
@@ -472,8 +450,7 @@ mod tests {
 
         button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
-        assert!(DOM::get_element_by_id("finish_comparing_modal")
-            .is_some());
+        assert!(DOM::get_element_by_id("finish_comparing_modal").is_some());
     }
 
     #[wasm_bindgen_test]
@@ -481,31 +458,26 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        let open_button =
-            DOM::get_button_by_id("finish_comparing_button")
-                .expect(
-                    "Element #finish_comparing_button to be present",
-                )
-                .dyn_into::<web_sys::HtmlElement>()
-                .expect("Element to be castable to HtmlElement");
+        let open_button = DOM::get_button_by_id("finish_comparing_button")
+            .expect("Element #finish_comparing_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
 
         open_button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
 
-        let close_button = DOM::get_button_by_id(
-            "close_finish_comparing_modal_button",
-        )
-        .expect(
-            "Element #close_finish_comparing_modal_button to be \
-             present",
-        )
-        .dyn_into::<web_sys::HtmlElement>()
-        .expect("Element to be castable to HtmlElement");
+        let close_button =
+            DOM::get_button_by_id("close_finish_comparing_modal_button")
+                .expect(
+                    "Element #close_finish_comparing_modal_button to be \
+                     present",
+                )
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
 
         close_button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
-        assert!(DOM::get_element_by_id("finish_comparing_modal")
-            .is_none());
+        assert!(DOM::get_element_by_id("finish_comparing_modal").is_none());
     }
 
     #[wasm_bindgen_test]
@@ -611,14 +583,11 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        assert!(
-            DOM::get_element_by_id("instructions_modal").is_some()
-        );
+        assert!(DOM::get_element_by_id("instructions_modal").is_some());
     }
 
     #[wasm_bindgen_test]
-    async fn when_user_has_more_than_0_votes_do_not_show_instructions_modal(
-    ) {
+    async fn when_user_has_more_than_0_votes_do_not_show_instructions_modal() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
         VOTES_TO_DISPLAY.store(1, Ordering::SeqCst);
@@ -626,9 +595,7 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        assert!(
-            DOM::get_element_by_id("instructions_modal").is_none()
-        );
+        assert!(DOM::get_element_by_id("instructions_modal").is_none());
     }
 
     #[wasm_bindgen_test]
@@ -636,10 +603,9 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        assert!(DOM::get_button_by_id(
-            "open_instructions_modal_button"
-        )
-        .is_some());
+        assert!(
+            DOM::get_button_by_id("open_instructions_modal_button").is_some()
+        );
     }
 
     #[wasm_bindgen_test]
@@ -668,17 +634,12 @@ mod tests {
                 PathBuf::from("instructions_button_sr.md"),
                 language_index,
             );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
-            let text = DOM::get_element_by_id(
-                "open_instructions_modal_button",
-            )
-            .expect(
-                "Element #open_instructions_modal_button to exist",
-            )
-            .last_element_child()
-            .expect("Last element child to exist");
+            let text = DOM::get_element_by_id("open_instructions_modal_button")
+                .expect("Element #open_instructions_modal_button to exist")
+                .last_element_child()
+                .expect("Last element child to exist");
 
             assert_eq!(text.inner_html(), expected);
         }
@@ -693,20 +654,14 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        let button =
-            DOM::get_button_by_id("open_instructions_modal_button")
-                .expect(
-                    "Element #open_instructions_modal_button to be \
-                     present",
-                )
-                .dyn_into::<web_sys::HtmlElement>()
-                .expect("Element to be castable to HtmlElement");
+        let button = DOM::get_button_by_id("open_instructions_modal_button")
+            .expect("Element #open_instructions_modal_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
 
         button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
-        assert!(
-            DOM::get_element_by_id("instructions_modal").is_some()
-        );
+        assert!(DOM::get_element_by_id("instructions_modal").is_some());
     }
 
     #[wasm_bindgen_test]
@@ -718,19 +673,13 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        let button =
-            DOM::get_button_by_id("close_instructions_modal_button")
-                .expect(
-                    "Element #close_instructions_modal_button to be \
-                     present",
-                )
-                .dyn_into::<web_sys::HtmlElement>()
-                .expect("Element to be castable to HtmlElement");
+        let button = DOM::get_button_by_id("close_instructions_modal_button")
+            .expect("Element #close_instructions_modal_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
 
         button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
-        assert!(
-            DOM::get_element_by_id("instructions_modal").is_none()
-        );
+        assert!(DOM::get_element_by_id("instructions_modal").is_none());
     }
 }
