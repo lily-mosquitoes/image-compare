@@ -39,17 +39,11 @@ pub(super) fn finish_comparing_modal(
         PathBuf::from("thanks_for_comparing.md"),
         language.index,
     );
-    let thanks_for_comparing =
-        thanks_for_comparing.unwrap_or("").replace(
-            "{lambda}",
-            &props
-                .user
-                .average_chosen_lambda
-                .unwrap_or(0.0)
-                .to_string(),
-        );
-    let thanks_for_comparing =
-        markdown_to_yew_html(&thanks_for_comparing);
+    let thanks_for_comparing = thanks_for_comparing.unwrap_or("").replace(
+        "{lambda}",
+        &props.user.average_chosen_lambda.unwrap_or(0.0).to_string(),
+    );
+    let thanks_for_comparing = markdown_to_yew_html(&thanks_for_comparing);
 
     html! {
         <Modal
@@ -115,17 +109,20 @@ mod tests {
     };
     wasm_bindgen_test_configure!(run_in_browser);
 
-    static TEST_USER: User = User {
-        votes: 0,
-        average_chosen_lambda: Some(0.8932),
-    };
+    fn test_user() -> User {
+        User {
+            id: "".to_string(),
+            votes: 0,
+            average_chosen_lambda: Some(0.8932),
+        }
+    }
 
     #[function_component(TestFinishComparingModal)]
     fn test_change_user_modal() -> Html {
         html! {
             <div>
                 <FinishComparingModal
-                    user={TEST_USER.clone()}
+                    user={test_user()}
                     onclose={|_| ()}
                 />
             </div>
@@ -160,10 +157,7 @@ mod tests {
             );
             let expected = expected.unwrap_or("").replace(
                 "{lambda}",
-                &TEST_USER
-                    .average_chosen_lambda
-                    .unwrap_or(0.0)
-                    .to_string(),
+                &test_user().average_chosen_lambda.unwrap_or(0.0).to_string(),
             );
             let expected = markdown_to_decoded_html(&expected);
 

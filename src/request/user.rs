@@ -1,7 +1,15 @@
+#[cfg(test)]
+use std::sync::atomic::{
+    AtomicBool,
+    AtomicUsize,
+    Ordering,
+};
+
 use serde::Deserialize;
 
 #[derive(Clone, PartialEq, Default, Deserialize)]
 pub(crate) struct User {
+    pub(crate) id: String,
     pub(crate) votes: usize,
     pub(crate) average_chosen_lambda: Option<f64>,
 }
@@ -11,12 +19,11 @@ pub(crate) static MOCK_VOTES: std::sync::atomic::AtomicUsize =
 
 #[cfg(not(test))]
 pub(crate) async fn get_user() -> Result<User, ()> {
-    yew::platform::time::sleep(std::time::Duration::from_millis(500))
-        .await;
+    yew::platform::time::sleep(std::time::Duration::from_millis(500)).await;
 
     let user = User {
-        votes: MOCK_VOTES
-            .fetch_add(1, std::sync::atomic::Ordering::SeqCst),
+        id: String::default(),
+        votes: MOCK_VOTES.fetch_add(1, std::sync::atomic::Ordering::SeqCst),
         average_chosen_lambda: Some(0.65),
     };
 
@@ -24,15 +31,7 @@ pub(crate) async fn get_user() -> Result<User, ()> {
 }
 
 #[cfg(test)]
-use std::sync::atomic::{
-    AtomicBool,
-    AtomicUsize,
-    Ordering,
-};
-
-#[cfg(test)]
-pub(crate) static GET_USER_RETURNS_OK: AtomicBool =
-    AtomicBool::new(true);
+pub(crate) static GET_USER_RETURNS_OK: AtomicBool = AtomicBool::new(true);
 
 #[cfg(test)]
 pub(crate) static VOTES_TO_DISPLAY: AtomicUsize = AtomicUsize::new(0);
@@ -61,6 +60,7 @@ mod tests {
     #[wasm_bindgen_test]
     fn user_struct_is_deserializable() {
         let value = serde_json::json!({
+            "id": "55555555555555555555555555555555",
             "votes": 4,
             "average_chosen_lambda": 0.65
         });

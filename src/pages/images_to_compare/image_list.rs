@@ -7,19 +7,16 @@ use yew::{
     Properties,
 };
 
-use crate::{
-    request::Image,
-    shared_components::{
-        Button,
-        Loading,
-    },
+use crate::shared_components::{
+    Button,
+    Loading,
 };
 
 #[derive(Properties, PartialEq)]
 pub(super) struct ImageListProps {
     pub(super) loading: bool,
-    pub(super) images: Vec<Image>,
-    pub(super) onclick: Callback<Image>,
+    pub(super) images: Vec<String>,
+    pub(super) onclick: Callback<String>,
 }
 
 #[function_component(ImageList)]
@@ -66,7 +63,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                         <img
                             id={"image_to_compare"}
                             class={classes!["h-full"]}
-                            src={image.src.clone()}
+                            src={image.clone()}
                             alt=""
                         />
                     </Button>

@@ -31,13 +31,12 @@ use crate::{
     load_file_from_language,
     pages::markdown_to_yew_html,
     request::{
-        get_images,
+        get_comparison_for_user,
         get_user,
-        post_chosen_image,
-        ChosenImage,
-        Image,
-        ImagesResponse,
+        post_vote,
+        Comparison,
         User,
+        Vote,
     },
     shared_components::{
         Button,
@@ -57,8 +56,8 @@ pub(crate) fn images_to_compare() -> Html {
     let loading = use_state_eq(|| true);
     let show_fatal_error_modal = use_state_eq(|| false);
     let show_instructions_modal = use_state_eq(|| false);
-    let images_to_compare = use_state_eq(|| None);
-    let user_info = use_state_eq(|| User::default());
+    let comparison_state = use_state_eq(|| None::<Comparison>);
+    let user_state = use_state_eq(|| User::default());
 
     let instructions_button_sr = load_file_from_language(
         PathBuf::from("instructions_button_sr.md"),
@@ -69,10 +68,10 @@ pub(crate) fn images_to_compare() -> Html {
 
     let reload = {
         let loading = loading.clone();
-        let images_to_compare = images_to_compare.clone();
+        let comparison_state = comparison_state.clone();
         Callback::from(move |_| {
             loading.set(true);
-            images_to_compare.set(None);
+            comparison_state.set(None);
         })
     };
 
@@ -100,43 +99,56 @@ pub(crate) fn images_to_compare() -> Html {
     let on_image_select = {
         let loading = loading.clone();
         let show_fatal_error_modal = show_fatal_error_modal.clone();
-        let images_to_compare = images_to_compare.clone();
+        let comparison_state = comparison_state.clone();
+        let user_state = user_state.clone();
 
-        Callback::from(move |image: Image| {
+        Callback::from(move |image: String| {
             loading.set(true);
             let show_fatal_error_modal = show_fatal_error_modal.clone();
-            let images_to_compare = images_to_compare.clone();
+            let comparison_state = comparison_state.clone();
+            let user_state = user_state.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                let response =
-                    post_chosen_image(ChosenImage::from(image)).await;
+                let vote = Vote::build(
+                    (*comparison_state)
+                        .clone()
+                        .expect("BUG: Comparison expected"),
+                )
+                .user(user_state.id.clone())
+                .vote(image);
+                let response = post_vote(vote).await;
                 match response {
-                    Ok(_) => images_to_compare.set(None),
+                    Ok(_) => comparison_state.set(None),
                     Err(_) => show_fatal_error_modal.set(true),
                 }
             });
         })
     };
 
-    let fetch_images_to_compare = {
+    let fetch_comparison = {
         let loading = loading.clone();
         let show_fatal_error_modal = show_fatal_error_modal.clone();
         let show_instructions_modal = show_instructions_modal.clone();
-        let images_to_compare = images_to_compare.clone();
-        let user_info = user_info.clone();
+        let comparison_state = comparison_state.clone();
+        let user_state = user_state.clone();
 
         || {
             if *loading && !*show_fatal_error_modal {
                 wasm_bindgen_futures::spawn_local(async move {
-                    let images_response = get_images().await;
                     let user_response = get_user().await;
-                    match (images_response, user_response) {
-                        (Ok(images), Ok(user)) => {
+                    let comparison_response = match user_response {
+                        Ok(ref user) => {
+                            get_comparison_for_user(user.id.clone()).await
+                        },
+                        Err(_) => Err(()),
+                    };
+                    match (user_response, comparison_response) {
+                        (Ok(user), Ok(comparison)) => {
                             loading.set(false);
                             if user.votes == 0 {
                                 show_instructions_modal.set(true);
                             }
-                            user_info.set(user);
-                            images_to_compare.set(Some(images));
+                            user_state.set(user);
+                            comparison_state.set(Some(comparison));
                         },
                         (_, _) => {
                             show_fatal_error_modal.set(true);
@@ -148,14 +160,14 @@ pub(crate) fn images_to_compare() -> Html {
     };
 
     {
-        let images_to_compare = images_to_compare.clone();
+        let comparison_state = comparison_state.clone();
 
-        use_effect_with(images_to_compare, move |_| fetch_images_to_compare());
+        use_effect_with(comparison_state, move |_| fetch_comparison());
     }
 
-    let image_list_to_display = match (*images_to_compare).clone() {
-        Some(images) => images.to_vec(),
-        None => ImagesResponse::default().to_vec(),
+    let image_list_to_display = match (*comparison_state).clone() {
+        Some(comparison) => comparison.images,
+        None => Vec::<String>::default(),
     };
 
     html! {
@@ -164,7 +176,7 @@ pub(crate) fn images_to_compare() -> Html {
             class={classes!["h-full", "flex", "flex-col"]}
         >
             <Header
-                user={(*user_info).clone()}
+                user={(*user_state).clone()}
                 onreload={reload}
             />
             <Prompt />

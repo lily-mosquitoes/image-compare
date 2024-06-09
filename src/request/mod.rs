@@ -9,11 +9,10 @@ use serde::Deserialize;
 
 pub(crate) use self::{
     images::{
-        get_images,
-        post_chosen_image,
-        ChosenImage,
-        Image,
-        ImagesResponse,
+        get_comparison_for_user,
+        post_vote,
+        Comparison,
+        Vote,
     },
     user::{
         get_user,
@@ -46,8 +45,7 @@ mod tests {
             "data": 0,
         });
 
-        assert!(serde_json::from_value::<Response<usize, ()>>(value)
-            .is_ok());
+        assert!(serde_json::from_value::<Response<usize, ()>>(value).is_ok());
     }
 
     #[wasm_bindgen_test]
@@ -57,7 +55,6 @@ mod tests {
             "error": 0,
         });
 
-        assert!(serde_json::from_value::<Response<(), usize>>(value)
-            .is_ok());
+        assert!(serde_json::from_value::<Response<(), usize>>(value).is_ok());
     }
 }
