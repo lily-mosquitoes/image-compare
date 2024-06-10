@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use yew::{
     classes,
     function_component,
@@ -8,16 +6,15 @@ use yew::{
     Callback,
     Html,
     Properties,
+    UseReducerHandle,
 };
 
 use crate::{
     assets::CheckBadge,
-    load_file_from_language,
     pages::markdown_to_yew_html,
     request::User,
     shared_components::Modal,
     Language,
-    LanguageContext,
 };
 
 #[derive(Properties, PartialEq)]
@@ -30,15 +27,12 @@ pub(super) struct FinishComparingModalProps {
 pub(super) fn finish_comparing_modal(
     props: &FinishComparingModalProps,
 ) -> Html {
-    let language = match use_context::<LanguageContext>() {
+    let language = match use_context::<UseReducerHandle<Language>>() {
         Some(ctx) => (*ctx).clone(),
         None => Language::default(),
     };
 
-    let thanks_for_comparing = load_file_from_language(
-        PathBuf::from("thanks_for_comparing.md"),
-        language.index,
-    );
+    let thanks_for_comparing = language.load_file("thanks_for_comparing.md");
     let thanks_for_comparing = thanks_for_comparing.unwrap_or("").replace(
         "{lambda}",
         &props.user.average_chosen_lambda.unwrap_or(0.0).to_string(),
@@ -81,10 +75,7 @@ pub(super) fn finish_comparing_modal(
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        path::PathBuf,
-        sync::atomic::Ordering,
-    };
+    use std::sync::atomic::Ordering;
 
     use wasm_bindgen_test::{
         wasm_bindgen_test,
@@ -99,11 +90,11 @@ mod tests {
     use super::FinishComparingModal;
     use crate::{
         dom::DOM,
-        load_file_from_language,
         markdown_to_decoded_html,
         render_yew_component,
         request::User,
         wasm_sleep_in_ms,
+        Language,
         AVAILABLE_LANGUAGES,
         DEFAULT_LANGUAGE,
     };
@@ -133,10 +124,10 @@ mod tests {
     fn thanks_for_comparing_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("thanks_for_comparing.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("thanks_for_comparing.md");
 
             assert!(file.is_some())
         }
@@ -151,10 +142,8 @@ mod tests {
             render_yew_component!(TestFinishComparingModal);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("thanks_for_comparing.md"),
-                language_index,
-            );
+            let language = Language::default();
+            let expected = language.load_file("thanks_for_comparing.md");
             let expected = expected.unwrap_or("").replace(
                 "{lambda}",
                 &test_user().average_chosen_lambda.unwrap_or(0.0).to_string(),

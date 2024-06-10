@@ -7,8 +7,6 @@ mod instructions_card;
 mod instructions_modal;
 mod prompt;
 
-use std::path::PathBuf;
-
 use yew::{
     classes,
     function_component,
@@ -18,6 +16,7 @@ use yew::{
     use_state_eq,
     Callback,
     Html,
+    UseReducerHandle,
 };
 
 use self::{
@@ -28,7 +27,6 @@ use self::{
 };
 use crate::{
     assets::QuestionMarkCircle,
-    load_file_from_language,
     pages::markdown_to_yew_html,
     request::{
         get_comparison_for_user,
@@ -44,12 +42,11 @@ use crate::{
         Footer,
     },
     Language,
-    LanguageContext,
 };
 
 #[function_component(ImagesToCompare)]
 pub(crate) fn images_to_compare() -> Html {
-    let language = match use_context::<LanguageContext>() {
+    let language = match use_context::<UseReducerHandle<Language>>() {
         Some(ctx) => (*ctx).clone(),
         None => Language::default(),
     };
@@ -59,10 +56,8 @@ pub(crate) fn images_to_compare() -> Html {
     let comparison_state = use_state_eq(|| None::<Comparison>);
     let user_state = use_state_eq(|| User::default());
 
-    let instructions_button_sr = load_file_from_language(
-        PathBuf::from("instructions_button_sr.md"),
-        language.index,
-    );
+    let instructions_button_sr =
+        language.load_file("instructions_button_sr.md");
     let instructions_button_sr =
         markdown_to_yew_html(instructions_button_sr.unwrap_or(""));
 
@@ -242,7 +237,6 @@ mod tests {
     use super::ImagesToCompare;
     use crate::{
         dom::DOM,
-        load_file_from_language,
         markdown_to_decoded_html,
         render_yew_component,
         request::{
@@ -254,6 +248,7 @@ mod tests {
             },
         },
         wasm_sleep_in_ms,
+        Language,
         AVAILABLE_LANGUAGES,
         DEFAULT_LANGUAGE,
     };
@@ -264,10 +259,10 @@ mod tests {
     fn change_user_button_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("change_user_button.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("change_user_button.md");
 
             assert!(file.is_some())
         }
@@ -282,10 +277,8 @@ mod tests {
             render_yew_component!(ImagesToCompare);
             wasm_sleep_in_ms(150).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("change_user_button.md"),
-                language_index,
-            );
+            let language = Language::default();
+            let expected = language.load_file("change_user_button.md");
             let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             assert!(DOM::has_button_with_inner_html(&expected));
@@ -402,10 +395,10 @@ mod tests {
     fn finish_comparing_button_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("finish_comparing_button.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("finish_comparing_button.md");
 
             assert!(file.is_some())
         }
@@ -426,10 +419,8 @@ mod tests {
 
             let user = get_user().await.expect("request to return Ok response");
 
-            let expected = load_file_from_language(
-                PathBuf::from("finish_comparing_button.md"),
-                language_index,
-            );
+            let language = Language::default();
+            let expected = language.load_file("finish_comparing_button.md");
             let expected = expected
                 .unwrap_or("")
                 .replace("{votes}", &user.votes.to_string());
@@ -624,10 +615,10 @@ mod tests {
     fn instructions_button_sr_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("instructions_button_sr.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("instructions_button_sr.md");
 
             assert!(file.is_some())
         }
@@ -642,10 +633,8 @@ mod tests {
             render_yew_component!(ImagesToCompare);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("instructions_button_sr.md"),
-                language_index,
-            );
+            let language = Language::default();
+            let expected = language.load_file("instructions_button_sr.md");
             let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             let text = DOM::get_element_by_id("open_instructions_modal_button")

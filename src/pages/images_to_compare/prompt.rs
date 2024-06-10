@@ -1,31 +1,25 @@
-use std::path::PathBuf;
-
 use yew::{
     classes,
     function_component,
     html,
     use_context,
     Html,
+    UseReducerHandle,
 };
 
 use crate::{
-    load_file_from_language,
     pages::markdown_to_yew_html,
     Language,
-    LanguageContext,
 };
 
 #[function_component(Prompt)]
 pub(super) fn prompt() -> Html {
-    let language = match use_context::<LanguageContext>() {
+    let language = match use_context::<UseReducerHandle<Language>>() {
         Some(ctx) => (*ctx).clone(),
         None => Language::default(),
     };
 
-    let which_is_best_prompt = load_file_from_language(
-        PathBuf::from("which_is_best_prompt.md"),
-        language.index,
-    );
+    let which_is_best_prompt = language.load_file("which_is_best_prompt.md");
     let which_is_best_prompt =
         markdown_to_yew_html(which_is_best_prompt.unwrap_or(""));
 
@@ -46,10 +40,7 @@ pub(super) fn prompt() -> Html {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        path::PathBuf,
-        sync::atomic::Ordering,
-    };
+    use std::sync::atomic::Ordering;
 
     use wasm_bindgen_test::{
         wasm_bindgen_test,
@@ -59,10 +50,10 @@ mod tests {
     use super::Prompt;
     use crate::{
         dom::DOM,
-        load_file_from_language,
         markdown_to_decoded_html,
         render_yew_component,
         wasm_sleep_in_ms,
+        Language,
         AVAILABLE_LANGUAGES,
         DEFAULT_LANGUAGE,
     };
@@ -72,10 +63,10 @@ mod tests {
     fn which_is_best_prompt_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("which_is_best_prompt.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("which_is_best_prompt.md");
 
             assert!(file.is_some())
         }
@@ -90,12 +81,9 @@ mod tests {
             render_yew_component!(Prompt);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("which_is_best_prompt.md"),
-                language_index,
-            );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let language = Language::default();
+            let expected = language.load_file("which_is_best_prompt.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             let text = DOM::get_element_by_id("which_is_best_prompt")
                 .expect("Element #which_is_best_prompt to exist");

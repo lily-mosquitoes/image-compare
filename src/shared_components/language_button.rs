@@ -9,6 +9,7 @@ use yew::{
     use_state_eq,
     Callback,
     Html,
+    UseReducerHandle,
 };
 
 use crate::{
@@ -18,14 +19,13 @@ use crate::{
     },
     shared_components::Button,
     Language,
-    LanguageContext,
     AVAILABLE_LANGUAGES,
     DEFAULT_LANGUAGE,
 };
 
 #[function_component(LanguageButton)]
 pub(crate) fn language_button() -> Html {
-    let language = use_context::<LanguageContext>();
+    let language = use_context::<UseReducerHandle<Language>>();
     let language_menu_visible = use_state_eq(|| false);
 
     let toggle_language_menu = {
@@ -41,8 +41,9 @@ pub(crate) fn language_button() -> Html {
         Callback::from(move |_| {
             match language.clone() {
                 Some(ctx) => ctx.dispatch(language_index),
-                None => DEFAULT_LANGUAGE
-                    .store(language_index, Ordering::SeqCst),
+                None => {
+                    DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst)
+                },
             }
             language_menu_visible.set(false);
         })
@@ -170,10 +171,7 @@ mod tests {
             } else if language_index >= AVAILABLE_LANGUAGES.len() {
                 format!("{}", AVAILABLE_LANGUAGES[0].display())
             } else {
-                format!(
-                    "{}",
-                    AVAILABLE_LANGUAGES[language_index].display()
-                )
+                format!("{}", AVAILABLE_LANGUAGES[language_index].display())
             };
 
             render_yew_component!(LanguageButton);
@@ -186,10 +184,7 @@ mod tests {
                 .dyn_into::<web_sys::HtmlElement>()
                 .expect("Element to be castable to HtmlElement");
 
-            assert_eq!(
-                html_document.lang(),
-                current_language.to_lowercase()
-            );
+            assert_eq!(html_document.lang(), current_language.to_lowercase());
         }
     }
 
@@ -199,13 +194,10 @@ mod tests {
         wasm_sleep_in_ms(50).await;
 
         for language in AVAILABLE_LANGUAGES.iter() {
-            let button =
-                DOM::get_button_by_id("select_language_button")
-                    .expect(
-                        "Element #select_language_button to exist",
-                    )
-                    .dyn_into::<web_sys::HtmlElement>()
-                    .expect("Element to be castable to HtmlElement");
+            let button = DOM::get_button_by_id("select_language_button")
+                .expect("Element #select_language_button to exist")
+                .dyn_into::<web_sys::HtmlElement>()
+                .expect("Element to be castable to HtmlElement");
 
             button.click();
             wasm_sleep_in_ms(50).await; // allow page to re-render

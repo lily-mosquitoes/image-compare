@@ -6,7 +6,7 @@ pub(crate) mod routes;
 pub(crate) mod shared_components;
 
 use std::{
-    path::PathBuf,
+    path::Path,
     rc::Rc,
     sync::atomic::{
         AtomicUsize,
@@ -23,7 +23,6 @@ use yew::{
     classes,
     function_component,
     html,
-    use_effect,
     use_effect_with,
     use_reducer_eq,
     use_state_eq,
@@ -48,25 +47,8 @@ use crate::{
 static MARKDOWN_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/src/markdown");
 
 lazy_static! {
-    pub(crate) static ref AVAILABLE_LANGUAGES: Vec<PathBuf> = MARKDOWN_DIR
-        .dirs()
-        .map(|d| d.path().to_path_buf())
-        .collect();
-}
-
-pub(crate) fn load_file_from_language<'a>(
-    file: PathBuf,
-    lang: usize,
-) -> Option<&'static str> {
-    match (AVAILABLE_LANGUAGES.len() > 0, AVAILABLE_LANGUAGES.len() > lang) {
-        (false, _) => None,
-        (true, valid) => {
-            let index = if valid { lang } else { 0 };
-            let mut path = AVAILABLE_LANGUAGES[index].clone();
-            path.push(file);
-            MARKDOWN_DIR.get_file(&path)?.contents_utf8()
-        },
-    }
+    pub(crate) static ref AVAILABLE_LANGUAGES: Vec<&'static Path> =
+        MARKDOWN_DIR.dirs().map(|d| d.path()).collect();
 }
 
 pub(crate) static DEFAULT_LANGUAGE: AtomicUsize = AtomicUsize::new(0);
@@ -74,6 +56,24 @@ pub(crate) static DEFAULT_LANGUAGE: AtomicUsize = AtomicUsize::new(0);
 #[derive(Clone, PartialEq)]
 pub(crate) struct Language {
     pub(crate) index: usize,
+}
+
+impl Language {
+    pub(crate) fn load_file(&self, filename: &str) -> Option<&'static str> {
+        match (
+            AVAILABLE_LANGUAGES.len() > 0,
+            AVAILABLE_LANGUAGES.len() > self.index,
+        ) {
+            (false, _) => None,
+            (true, valid) => {
+                let index = if valid { self.index } else { 0 };
+                let mut path = AVAILABLE_LANGUAGES[index].to_path_buf();
+                path.push(filename);
+
+                MARKDOWN_DIR.get_file(&path)?.contents_utf8()
+            },
+        }
+    }
 }
 
 impl Default for Language {
@@ -86,12 +86,10 @@ impl Default for Language {
 impl Reducible for Language {
     type Action = usize;
 
-    fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
-        Self { index: action }.into()
+    fn reduce(self: Rc<Self>, index: Self::Action) -> Rc<Self> {
+        Self { index }.into()
     }
 }
-
-pub(crate) type LanguageContext = UseReducerHandle<Language>;
 
 #[function_component(App)]
 pub fn app() -> Html {
@@ -103,7 +101,7 @@ pub fn app() -> Html {
         use_effect_with(page_loaded, move |_| {
             let get_index_of_browser_language = || -> Option<usize> {
                 let browser_language = &(DOM::language()?.to_uppercase()[..2]);
-                let browser_language = PathBuf::from(browser_language);
+                let browser_language = Path::new(browser_language);
                 let available_lang = AVAILABLE_LANGUAGES
                     .iter()
                     .enumerate()
@@ -118,7 +116,7 @@ pub fn app() -> Html {
 
     html! {
         <BrowserRouter>
-            <ContextProvider<LanguageContext> context={language}>
+            <ContextProvider<UseReducerHandle<Language>> context={language}>
                 <section
                     id={"main"}
                     class={classes![
@@ -132,7 +130,7 @@ pub fn app() -> Html {
                 >
                     <Switch<Route> render={switch} />
                 </section>
-            </ContextProvider<LanguageContext>>
+            </ContextProvider<UseReducerHandle<Language>>>
         </BrowserRouter>
     }
 }

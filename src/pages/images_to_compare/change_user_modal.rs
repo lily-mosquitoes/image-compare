@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 #[cfg(test)]
 use std::sync::atomic::Ordering;
 
@@ -10,6 +9,7 @@ use yew::{
     Callback,
     Html,
     Properties,
+    UseReducerHandle,
 };
 
 #[cfg(test)]
@@ -20,14 +20,12 @@ use crate::{
         console_error,
         DOM,
     },
-    load_file_from_language,
     pages::markdown_to_yew_html,
     shared_components::{
         Button,
         Modal,
     },
     Language,
-    LanguageContext,
 };
 
 struct SessionCookie {
@@ -73,32 +71,22 @@ pub(super) struct ChangeUserModalProps {
 }
 
 #[function_component(ChangeUserModal)]
-pub(super) fn change_user_modal(
-    props: &ChangeUserModalProps,
-) -> Html {
-    let language = match use_context::<LanguageContext>() {
+pub(super) fn change_user_modal(props: &ChangeUserModalProps) -> Html {
+    let language = match use_context::<UseReducerHandle<Language>>() {
         Some(ctx) => (*ctx).clone(),
         None => Language::default(),
     };
 
-    let change_user_content = load_file_from_language(
-        PathBuf::from("change_user_content.md"),
-        language.index,
-    );
+    let change_user_content = language.load_file("change_user_content.md");
     let change_user_content =
         markdown_to_yew_html(change_user_content.unwrap_or(""));
 
-    let cancel_action_button = load_file_from_language(
-        PathBuf::from("cancel_action_button.md"),
-        language.index,
-    );
+    let cancel_action_button = language.load_file("cancel_action_button.md");
     let cancel_action_button =
         markdown_to_yew_html(cancel_action_button.unwrap_or(""));
 
-    let confirm_reset_user_button = load_file_from_language(
-        PathBuf::from("confirm_reset_user_button.md"),
-        language.index,
-    );
+    let confirm_reset_user_button =
+        language.load_file("confirm_reset_user_button.md");
     let confirm_reset_user_button =
         markdown_to_yew_html(confirm_reset_user_button.unwrap_or(""));
 
@@ -110,10 +98,8 @@ pub(super) fn change_user_modal(
             match DOM::set_cookie_string(&unset_cookie.to_string()) {
                 Ok(_) => {
                     // mock, delete later TODO
-                    crate::request::user::MOCK_VOTES.store(
-                        0,
-                        std::sync::atomic::Ordering::SeqCst,
-                    );
+                    crate::request::user::MOCK_VOTES
+                        .store(0, std::sync::atomic::Ordering::SeqCst);
                     #[cfg(test)]
                     VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
                 },
@@ -195,10 +181,7 @@ pub(super) fn change_user_modal(
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        path::PathBuf,
-        sync::atomic::Ordering,
-    };
+    use std::sync::atomic::Ordering;
 
     use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
@@ -217,10 +200,10 @@ mod tests {
     };
     use crate::{
         dom::DOM,
-        load_file_from_language,
         markdown_to_decoded_html,
         render_yew_component,
         wasm_sleep_in_ms,
+        Language,
         AVAILABLE_LANGUAGES,
         DEFAULT_LANGUAGE,
     };
@@ -242,10 +225,10 @@ mod tests {
     fn change_user_content_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("change_user_content.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("change_user_content.md");
 
             assert!(file.is_some())
         }
@@ -260,19 +243,12 @@ mod tests {
             render_yew_component!(TestChangeUserModal);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("change_user_content.md"),
-                language_index,
-            );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let language = Language::default();
+            let expected = language.load_file("change_user_content.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
-            let text =
-                DOM::get_element_by_id("change_user_warning_content")
-                    .expect(
-                        "Element #change_user_warning_content to \
-                         exist",
-                    );
+            let text = DOM::get_element_by_id("change_user_warning_content")
+                .expect("Element #change_user_warning_content to exist");
 
             assert_eq!(text.inner_html(), expected);
         }
@@ -282,10 +258,10 @@ mod tests {
     fn cancel_action_button_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("cancel_action_button.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("cancel_action_button.md");
 
             assert!(file.is_some())
         }
@@ -300,12 +276,9 @@ mod tests {
             render_yew_component!(TestChangeUserModal);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("cancel_action_button.md"),
-                language_index,
-            );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let language = Language::default();
+            let expected = language.load_file("cancel_action_button.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             assert!(DOM::has_button_with_inner_html(&expected));
         }
@@ -315,10 +288,10 @@ mod tests {
     fn confirm_reset_user_button_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("confirm_reset_user_button.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("confirm_reset_user_button.md");
 
             assert!(file.is_some())
         }
@@ -333,12 +306,9 @@ mod tests {
             render_yew_component!(TestChangeUserModal);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("confirm_reset_user_button.md"),
-                language_index,
-            );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let language = Language::default();
+            let expected = language.load_file("confirm_reset_user_button.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             assert!(DOM::has_button_with_inner_html(&expected));
         }
@@ -347,8 +317,8 @@ mod tests {
     #[wasm_bindgen_test]
     fn struct_session_cookie_gives_unset_expired_cookie() {
         let cookie = SessionCookie::expire();
-        let expected = "session=;path=/;samesite=lax;expires=Thu, \
-                        01 Jan 1970 00:00:00 GMT";
+        let expected = "session=;path=/;samesite=lax;expires=Thu, 01 Jan 1970 \
+                        00:00:00 GMT";
 
         assert_eq!(cookie.to_string(), expected);
     }
@@ -362,20 +332,16 @@ mod tests {
         DOM::set_cookie_string(&cookie.to_string())
             .expect("Session cookie to be set");
 
-        let button =
-            DOM::get_button_by_id("change_user_confirm_button")
-                .expect(
-                    "Element #change_user_confirm_button to be \
-                     present",
-                )
-                .dyn_into::<web_sys::HtmlElement>()
-                .expect("Element to be castable to HtmlElement");
+        let button = DOM::get_button_by_id("change_user_confirm_button")
+            .expect("Element #change_user_confirm_button to be present")
+            .dyn_into::<web_sys::HtmlElement>()
+            .expect("Element to be castable to HtmlElement");
 
         button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
 
-        let cookie_string = DOM::get_cookie_string()
-            .expect("Cookies to be obtainable");
+        let cookie_string =
+            DOM::get_cookie_string().expect("Cookies to be obtainable");
         assert!(!cookie_string.contains("session="));
     }
 }

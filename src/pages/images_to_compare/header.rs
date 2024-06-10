@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use yew::{
     classes,
     function_component,
@@ -9,6 +7,7 @@ use yew::{
     Callback,
     Html,
     Properties,
+    UseReducerHandle,
 };
 
 use super::{
@@ -16,12 +15,10 @@ use super::{
     finish_comparing_modal::FinishComparingModal,
 };
 use crate::{
-    load_file_from_language,
     pages::markdown_to_yew_html,
     request::User,
     shared_components::Button,
     Language,
-    LanguageContext,
 };
 
 #[derive(Properties, PartialEq)]
@@ -32,7 +29,7 @@ pub(super) struct HeaderProps {
 
 #[function_component(Header)]
 pub(super) fn header(props: &HeaderProps) -> Html {
-    let language = match use_context::<LanguageContext>() {
+    let language = match use_context::<UseReducerHandle<Language>>() {
         Some(ctx) => (*ctx).clone(),
         None => Language::default(),
     };
@@ -50,30 +47,21 @@ pub(super) fn header(props: &HeaderProps) -> Html {
     };
 
     let open_finish_comparing_modal = {
-        let show_finish_comparing_modal =
-            show_finish_comparing_modal.clone();
+        let show_finish_comparing_modal = show_finish_comparing_modal.clone();
         Callback::from(move |_| show_finish_comparing_modal.set(true))
     };
 
     let close_finish_comparing_modal = {
-        let show_finish_comparing_modal =
-            show_finish_comparing_modal.clone();
-        Callback::from(move |_| {
-            show_finish_comparing_modal.set(false)
-        })
+        let show_finish_comparing_modal = show_finish_comparing_modal.clone();
+        Callback::from(move |_| show_finish_comparing_modal.set(false))
     };
 
-    let change_user_button = load_file_from_language(
-        PathBuf::from("change_user_button.md"),
-        language.index,
-    );
+    let change_user_button = language.load_file("change_user_button.md");
     let change_user_button =
         markdown_to_yew_html(change_user_button.unwrap_or(""));
 
-    let finish_comparing_button = load_file_from_language(
-        PathBuf::from("finish_comparing_button.md"),
-        language.index,
-    );
+    let finish_comparing_button =
+        language.load_file("finish_comparing_button.md");
     let finish_comparing_button = finish_comparing_button
         .unwrap_or("")
         .replace("{votes}", &props.user.votes.to_string());

@@ -10,6 +10,7 @@ use yew::{
     Callback,
     Html,
     Properties,
+    UseReducerHandle,
 };
 
 use super::{
@@ -18,11 +19,9 @@ use super::{
 };
 use crate::{
     dom::DOM,
-    load_file_from_language,
     pages::markdown_to_yew_html,
     shared_components::Modal,
     Language,
-    LanguageContext,
 };
 
 #[derive(Properties, PartialEq)]
@@ -31,10 +30,8 @@ pub(super) struct InstructionsModalProps {
 }
 
 #[function_component(InstructionsModal)]
-pub(super) fn instructions_modal(
-    props: &InstructionsModalProps,
-) -> Html {
-    let language = match use_context::<LanguageContext>() {
+pub(super) fn instructions_modal(props: &InstructionsModalProps) -> Html {
+    let language = match use_context::<UseReducerHandle<Language>>() {
         Some(ctx) => (*ctx).clone(),
         None => Language::default(),
     };
@@ -65,10 +62,9 @@ pub(super) fn instructions_modal(
         Callback::from(move |_| {
             match DOM::get_element_by_id("instructions_cards") {
                 Some(element) => {
-                    let card_length = element.scroll_width()
-                        / number_of_cards as i32;
-                    let index = (element.scroll_left()
-                        + (card_length / 2))
+                    let card_length =
+                        element.scroll_width() / number_of_cards as i32;
+                    let index = (element.scroll_left() + (card_length / 2))
                         / card_length;
                     currently_visible_card.set(index as u32);
                 },
@@ -84,12 +80,10 @@ pub(super) fn instructions_modal(
         Callback::from(move |_| {
             match DOM::get_element_by_id("instructions_cards") {
                 Some(element) => {
-                    let card_length =
-                        element.scroll_width() / number_of_cards;
-                    let modifier =
-                        index as i32 - currently_visible_card;
-                    let scroll_amount = element.scroll_left()
-                        + (card_length * modifier);
+                    let card_length = element.scroll_width() / number_of_cards;
+                    let modifier = index as i32 - currently_visible_card;
+                    let scroll_amount =
+                        element.scroll_left() + (card_length * modifier);
                     element.set_scroll_left(scroll_amount);
                 },
                 None => (),
@@ -97,24 +91,15 @@ pub(super) fn instructions_modal(
         })
     };
 
-    let about_the_project = load_file_from_language(
-        PathBuf::from("about_the_project.md"),
-        language.index,
-    );
+    let about_the_project = language.load_file("about_the_project.md");
     let about_the_project =
         markdown_to_yew_html(about_the_project.unwrap_or(""));
 
-    let how_to_participate = load_file_from_language(
-        PathBuf::from("how_to_participate.md"),
-        language.index,
-    );
+    let how_to_participate = language.load_file("how_to_participate.md");
     let how_to_participate =
         markdown_to_yew_html(how_to_participate.unwrap_or(""));
 
-    let disclaimer = load_file_from_language(
-        PathBuf::from("disclaimer.md"),
-        language.index,
-    );
+    let disclaimer = language.load_file("disclaimer.md");
     let disclaimer = markdown_to_yew_html(disclaimer.unwrap_or(""));
 
     html! {
@@ -177,10 +162,7 @@ pub(super) fn instructions_modal(
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        path::PathBuf,
-        sync::atomic::Ordering,
-    };
+    use std::sync::atomic::Ordering;
 
     use wasm_bindgen_test::{
         wasm_bindgen_test,
@@ -196,9 +178,9 @@ mod tests {
     use crate::{
         dom::DOM,
         helpers_for_tests::wasm_sleep_in_ms,
-        load_file_from_language,
         markdown_to_decoded_html,
         render_yew_component,
+        Language,
         AVAILABLE_LANGUAGES,
         DEFAULT_LANGUAGE,
     };
@@ -217,10 +199,10 @@ mod tests {
     fn about_the_project_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("about_the_project.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("about_the_project.md");
 
             assert!(file.is_some())
         }
@@ -235,12 +217,9 @@ mod tests {
             render_yew_component!(TestInstructionsModal);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("about_the_project.md"),
-                language_index,
-            );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let language = Language::default();
+            let expected = language.load_file("about_the_project.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             let text = DOM::get_element_by_id("about_the_project")
                 .expect("Element #about_the_project to exist");
@@ -253,10 +232,10 @@ mod tests {
     fn how_to_participate_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("how_to_participate.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("how_to_participate.md");
 
             assert!(file.is_some())
         }
@@ -271,12 +250,9 @@ mod tests {
             render_yew_component!(TestInstructionsModal);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("how_to_participate.md"),
-                language_index,
-            );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let language = Language::default();
+            let expected = language.load_file("how_to_participate.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             let text = DOM::get_element_by_id("how_to_participate")
                 .expect("Element #how_to_participate to exist");
@@ -289,10 +265,10 @@ mod tests {
     fn disclaimer_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("disclaimer.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("disclaimer.md");
 
             assert!(file.is_some())
         }
@@ -307,12 +283,9 @@ mod tests {
             render_yew_component!(TestInstructionsModal);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("disclaimer.md"),
-                language_index,
-            );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let language = Language::default();
+            let expected = language.load_file("disclaimer.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
             let text = DOM::get_element_by_id("disclaimer")
                 .expect("Element #disclaimer to exist");

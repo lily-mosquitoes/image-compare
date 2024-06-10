@@ -10,16 +10,15 @@ use yew::{
     Children,
     Html,
     Properties,
+    UseReducerHandle,
 };
 
 use crate::{
     assets::XMark,
     dom::DOM,
-    load_file_from_language,
     pages::markdown_to_yew_html,
     shared_components::Button,
     Language,
-    LanguageContext,
 };
 
 #[derive(Properties, PartialEq)]
@@ -31,15 +30,12 @@ pub(crate) struct ModalProps {
 
 #[function_component]
 pub(crate) fn Modal(props: &ModalProps) -> Html {
-    let language = match use_context::<LanguageContext>() {
+    let language = match use_context::<UseReducerHandle<Language>>() {
         Some(ctx) => (*ctx).clone(),
         None => Language::default(),
     };
 
-    let close_modal_button_sr = load_file_from_language(
-        PathBuf::from("close_modal_button_sr.md"),
-        language.index,
-    );
+    let close_modal_button_sr = language.load_file("close_modal_button_sr.md");
     let close_modal_button_sr =
         markdown_to_yew_html(close_modal_button_sr.unwrap_or(""));
 
@@ -125,10 +121,7 @@ pub(crate) fn Modal(props: &ModalProps) -> Html {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        path::PathBuf,
-        sync::atomic::Ordering,
-    };
+    use std::sync::atomic::Ordering;
 
     use wasm_bindgen_test::{
         wasm_bindgen_test,
@@ -144,9 +137,9 @@ mod tests {
     use crate::{
         dom::DOM,
         helpers_for_tests::markdown_to_decoded_html,
-        load_file_from_language,
         render_yew_component,
         wasm_sleep_in_ms,
+        Language,
         AVAILABLE_LANGUAGES,
         DEFAULT_LANGUAGE,
     };
@@ -168,18 +161,17 @@ mod tests {
         render_yew_component!(TestModal);
         wasm_sleep_in_ms(50).await;
 
-        assert!(DOM::get_button_by_id("close_test_modal_button")
-            .is_some());
+        assert!(DOM::get_button_by_id("close_test_modal_button").is_some());
     }
 
     #[wasm_bindgen_test]
     fn close_modal_button_sr_markdown_exists() {
         // add 1 to len to run even if no languages are available
         for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
-            let file = load_file_from_language(
-                PathBuf::from("close_modal_button_sr.md"),
-                language_index,
-            );
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("close_modal_button_sr.md");
 
             assert!(file.is_some())
         }
@@ -194,20 +186,14 @@ mod tests {
             render_yew_component!(TestModal);
             wasm_sleep_in_ms(50).await;
 
-            let expected = load_file_from_language(
-                PathBuf::from("close_modal_button_sr.md"),
-                language_index,
-            );
-            let expected =
-                markdown_to_decoded_html(expected.unwrap_or(""));
+            let language = Language::default();
+            let expected = language.load_file("close_modal_button_sr.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
 
-            let text =
-                DOM::get_element_by_id("close_test_modal_button")
-                    .expect(
-                        "Element #close_test_modal_button to exist",
-                    )
-                    .last_element_child()
-                    .expect("Last element child to exist");
+            let text = DOM::get_element_by_id("close_test_modal_button")
+                .expect("Element #close_test_modal_button to exist")
+                .last_element_child()
+                .expect("Last element child to exist");
 
             assert_eq!(text.inner_html(), expected);
         }
