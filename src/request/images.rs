@@ -18,10 +18,10 @@ pub(crate) struct Comparison {
 }
 
 pub(crate) async fn get_comparison_for_user(
-    user_id: String,
+    _user_id: String,
 ) -> Result<Comparison, ()> {
     #[cfg(test)]
-    {
+    if cfg!(test) {
         // sleep a bit to allow test to see the loading status
         crate::wasm_sleep_in_ms(50).await;
 
@@ -54,7 +54,7 @@ pub(crate) static GET_IMAGES_RETURNS_OK: AtomicBool = AtomicBool::new(true);
 pub(crate) struct Vote {
     comparison_id: String,
     #[serde(skip_serializing)]
-    comparison_images: Vec<String>,
+    _comparison_images: Vec<String>,
     user_id: String,
     image: String,
     user_agent: Option<String>,
@@ -63,8 +63,8 @@ pub(crate) struct Vote {
 
 pub(crate) async fn post_vote(vote: Vote) -> Result<(), ()> {
     #[cfg(test)]
-    {
-        return match vote.comparison_images.contains(&vote.image) {
+    if cfg!(test) {
+        return match vote._comparison_images.contains(&vote.image) {
             true => Ok(()),
             false => Err(()),
         };
@@ -76,6 +76,8 @@ pub(crate) async fn post_vote(vote: Vote) -> Result<(), ()> {
     ));
     web_sys::console::log_1(&debug_string);
 
+    super::user::MOCK_VOTES.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+
     Ok(())
 }
 
@@ -83,7 +85,7 @@ impl Vote {
     pub(crate) fn build(comparison: Comparison) -> Self {
         Self {
             comparison_id: comparison.id,
-            comparison_images: comparison.images,
+            _comparison_images: comparison.images,
             user_id: String::default(),
             image: String::default(),
             user_agent: DOM::user_agent(),

@@ -18,14 +18,11 @@ impl DOM {
         DOM::window()?.document()
     }
 
-    pub(crate) fn get_element_by_id(
-        id: &str,
-    ) -> Option<web_sys::Element> {
+    pub(crate) fn get_element_by_id(id: &str) -> Option<web_sys::Element> {
         DOM::document()?.get_element_by_id(id)
     }
 
-    pub(crate) fn body_first_element_child(
-    ) -> Option<web_sys::Element> {
+    pub(crate) fn body_first_element_child() -> Option<web_sys::Element> {
         DOM::document()?.body()?.first_element_child()
     }
 
@@ -37,18 +34,7 @@ impl DOM {
         DOM::window()?.navigator().language()
     }
 
-    pub(crate) fn set_cookie_string(value: &str) -> Result<(), &str> {
-        DOM::document()
-            .ok_or("Document not redendered correctly")?
-            .dyn_into::<web_sys::HtmlDocument>()
-            .or(Err("Document not castable to HtmlDocument"))?
-            .set_cookie(value)
-            .or(Err("Unable to set cookie string"))
-    }
-
-    pub(crate) fn set_document_language(
-        lang: &str,
-    ) -> Result<(), &str> {
+    pub(crate) fn set_document_language(lang: &str) -> Result<(), &str> {
         DOM::document()
             .ok_or("Document not rendered correctly")?
             .document_element()
@@ -58,6 +44,10 @@ impl DOM {
             .set_lang(lang);
 
         Ok(())
+    }
+
+    pub(crate) fn local_storage() -> Option<web_sys::Storage> {
+        DOM::window()?.local_storage().ok()?
     }
 }
 
@@ -86,18 +76,14 @@ impl DOM {
         }
     }
 
-    pub(crate) fn get_images_by_id(
-        id: &str,
-    ) -> Option<Vec<web_sys::Element>> {
+    pub(crate) fn get_images_by_id(id: &str) -> Option<Vec<web_sys::Element>> {
         let mut images = DOM::get_images()?;
         images.retain(|x| x.id().as_str() == id);
 
         Some(images)
     }
 
-    pub(crate) fn get_button_by_id(
-        id: &str,
-    ) -> Option<web_sys::Element> {
+    pub(crate) fn get_button_by_id(id: &str) -> Option<web_sys::Element> {
         let element = DOM::get_element_by_id(id)?;
         match &element.tag_name() == "BUTTON" {
             true => Some(element),
@@ -105,9 +91,7 @@ impl DOM {
         }
     }
 
-    pub(crate) fn has_button_with_inner_html(
-        inner_html: &str,
-    ) -> bool {
+    pub(crate) fn has_button_with_inner_html(inner_html: &str) -> bool {
         let buttons = DOM::document()
             .expect("document to be rendered")
             .get_elements_by_tag_name("button");
@@ -126,15 +110,5 @@ impl DOM {
             index += 1;
         }
         found
-    }
-
-    pub(crate) fn get_cookie_string() -> Result<String, &'static str>
-    {
-        DOM::document()
-            .ok_or("Document not redendered correctly")?
-            .dyn_into::<web_sys::HtmlDocument>()
-            .or(Err("Document not castable to HtmlDocument"))?
-            .cookie()
-            .or(Err("Unable to get cookie string"))
     }
 }

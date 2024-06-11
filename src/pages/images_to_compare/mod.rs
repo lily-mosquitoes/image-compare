@@ -223,10 +223,7 @@ pub(crate) fn images_to_compare() -> Html {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        path::PathBuf,
-        sync::atomic::Ordering,
-    };
+    use std::sync::atomic::Ordering;
 
     use wasm_bindgen::JsCast;
     use wasm_bindgen_test::{
@@ -359,6 +356,10 @@ mod tests {
     async fn confirm_reset_user_in_change_user_modal_reloads_page() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        DOM::local_storage()
+            .unwrap()
+            .set_item("user_id", "123456")
+            .unwrap();
         VOTES_TO_DISPLAY.store(rand::random(), Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
@@ -408,6 +409,10 @@ mod tests {
     async fn button_to_finish_comparing_shows_user_votes() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        DOM::local_storage()
+            .unwrap()
+            .set_item("user_id", "123456")
+            .unwrap();
         VOTES_TO_DISPLAY.store(rand::random(), Ordering::SeqCst);
 
         // add 1 to len to run even if no languages are available
@@ -581,6 +586,10 @@ mod tests {
     async fn when_user_has_0_votes_show_instructions_modal() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        DOM::local_storage()
+            .unwrap()
+            .set_item("user_id", "123456")
+            .unwrap();
         VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
@@ -593,6 +602,10 @@ mod tests {
     async fn when_user_has_more_than_0_votes_do_not_show_instructions_modal() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        DOM::local_storage()
+            .unwrap()
+            .set_item("user_id", "123456")
+            .unwrap();
         VOTES_TO_DISPLAY.store(1, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
@@ -650,6 +663,10 @@ mod tests {
     async fn button_to_show_instructions_modal_works() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        DOM::local_storage()
+            .unwrap()
+            .set_item("user_id", "123456")
+            .unwrap();
         VOTES_TO_DISPLAY.store(1, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
@@ -669,6 +686,10 @@ mod tests {
     async fn instructions_modal_can_be_closed() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        DOM::local_storage()
+            .unwrap()
+            .set_item("user_id", "123456")
+            .unwrap();
         VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);

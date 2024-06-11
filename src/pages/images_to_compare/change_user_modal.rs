@@ -1,6 +1,3 @@
-#[cfg(test)]
-use std::sync::atomic::Ordering;
-
 use yew::{
     classes,
     function_component,
@@ -12,8 +9,6 @@ use yew::{
     UseReducerHandle,
 };
 
-#[cfg(test)]
-use crate::request::user::VOTES_TO_DISPLAY;
 use crate::{
     assets::ExclamationTriangle,
     dom::{
@@ -27,42 +22,6 @@ use crate::{
     },
     Language,
 };
-
-struct SessionCookie {
-    value: Option<String>,
-    expired: bool,
-}
-
-impl SessionCookie {
-    fn to_string(&self) -> String {
-        let value = match &self.value {
-            Some(s) => s.as_str(),
-            None => "",
-        };
-
-        let expires = match self.expired {
-            true => ";expires=Thu, 01 Jan 1970 00:00:00 GMT",
-            false => "",
-        };
-
-        format!("session={};path=/;samesite=lax{}", value, expires)
-    }
-
-    fn expire() -> Self {
-        SessionCookie {
-            value: None,
-            expired: true,
-        }
-    }
-
-    #[cfg(test)]
-    fn with_value(value: &str) -> Self {
-        SessionCookie {
-            value: Some(value.to_string()),
-            expired: false,
-        }
-    }
-}
 
 #[derive(Properties, PartialEq)]
 pub(super) struct ChangeUserModalProps {
@@ -94,16 +53,15 @@ pub(super) fn change_user_modal(props: &ChangeUserModalProps) -> Html {
         let close_event = props.onclose.clone();
         let confirmation_event = props.onconfirm.clone();
         Callback::from(move |_| {
-            let unset_cookie = SessionCookie::expire();
-            match DOM::set_cookie_string(&unset_cookie.to_string()) {
-                Ok(_) => {
-                    // mock, delete later TODO
-                    crate::request::user::MOCK_VOTES
-                        .store(0, std::sync::atomic::Ordering::SeqCst);
-                    #[cfg(test)]
-                    VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
-                },
-                Err(error) => console_error!(error),
+            let deleted = DOM::local_storage()
+                .ok_or("Unable to fetch localstorage")
+                .and_then(|storage| {
+                    storage.delete("user_id").map_err(|_| {
+                        "Unable to delete `user_id` from localstorage"
+                    })
+                });
+            if let Err(error) = deleted {
+                console_error!(error);
             };
 
             close_event.emit(());
@@ -194,10 +152,7 @@ mod tests {
         Html,
     };
 
-    use super::{
-        ChangeUserModal,
-        SessionCookie,
-    };
+    use super::ChangeUserModal;
     use crate::{
         dom::DOM,
         markdown_to_decoded_html,
@@ -315,22 +270,14 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    fn struct_session_cookie_gives_unset_expired_cookie() {
-        let cookie = SessionCookie::expire();
-        let expected = "session=;path=/;samesite=lax;expires=Thu, 01 Jan 1970 \
-                        00:00:00 GMT";
-
-        assert_eq!(cookie.to_string(), expected);
-    }
-
-    #[wasm_bindgen_test]
-    async fn confirm_reset_user_button_removes_session_cookie() {
+    async fn confirm_reset_user_button_removes_user_id_from_localstorage() {
         render_yew_component!(TestChangeUserModal);
         wasm_sleep_in_ms(50).await;
 
-        let cookie = SessionCookie::with_value("testvalue");
-        DOM::set_cookie_string(&cookie.to_string())
-            .expect("Session cookie to be set");
+        DOM::local_storage()
+            .expect("Localstorage to exist")
+            .set_item("user_id", "123456")
+            .expect("Localstorage to be settable");
 
         let button = DOM::get_button_by_id("change_user_confirm_button")
             .expect("Element #change_user_confirm_button to be present")
@@ -340,8 +287,10 @@ mod tests {
         button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
 
-        let cookie_string =
-            DOM::get_cookie_string().expect("Cookies to be obtainable");
-        assert!(!cookie_string.contains("session="));
+        let user_id = DOM::local_storage()
+            .expect("Localstorage to exist")
+            .get_item("user_id")
+            .expect("Localstorage to be gettable");
+        assert_eq!(user_id, None);
     }
 }

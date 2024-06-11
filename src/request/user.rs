@@ -7,6 +7,8 @@ use std::sync::atomic::{
 
 use serde::Deserialize;
 
+use crate::dom::DOM;
+
 #[derive(Clone, PartialEq, Default, Deserialize)]
 pub(crate) struct User {
     pub(crate) id: String,
@@ -17,17 +19,52 @@ pub(crate) struct User {
 pub(crate) static MOCK_VOTES: std::sync::atomic::AtomicUsize =
     std::sync::atomic::AtomicUsize::new(0);
 
-#[cfg(not(test))]
 pub(crate) async fn get_user() -> Result<User, ()> {
+    #[cfg(test)]
+    if !GET_USER_RETURNS_OK.load(Ordering::SeqCst) {
+        return Err(());
+    }
+
+    let user_id = DOM::local_storage()
+        .and_then(|storage| storage.get_item("user_id").unwrap_or(None));
+
+    match user_id {
+        Some(id) => get_user_by_id(&id).await,
+        None => {
+            let user = generate_user().await?;
+            DOM::local_storage()
+                .ok_or(())?
+                .set_item("user_id", &user.id)
+                .or(Err(()))?;
+            Ok(user)
+        },
+    }
+}
+
+pub(crate) async fn get_user_by_id(id: &str) -> Result<User, ()> {
+    #[cfg(test)]
+    if cfg!(test) {
+        return Ok(User {
+            id: id.to_string(),
+            votes: VOTES_TO_DISPLAY.load(Ordering::SeqCst),
+            average_chosen_lambda: Some(0.65),
+        });
+    }
     yew::platform::time::sleep(std::time::Duration::from_millis(500)).await;
-
-    let user = User {
-        id: String::default(),
-        votes: MOCK_VOTES.fetch_add(1, std::sync::atomic::Ordering::SeqCst),
+    Ok(User {
+        id: id.to_string(),
+        votes: MOCK_VOTES.load(std::sync::atomic::Ordering::SeqCst),
         average_chosen_lambda: Some(0.65),
-    };
+    })
+}
 
-    Ok(user)
+pub(crate) async fn generate_user() -> Result<User, ()> {
+    #[cfg(test)]
+    if cfg!(test) {
+        return Ok(User::new());
+    }
+    yew::platform::time::sleep(std::time::Duration::from_millis(500)).await;
+    Ok(User::default())
 }
 
 #[cfg(test)]
@@ -37,13 +74,17 @@ pub(crate) static GET_USER_RETURNS_OK: AtomicBool = AtomicBool::new(true);
 pub(crate) static VOTES_TO_DISPLAY: AtomicUsize = AtomicUsize::new(0);
 
 #[cfg(test)]
-pub(crate) async fn get_user() -> Result<User, ()> {
-    if GET_USER_RETURNS_OK.load(Ordering::SeqCst) {
-        let mut user = User::default();
-        user.votes = VOTES_TO_DISPLAY.load(Ordering::SeqCst);
-        Ok(user)
-    } else {
-        Err(())
+impl User {
+    fn new() -> Self {
+        VOTES_TO_DISPLAY.store(0, Ordering::SeqCst);
+        let id: String = (0..16)
+            .map(|_| format!("{:x}", rand::random::<u8>()))
+            .collect();
+        Self {
+            id,
+            votes: 0,
+            average_chosen_lambda: None,
+        }
     }
 }
 
