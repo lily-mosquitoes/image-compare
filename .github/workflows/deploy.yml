@@ -12,7 +12,7 @@ jobs:
 
       - name: Install Wasm-Pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-      
+
       - name: Test Firefox
         run: wasm-pack test --headless --firefox
 
@@ -27,11 +27,21 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TRUNK_VERSION: v0.16.0
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: '18'
-      - uses: aws-actions/configure-aws-credentials@v1
+          version: 9
+
+      - name: Install nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -44,7 +54,7 @@ jobs:
         run: wget -qO- https://github.com/thedodd/trunk/releases/download/${{ env.TRUNK_VERSION }}/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
 
       - name: Install Tailwind
-        run: npm install
+        run: pnpm install
 
       - name: Build CSS
         run: npm run tailwind-minify
