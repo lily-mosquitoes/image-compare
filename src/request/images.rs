@@ -26,10 +26,7 @@ pub(crate) async fn get_comparison_for_user(
         crate::wasm_sleep_in_ms(50).await;
 
         return match GET_IMAGES_RETURNS_OK.load(Ordering::SeqCst) {
-            true => Ok(Comparison {
-                id: String::default(),
-                images: vec![String::default(), String::default()],
-            }),
+            true => Ok(Comparison::default()),
             false => Err(()),
         };
     }
@@ -45,6 +42,15 @@ pub(crate) async fn get_comparison_for_user(
     };
 
     Ok(comparison)
+}
+
+impl Default for Comparison {
+    fn default() -> Self {
+        Self {
+            id: String::default(),
+            images: vec![String::default(), String::default()],
+        }
+    }
 }
 
 #[cfg(test)]

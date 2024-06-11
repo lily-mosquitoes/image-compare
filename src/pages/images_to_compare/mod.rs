@@ -162,7 +162,7 @@ pub(crate) fn images_to_compare() -> Html {
 
     let image_list_to_display = match (*comparison_state).clone() {
         Some(comparison) => comparison.images,
-        None => vec![String::default(), String::default()],
+        None => Comparison::default().images,
     };
 
     html! {
