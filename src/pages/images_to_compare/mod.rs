@@ -162,7 +162,7 @@ pub(crate) fn images_to_compare() -> Html {
 
     let image_list_to_display = match (*comparison_state).clone() {
         Some(comparison) => comparison.images,
-        None => Vec::<String>::default(),
+        None => vec![String::default(), String::default()],
     };
 
     html! {
@@ -519,7 +519,7 @@ mod tests {
         wasm_sleep_in_ms(150).await;
 
         assert_eq!(
-            DOM::get_images_by_id("image_to_compare")
+            DOM::get_images_by_id_contains("image_to_compare_")
                 .unwrap_or(vec![])
                 .len(),
             2
@@ -534,7 +534,7 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        let images = DOM::get_images_by_id("image_to_compare")
+        let images = DOM::get_images_by_id_contains("image_to_compare")
             .expect("Images to compare to be present");
 
         let image = images[0]
@@ -544,10 +544,16 @@ mod tests {
 
         image.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
-        assert!(DOM::get_images_by_id("image_to_compare").is_none());
+        assert!(DOM::get_images_by_id_contains("image_to_compare_").is_none());
+        assert_eq!(
+            DOM::get_buttons_by_id_contains("loading_status_button_")
+                .unwrap_or(vec![])
+                .len(),
+            2
+        );
         wasm_sleep_in_ms(100).await; // allow images to actually load
         assert_eq!(
-            DOM::get_images_by_id("image_to_compare")
+            DOM::get_images_by_id_contains("image_to_compare")
                 .unwrap_or(vec![])
                 .len(),
             2
@@ -562,7 +568,7 @@ mod tests {
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        let images = DOM::get_images_by_id("image_to_compare")
+        let images = DOM::get_images_by_id_contains("image_to_compare_")
             .expect("Images to compare to be present");
 
         let image = images[1]
@@ -572,10 +578,16 @@ mod tests {
 
         image.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
-        assert!(DOM::get_images_by_id("image_to_compare").is_none());
+        assert!(DOM::get_images_by_id_contains("image_to_compare_").is_none());
+        assert_eq!(
+            DOM::get_buttons_by_id_contains("loading_status_button_")
+                .unwrap_or(vec![])
+                .len(),
+            2
+        );
         wasm_sleep_in_ms(100).await; // allow images to actually load
         assert_eq!(
-            DOM::get_images_by_id("image_to_compare")
+            DOM::get_images_by_id_contains("image_to_compare_")
                 .unwrap_or(vec![])
                 .len(),
             2

@@ -26,7 +26,8 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
     props
         .images
         .iter()
-        .map(|image| {
+        .enumerate()
+        .map(|(index, image)| {
             let on_image_select = {
                 let onclick = onclick.clone();
                 let image = image.clone();
@@ -36,7 +37,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
             if props.loading {
                 html! {
                     <Button
-                        id={"loading_status_button".to_string()}
+                        id={format!("loading_status_button_{index}")}
                         class={classes![
                             "h-1/2",
                             "md:h-5/6",
@@ -51,7 +52,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
             } else {
                 html! {
                     <Button
-                        id={"image_to_compare_button"}
+                        id={format!("image_to_compare_button_{index}")}
                         class={classes![
                             "h-1/2",
                             "md:h-5/6",
@@ -61,7 +62,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                         onclick={on_image_select}
                     >
                         <img
-                            id={"image_to_compare"}
+                            id={format!("image_to_compare_{index}")}
                             class={classes!["h-full"]}
                             src={image.clone()}
                             alt=""

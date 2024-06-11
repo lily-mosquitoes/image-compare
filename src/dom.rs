@@ -76,9 +76,11 @@ impl DOM {
         }
     }
 
-    pub(crate) fn get_images_by_id(id: &str) -> Option<Vec<web_sys::Element>> {
+    pub(crate) fn get_images_by_id_contains(
+        id: &str,
+    ) -> Option<Vec<web_sys::Element>> {
         let mut images = DOM::get_images()?;
-        images.retain(|x| x.id().as_str() == id);
+        images.retain(|x| x.id().contains(id));
 
         Some(images)
     }
@@ -88,6 +90,33 @@ impl DOM {
         match &element.tag_name() == "BUTTON" {
             true => Some(element),
             false => None,
+        }
+    }
+
+    pub(crate) fn get_buttons_by_id_contains(
+        id: &str,
+    ) -> Option<Vec<web_sys::Element>> {
+        let buttons = DOM::document()?.get_elements_by_tag_name("BUTTON");
+
+        let mut buttons_vec = Vec::<web_sys::Element>::new();
+        let mut index = 0;
+        loop {
+            match buttons.item(index) {
+                Some(button) => {
+                    if button.id().contains(id) {
+                        buttons_vec.push(button);
+                    }
+                },
+                None => break,
+            }
+
+            index += 1;
+        }
+
+        if index > 0 {
+            Some(buttons_vec)
+        } else {
+            None
         }
     }
 
