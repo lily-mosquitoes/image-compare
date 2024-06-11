@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use yew::{
     classes,
     function_component,

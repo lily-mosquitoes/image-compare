@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use yew::{
     classes,
     create_portal,
