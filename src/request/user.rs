@@ -7,17 +7,18 @@ use std::sync::atomic::{
 
 use serde::Deserialize;
 
-use crate::dom::DOM;
+use super::Response;
+use crate::dom::{
+    console_error,
+    DOM,
+};
 
 #[derive(Clone, PartialEq, Default, Deserialize)]
 pub(crate) struct User {
     pub(crate) id: String,
     pub(crate) votes: usize,
-    pub(crate) average_chosen_lambda: Option<f64>,
+    pub(crate) average_lambda: f64,
 }
-
-pub(crate) static MOCK_VOTES: std::sync::atomic::AtomicUsize =
-    std::sync::atomic::AtomicUsize::new(0);
 
 pub(crate) async fn get_user() -> Result<User, ()> {
     #[cfg(test)]
@@ -47,15 +48,21 @@ pub(crate) async fn get_user_by_id(id: &str) -> Result<User, ()> {
         return Ok(User {
             id: id.to_string(),
             votes: VOTES_TO_DISPLAY.load(Ordering::SeqCst),
-            average_chosen_lambda: Some(0.65),
+            average_lambda: 0.65,
         });
     }
-    yew::platform::time::sleep(std::time::Duration::from_millis(500)).await;
-    Ok(User {
-        id: id.to_string(),
-        votes: MOCK_VOTES.load(std::sync::atomic::Ordering::SeqCst),
-        average_chosen_lambda: Some(0.65),
-    })
+
+    let user = gloo_net::http::Request::get(&format!("/api/user/{id}"))
+        .send()
+        .await
+        .map_err(|error| console_error!(error.to_string()))?
+        .json::<Response<User, String>>()
+        .await
+        .map_err(|error| console_error!(error.to_string()))?
+        .as_result()
+        .map_err(|error| console_error!(error))?;
+
+    Ok(user)
 }
 
 pub(crate) async fn generate_user() -> Result<User, ()> {
@@ -63,8 +70,18 @@ pub(crate) async fn generate_user() -> Result<User, ()> {
     if cfg!(test) {
         return Ok(User::new());
     }
-    yew::platform::time::sleep(std::time::Duration::from_millis(500)).await;
-    Ok(User::default())
+
+    let user = gloo_net::http::Request::post("/api/user")
+        .send()
+        .await
+        .map_err(|error| console_error!(error.to_string()))?
+        .json::<Response<User, String>>()
+        .await
+        .map_err(|error| console_error!(error.to_string()))?
+        .as_result()
+        .map_err(|error| console_error!(error))?;
+
+    Ok(user)
 }
 
 #[cfg(test)]
@@ -83,7 +100,7 @@ impl User {
         Self {
             id,
             votes: 0,
-            average_chosen_lambda: None,
+            average_lambda: 0.0,
         }
     }
 }
@@ -103,7 +120,7 @@ mod tests {
         let value = serde_json::json!({
             "id": "55555555555555555555555555555555",
             "votes": 4,
-            "average_chosen_lambda": 0.65
+            "average_lambda": 0.65
         });
 
         assert!(serde_json::from_value::<User>(value).is_ok());

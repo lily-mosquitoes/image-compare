@@ -9,7 +9,11 @@ use serde::{
     Serialize,
 };
 
-use crate::dom::DOM;
+use super::Response;
+use crate::dom::{
+    console_error,
+    DOM,
+};
 
 #[derive(Clone, PartialEq, Deserialize)]
 pub(crate) struct Comparison {
@@ -18,7 +22,7 @@ pub(crate) struct Comparison {
 }
 
 pub(crate) async fn get_comparison_for_user(
-    _user_id: String,
+    user_id: String,
 ) -> Result<Comparison, ()> {
     #[cfg(test)]
     if cfg!(test) {
@@ -31,15 +35,17 @@ pub(crate) async fn get_comparison_for_user(
         };
     }
 
-    yew::platform::time::sleep(std::time::Duration::from_millis(500)).await;
-
-    let comparison = Comparison {
-        id: "".to_string(),
-        images: vec![
-            "https://i.imgur.com/3ByU8xj.png".to_string(),
-            "https://i.imgur.com/KN2lyRT.png".to_string(),
-        ],
-    };
+    let comparison = gloo_net::http::Request::get(&format!(
+        "/api/user/{user_id}/comparison"
+    ))
+    .send()
+    .await
+    .map_err(|error| console_error!(error.to_string()))?
+    .json::<Response<Comparison, String>>()
+    .await
+    .map_err(|error| console_error!(error.to_string()))?
+    .as_result()
+    .map_err(|error| console_error!(error))?;
 
     Ok(comparison)
 }
@@ -56,10 +62,10 @@ impl Default for Comparison {
 #[cfg(test)]
 pub(crate) static GET_IMAGES_RETURNS_OK: AtomicBool = AtomicBool::new(true);
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub(crate) struct Vote {
     comparison_id: String,
-    #[serde(skip_serializing)]
+    #[serde(skip)]
     _comparison_images: Vec<String>,
     user_id: String,
     image: String,
@@ -76,13 +82,17 @@ pub(crate) async fn post_vote(vote: Vote) -> Result<(), ()> {
         };
     }
 
-    let debug_string = wasm_bindgen::JsValue::from(format!(
-        "image was chosen: {}",
-        vote.image
-    ));
-    web_sys::console::log_1(&debug_string);
-
-    super::user::MOCK_VOTES.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+    let _ = gloo_net::http::Request::post("/api/vote")
+        .json::<Vote>(&vote)
+        .map_err(|error| console_error!(error.to_string()))?
+        .send()
+        .await
+        .map_err(|error| console_error!(error.to_string()))?
+        .json::<Response<Vote, String>>()
+        .await
+        .map_err(|error| console_error!(error.to_string()))?
+        .as_result()
+        .map_err(|error| console_error!(error))?;
 
     Ok(())
 }

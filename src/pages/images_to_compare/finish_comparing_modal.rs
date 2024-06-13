@@ -33,10 +33,9 @@ pub(super) fn finish_comparing_modal(
     };
 
     let thanks_for_comparing = language.load_file("thanks_for_comparing.md");
-    let thanks_for_comparing = thanks_for_comparing.unwrap_or("").replace(
-        "{lambda}",
-        &props.user.average_chosen_lambda.unwrap_or(0.0).to_string(),
-    );
+    let thanks_for_comparing = thanks_for_comparing
+        .unwrap_or("")
+        .replace("{lambda}", &props.user.average_lambda.to_string());
     let thanks_for_comparing = markdown_to_yew_html(&thanks_for_comparing);
 
     html! {
@@ -104,7 +103,7 @@ mod tests {
         User {
             id: "".to_string(),
             votes: 0,
-            average_chosen_lambda: Some(0.8932),
+            average_lambda: 0.8932,
         }
     }
 
@@ -144,10 +143,9 @@ mod tests {
 
             let language = Language::default();
             let expected = language.load_file("thanks_for_comparing.md");
-            let expected = expected.unwrap_or("").replace(
-                "{lambda}",
-                &test_user().average_chosen_lambda.unwrap_or(0.0).to_string(),
-            );
+            let expected = expected
+                .unwrap_or("")
+                .replace("{lambda}", &test_user().average_lambda.to_string());
             let expected = markdown_to_decoded_html(&expected);
 
             let text = DOM::get_element_by_id("thanks_for_comparing")

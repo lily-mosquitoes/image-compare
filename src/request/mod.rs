@@ -1,10 +1,6 @@
 pub(crate) mod images;
 pub(crate) mod user;
 
-use chrono::{
-    DateTime,
-    Utc,
-};
 use serde::Deserialize;
 
 pub(crate) use self::{
@@ -22,14 +18,22 @@ pub(crate) use self::{
 
 #[derive(Deserialize)]
 pub(crate) struct Response<T, E> {
-    pub(crate) timestamp: DateTime<Utc>,
     pub(crate) data: Option<T>,
     pub(crate) error: Option<E>,
 }
 
+impl<T, E> Response<T, E> {
+    pub(crate) fn as_result(self) -> Result<T, E> {
+        match (self.data, self.error) {
+            (Some(data), _) => Ok(data),
+            (_, Some(error)) => Err(error),
+            _ => unreachable!(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use chrono::Utc;
     use wasm_bindgen_test::{
         wasm_bindgen_test,
         wasm_bindgen_test_configure,
@@ -41,7 +45,6 @@ mod tests {
     #[wasm_bindgen_test]
     fn response_struct_is_deserializable_with_data_field() {
         let value = serde_json::json!({
-            "timestamp": Utc::now(),
             "data": 0,
         });
 
@@ -51,10 +54,33 @@ mod tests {
     #[wasm_bindgen_test]
     fn response_struct_is_deserializable_with_error_field() {
         let value = serde_json::json!({
-            "timestamp": Utc::now(),
             "error": 0,
         });
 
         assert!(serde_json::from_value::<Response<(), usize>>(value).is_ok());
+    }
+
+    #[wasm_bindgen_test]
+    fn response_struct_with_data_field_can_be_cast_as_result() {
+        let value = serde_json::json!({
+            "data": 0,
+        });
+
+        let response = serde_json::from_value::<Response<usize, ()>>(value)
+            .expect("to be deserializable");
+
+        assert!(response.as_result().is_ok());
+    }
+
+    #[wasm_bindgen_test]
+    fn response_struct_with_error_field_can_be_cast_as_result() {
+        let value = serde_json::json!({
+            "error": 0,
+        });
+
+        let response = serde_json::from_value::<Response<(), usize>>(value)
+            .expect("to be deserializable");
+
+        assert!(response.as_result().is_err());
     }
 }

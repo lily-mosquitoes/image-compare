@@ -1,7 +1,7 @@
 use wasm_bindgen::JsCast;
 
 macro_rules! console_error {
-    ($str:tt) => {
+    ($str:expr) => {
         web_sys::console::error_1(&wasm_bindgen::JsValue::from($str))
     };
 }
