@@ -1,3 +1,8 @@
+[build]
+target = "./src/static/index.html"
+minify = "on_release"
+dist = "./dist"
+
 [[proxy]]
 backend = "http://127.0.0.1:8000/api"
 
