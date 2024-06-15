@@ -1,3 +1,13 @@
 # build artifacts
 /target
 /dist
+
+# compose env
+.env
+!.env.template
+
+# local TLS for testing
+/.tls/*
+!/.tls/README.md
+!/.tls/openssl.cnf
+!/.tls/generate.sh

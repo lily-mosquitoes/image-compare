@@ -1,0 +1,22 @@
+[req]
+default_bits = 2048
+default_md = sha256
+distinguished_name = dn
+req_extensions = req_v3
+prompt = no
+
+[dn]
+countryName=FI
+localityName=Helsinki
+organizationName=Example INC
+organizationalUnitName=Local TLS Example
+commonName=localhost
+
+[req_v3]
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = localhost

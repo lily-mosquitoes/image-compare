@@ -1,0 +1,19 @@
+server {
+    listen 443 ssl;
+    server_name ${DOMAIN_NAME};
+    ssl_certificate /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+    keepalive_timeout 70;
+
+    location / {
+	root /srv/www;
+    }
+
+    location /api {
+        proxy_pass http://host.docker.internal:8000/api;
+    }
+
+    location /static/images {
+        proxy_pass http://host.docker.internal:8000/static/images;
+    }
+}
