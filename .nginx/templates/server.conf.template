@@ -1,8 +1,8 @@
 server {
     listen 443 ssl;
     server_name ${DOMAIN_NAME};
-    ssl_certificate /etc/nginx/ssl/fullchain.pem;
-    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+    ssl_certificate /etc/nginx/ssl/live/${DOMAIN_NAME}/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/live/${DOMAIN_NAME}/privkey.pem;
     keepalive_timeout 70;
 
     root /srv/www/;
