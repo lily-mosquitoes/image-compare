@@ -10,10 +10,14 @@ server {
     }
 
     location /api {
+        proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header X-Forwarded-Proto $scheme;
         proxy_pass http://host.docker.internal:8000/api;
     }
 
     location /static/images {
+        proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header X-Forwarded-Proto $scheme;
         proxy_pass http://host.docker.internal:8000/static/images;
     }
 }
