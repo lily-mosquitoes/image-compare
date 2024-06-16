@@ -59,3 +59,8 @@ You should now be able to see something like:
 `trunk build --release`
 
 Artifacts will be in the `dist` folder.
+
+### Copyright
+See [LICENSE]
+
+`src/static/robots.txt` is based on the project: https://github.com/ai-robots-txt/ai.robots.txt
