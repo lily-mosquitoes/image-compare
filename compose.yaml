@@ -7,13 +7,14 @@ services:
       DOMAIN_NAME: "${DOMAIN_NAME}"
 
     volumes:
-      - type: volume
-        source: server
-        target: /srv/www
-
       - type: bind
         source: ./.nginx/templates
         target: /etc/nginx/templates
+        read_only: true
+
+      - type: bind
+        source: "${LETSENCRYPT_FILES}"
+        target: /srv/challenge
         read_only: true
 
       - type: bind
@@ -36,6 +37,3 @@ services:
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-volumes:
-  server:
