@@ -35,6 +35,7 @@ use crate::{
         Comparison,
         User,
         Vote,
+        VoteValue,
     },
     shared_components::{
         Button,
@@ -109,7 +110,7 @@ pub(crate) fn images_to_compare() -> Html {
                         .expect("BUG: Comparison expected"),
                 )
                 .user(user_state.id.clone())
-                .vote(image);
+                .vote(VoteValue::OneIsBetter(image));
                 let response = post_vote(vote).await;
                 match response {
                     Ok(_) => comparison_state.set(None),

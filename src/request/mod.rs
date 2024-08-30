@@ -9,6 +9,7 @@ pub(crate) use self::{
         post_vote,
         Comparison,
         Vote,
+        VoteValue,
     },
     user::{
         get_user,

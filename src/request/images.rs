@@ -62,13 +62,23 @@ impl Default for Comparison {
 #[cfg(test)]
 pub(crate) static GET_IMAGES_RETURNS_OK: AtomicBool = AtomicBool::new(true);
 
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+pub(crate) enum VoteValue {
+    #[serde(rename = "equal")]
+    Equal,
+    #[serde(rename = "different")]
+    Different,
+    #[serde(untagged)]
+    OneIsBetter(String),
+}
+
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Vote {
     comparison_id: String,
     #[serde(skip)]
     _comparison_images: Vec<String>,
     user_id: String,
-    image: String,
+    vote_value: VoteValue,
     user_agent: Option<String>,
     language: Option<String>,
 }
@@ -76,9 +86,13 @@ pub(crate) struct Vote {
 pub(crate) async fn post_vote(vote: Vote) -> Result<(), ()> {
     #[cfg(test)]
     if cfg!(test) {
-        return match vote._comparison_images.contains(&vote.image) {
-            true => Ok(()),
-            false => Err(()),
+        return match vote.vote_value {
+            VoteValue::OneIsBetter(image) => vote
+                ._comparison_images
+                .contains(&image)
+                .then_some(())
+                .ok_or(()),
+            _ => Ok(()),
         };
     }
 
@@ -103,7 +117,7 @@ impl Vote {
             comparison_id: comparison.id,
             _comparison_images: comparison.images,
             user_id: String::default(),
-            image: String::default(),
+            vote_value: VoteValue::OneIsBetter(String::default()),
             user_agent: DOM::user_agent(),
             language: DOM::language(),
         }
@@ -114,8 +128,8 @@ impl Vote {
         self
     }
 
-    pub(crate) fn vote(mut self, image: String) -> Self {
-        self.image = image;
+    pub(crate) fn vote(mut self, vote_value: VoteValue) -> Self {
+        self.vote_value = vote_value;
         self
     }
 }
@@ -130,6 +144,7 @@ mod tests {
     use super::{
         Comparison,
         Vote,
+        VoteValue,
     };
     use crate::dom::DOM;
     wasm_bindgen_test_configure!(run_in_browser);
@@ -148,7 +163,7 @@ mod tests {
     fn vote_contains_user_agent() {
         let vote: Vote = Vote::build(test_comparison())
             .user("44444444444444444444444444444444".to_string())
-            .vote("/image/path/0.png".to_string());
+            .vote(VoteValue::OneIsBetter("/image/path/0.png".to_string()));
 
         assert_eq!(vote.user_agent, DOM::user_agent());
     }
@@ -157,25 +172,28 @@ mod tests {
     fn vote_contains_language() {
         let vote: Vote = Vote::build(test_comparison())
             .user("44444444444444444444444444444444".to_string())
-            .vote("/image/path/0.png".to_string());
+            .vote(VoteValue::OneIsBetter("/image/path/0.png".to_string()));
 
         assert_eq!(vote.language, DOM::language());
     }
 
     #[wasm_bindgen_test]
-    fn vote_contains_image() {
+    fn vote_contains_vote_value() {
         let vote: Vote = Vote::build(test_comparison())
             .user("44444444444444444444444444444444".to_string())
-            .vote("/image/path/0.png".to_string());
+            .vote(VoteValue::OneIsBetter("/image/path/0.png".to_string()));
 
-        assert_eq!(vote.image, "/image/path/0.png");
+        assert_eq!(
+            vote.vote_value,
+            VoteValue::OneIsBetter("/image/path/0.png".to_string())
+        );
     }
 
     #[wasm_bindgen_test]
     fn vote_contains_user_id() {
         let vote: Vote = Vote::build(test_comparison())
             .user("44444444444444444444444444444444".to_string())
-            .vote("/image/path/0.png".to_string());
+            .vote(VoteValue::OneIsBetter("/image/path/0.png".to_string()));
 
         assert_eq!(vote.user_id, "44444444444444444444444444444444");
     }
@@ -184,7 +202,7 @@ mod tests {
     fn vote_contains_comparison_id() {
         let vote: Vote = Vote::build(test_comparison())
             .user("44444444444444444444444444444444".to_string())
-            .vote("/image/path/0.png".to_string());
+            .vote(VoteValue::OneIsBetter("/image/path/0.png".to_string()));
 
         assert_eq!(vote.comparison_id, "55555555555555555555555555555555");
     }
@@ -193,7 +211,7 @@ mod tests {
     fn vote_is_serializable() {
         let vote: Vote = Vote::build(test_comparison())
             .user("44444444444444444444444444444444".to_string())
-            .vote("/image/path/0.png".to_string());
+            .vote(VoteValue::OneIsBetter("/image/path/0.png".to_string()));
 
         assert!(serde_json::to_value(vote).is_ok())
     }
