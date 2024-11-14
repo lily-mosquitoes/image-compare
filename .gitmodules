@@ -1,0 +1,3 @@
+[submodule "image-compare-api"]
+	path = image-compare-api
+	url = https://github.com/lily-mosquitoes/image-compare-api
