@@ -62,6 +62,16 @@ pub(crate) fn images_to_compare() -> Html {
     let instructions_button_sr =
         markdown_to_yew_html(instructions_button_sr.unwrap_or(""));
 
+    let vote_same_button_text =
+        language.load_file("vote_same_button.md");
+    let vote_same_button_text =
+        markdown_to_yew_html(vote_same_button_text.unwrap_or(""));
+
+    let vote_different_button_text =
+        language.load_file("vote_different_button.md");
+    let vote_different_button_text =
+        markdown_to_yew_html(vote_different_button_text.unwrap_or(""));
+
     let reload = {
         let loading = loading.clone();
         let comparison_state = comparison_state.clone();
@@ -92,13 +102,13 @@ pub(crate) fn images_to_compare() -> Html {
         })
     };
 
-    let on_image_select = {
+    let on_vote = {
         let loading = loading.clone();
         let show_fatal_error_modal = show_fatal_error_modal.clone();
         let comparison_state = comparison_state.clone();
         let user_state = user_state.clone();
 
-        Callback::from(move |image: String| {
+        Callback::from(move |vote_value: VoteValue| {
             loading.set(true);
             let show_fatal_error_modal = show_fatal_error_modal.clone();
             let comparison_state = comparison_state.clone();
@@ -110,7 +120,7 @@ pub(crate) fn images_to_compare() -> Html {
                         .expect("BUG: Comparison expected"),
                 )
                 .user(user_state.id.clone())
-                .vote(VoteValue::OneIsBetter(image));
+                .vote(vote_value);
                 let response = post_vote(vote).await;
                 match response {
                     Ok(_) => comparison_state.set(None),
@@ -193,8 +203,54 @@ pub(crate) fn images_to_compare() -> Html {
                 <ImageList
                     loading={(*loading).clone()}
                     images={image_list_to_display}
-                    onclick={on_image_select}
                 />
+            </section>
+            <section
+                id="vote_buttons"
+                class={classes![
+                    "self-center",
+                    "flex",
+                    "flex-col",
+                    "md:flex-row",
+                    "w-1/3",
+                    "items-stretch",
+                    "md:justify-center",
+                    "gap-1",
+                    "md:gap-4",
+                    "my-4",
+                    "md:mt-0",
+                ]}
+            >
+                <Button
+                    id="vote_same"
+                    class={classes![
+                        "border-2",
+                        "border-gray-400",
+                        "text-gray-200",
+                        "w-full",
+                    ]}
+                    onclick={
+                        let on_vote = on_vote.clone();
+                        move |_| on_vote.emit(VoteValue::Equal)
+                    }
+                >
+                    { vote_same_button_text }
+                </Button>
+                <Button
+                    id="vote_different"
+                    class={classes![
+                        "border-2",
+                        "border-gray-400",
+                        "text-gray-200",
+                        "w-full",
+                    ]}
+                    onclick={
+                        let on_vote = on_vote.clone();
+                        move |_| on_vote.emit(VoteValue::Different)
+                    }
+                >
+                    { vote_different_button_text }
+                </Button>
             </section>
             <Footer>
                 <Button
@@ -528,22 +584,105 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    async fn choosing_first_image_loads_new_images() {
+    async fn button_to_vote_same_exists() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        assert!(DOM::get_button_by_id("vote_same").is_some());
+    }
+
+    #[wasm_bindgen_test]
+    async fn button_to_vote_different_exists() {
+        render_yew_component!(ImagesToCompare);
+        wasm_sleep_in_ms(150).await;
+
+        assert!(DOM::get_button_by_id("vote_different").is_some());
+    }
+
+    #[wasm_bindgen_test]
+    fn vote_same_button_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("vote_same_button.md");
+
+            assert!(file.is_some())
+        }
+    }
+
+    #[wasm_bindgen_test]
+    fn vote_different_button_markdown_exists() {
+        // add 1 to len to run even if no languages are available
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            let language = Language {
+                index: language_index,
+            };
+            let file = language.load_file("vote_different_button.md");
+
+            assert!(file.is_some())
+        }
+    }
+
+    #[wasm_bindgen_test]
+    async fn vote_same_button_text_is_visible() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        // add 1 to len to run even if no languages are available
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
+
+            render_yew_component!(ImagesToCompare);
+            wasm_sleep_in_ms(50).await;
+
+            let language = Language::default();
+            let expected = language.load_file("vote_same_button.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
+
+            let text = DOM::get_element_by_id("vote_same")
+                .expect("Element #vote_same to exist");
+
+            assert_eq!(text.inner_html(), expected);
+        }
+    }
+
+    #[wasm_bindgen_test]
+    async fn vote_different_button_text_is_visible() {
+        GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
+        GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
+        // add 1 to len to run even if no languages are available
+        for language_index in 0..AVAILABLE_LANGUAGES.len() + 1 {
+            DEFAULT_LANGUAGE.store(language_index, Ordering::SeqCst);
+
+            render_yew_component!(ImagesToCompare);
+            wasm_sleep_in_ms(50).await;
+
+            let language = Language::default();
+            let expected = language.load_file("vote_different_button.md");
+            let expected = markdown_to_decoded_html(expected.unwrap_or(""));
+
+            let text = DOM::get_element_by_id("vote_different")
+                .expect("Element #vote_different to exist");
+
+            assert_eq!(text.inner_html(), expected);
+        }
+    }
+
+    #[wasm_bindgen_test]
+    async fn choosing_same_loads_new_images() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        let images = DOM::get_images_by_id_contains("image_to_compare")
-            .expect("Images to compare to be present");
-
-        let image = images[0]
-            .clone()
+        let button = DOM::get_button_by_id("vote_same")
+            .expect("Button to be present")
             .dyn_into::<web_sys::HtmlElement>()
             .expect("Element to be castable to HtmlElement");
 
-        image.click();
+        button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
         assert!(DOM::get_images_by_id_contains("image_to_compare_").is_none());
         assert_eq!(
@@ -562,22 +701,19 @@ mod tests {
     }
 
     #[wasm_bindgen_test]
-    async fn choosing_second_image_loads_new_images() {
+    async fn choosing_different_loads_new_images() {
         GET_IMAGES_RETURNS_OK.store(true, Ordering::SeqCst);
         GET_USER_RETURNS_OK.store(true, Ordering::SeqCst);
 
         render_yew_component!(ImagesToCompare);
         wasm_sleep_in_ms(150).await;
 
-        let images = DOM::get_images_by_id_contains("image_to_compare_")
-            .expect("Images to compare to be present");
-
-        let image = images[1]
-            .clone()
+        let button = DOM::get_button_by_id("vote_different")
+            .expect("Button to be present")
             .dyn_into::<web_sys::HtmlElement>()
             .expect("Element to be castable to HtmlElement");
 
-        image.click();
+        button.click();
         wasm_sleep_in_ms(50).await; // allow page to re-render
         assert!(DOM::get_images_by_id_contains("image_to_compare_").is_none());
         assert_eq!(

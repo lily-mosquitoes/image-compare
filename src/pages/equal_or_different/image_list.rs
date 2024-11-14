@@ -2,7 +2,6 @@ use yew::{
     classes,
     function_component,
     html,
-    Callback,
     Html,
     Properties,
 };
@@ -16,24 +15,16 @@ use crate::shared_components::{
 pub(super) struct ImageListProps {
     pub(super) loading: bool,
     pub(super) images: Vec<String>,
-    pub(super) onclick: Callback<String>,
 }
 
 #[function_component(ImageList)]
 pub(super) fn image_list(props: &ImageListProps) -> Html {
-    let onclick = props.onclick.clone();
 
     props
         .images
         .iter()
         .enumerate()
         .map(|(index, image)| {
-            let on_image_select = {
-                let onclick = onclick.clone();
-                let image = image.clone();
-                Callback::from(move |_| onclick.emit(image.clone()))
-            };
-
             if props.loading {
                 html! {
                     <Button
@@ -59,7 +50,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                             "aspect-square",
                             "w-fit",
                         ]}
-                        onclick={on_image_select}
+                        disabled=true
                     >
                         <img
                             id={format!("image_to_compare_{index}")}
