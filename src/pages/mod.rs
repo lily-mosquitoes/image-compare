@@ -1,3 +1,4 @@
+pub(crate) mod equal_or_different;
 pub(crate) mod images_to_compare;
 
 use yew::{
@@ -5,7 +6,10 @@ use yew::{
     Html,
 };
 
-pub(crate) use self::images_to_compare::ImagesToCompare;
+pub(crate) use self::{
+    equal_or_different::ImagesToCompare as ExperimentEqualOrDifferent,
+    images_to_compare::ImagesToCompare,
+};
 
 pub(crate) fn markdown_to_yew_html(text: &str) -> Html {
     let html_string = markdown::to_html(text);
