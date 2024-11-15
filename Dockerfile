@@ -1,7 +1,8 @@
-FROM rust:1-slim-buster AS build
+FROM rust:1-slim-bookworm AS build
 WORKDIR /srv/build
 
 # deps
+RUN apt-get update && apt-get install -y pkg-config libssl-dev
 RUN rustup target add wasm32-unknown-unknown
 RUN cargo install trunk
 

@@ -1,7 +1,46 @@
 services:
+  api:
+    build:
+      context: ./image-compare-api
+
+    restart: always
+
+    environment:
+      DATABASE_URL: "sqlite://database/db.sqlite"
+      ROCKET_ADDRESS: "0.0.0.0"
+      ALLOWED_ORIGIN: "nginx"
+      STATIC_DIR: "./static"
+      SLQX_OFFLINE: true
+
+    volumes:
+      - type: bind
+        source: ./image-compare-api/database
+        target: /database
+
+      - type: bind
+        source: "${STATIC_DIR}"
+        target: /static
+        read_only: true
+
+    networks:
+      - image-compare-network
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/api/healthcheck"]
+      start_period: 30s
+      start_interval: 5s
+      interval: 10m
+      timeout: 10s
+      retries: 6
+
   nginx:
     build:
       context: .
+
+    depends_on:
+      api:
+        condition: service_healthy
+        restart: true
 
     environment:
       DOMAIN_NAME: "${DOMAIN_NAME}"
@@ -33,7 +72,9 @@ services:
         published: "${HTTPS_PORT-443}"
         app_protocol: https
 
-    network_mode: bridge
+    networks:
+      - image-compare-network
 
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+networks:
+  image-compare-network:
+    driver: bridge
