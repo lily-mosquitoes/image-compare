@@ -52,6 +52,9 @@ pub(crate) async fn get_comparison_for_user(
         gloo_net::http::Request::get(&image)
             .send()
             .await
+            .map_err(|error| console_error!(error.to_string()))?
+            .binary()
+            .await
             .map_err(|error| console_error!(error.to_string()))?;
     }
 
