@@ -47,6 +47,14 @@ pub(crate) async fn get_comparison_for_user(
     .as_result()
     .map_err(|error| console_error!(error))?;
 
+    // pre-load images
+    for image in &comparison.images {
+        gloo_net::http::Request::get(&image)
+            .send()
+            .await
+            .map_err(|error| console_error!(error.to_string()))?;
+    }
+
     Ok(comparison)
 }
 
