@@ -62,8 +62,7 @@ pub(crate) fn images_to_compare() -> Html {
     let instructions_button_sr =
         markdown_to_yew_html(instructions_button_sr.unwrap_or(""));
 
-    let vote_same_button_text =
-        language.load_file("vote_same_button.md");
+    let vote_same_button_text = language.load_file("vote_same_button.md");
     let vote_same_button_text =
         markdown_to_yew_html(vote_same_button_text.unwrap_or(""));
 
@@ -143,7 +142,11 @@ pub(crate) fn images_to_compare() -> Html {
                     let user_response = get_user().await;
                     let comparison_response = match user_response {
                         Ok(ref user) => {
-                            get_comparison_for_user(user.id.clone()).await
+                            get_comparison_for_user(
+                                user.id.clone(),
+                                "experiment_0_truncate_at_5".to_string(),
+                            )
+                            .await
                         },
                         Err(_) => Err(()),
                     };

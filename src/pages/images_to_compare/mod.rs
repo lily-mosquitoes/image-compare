@@ -133,7 +133,11 @@ pub(crate) fn images_to_compare() -> Html {
                     let user_response = get_user().await;
                     let comparison_response = match user_response {
                         Ok(ref user) => {
-                            get_comparison_for_user(user.id.clone()).await
+                            get_comparison_for_user(
+                                user.id.clone(),
+                                String::default(),
+                            )
+                            .await
                         },
                         Err(_) => Err(()),
                     };

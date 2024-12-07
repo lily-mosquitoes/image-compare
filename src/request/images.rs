@@ -23,6 +23,7 @@ pub(crate) struct Comparison {
 
 pub(crate) async fn get_comparison_for_user(
     user_id: String,
+    dirname: String,
 ) -> Result<Comparison, ()> {
     #[cfg(test)]
     if cfg!(test) {
@@ -36,7 +37,7 @@ pub(crate) async fn get_comparison_for_user(
     }
 
     let comparison = gloo_net::http::Request::get(&format!(
-        "/api/user/{user_id}/comparison"
+        "/api/user/{user_id}/comparison?dirname={dirname}"
     ))
     .send()
     .await
