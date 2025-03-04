@@ -13,6 +13,8 @@ use crate::pages;
 pub(crate) enum Route {
     #[at("/")]
     Root,
+    #[at("/experiments/compare")]
+    ExperimentCompare,
     #[at("/experiments/same_or_different")]
     ExperimentEqualOrDifferent,
     #[not_found]
@@ -23,6 +25,9 @@ pub(crate) enum Route {
 pub(crate) fn switch(routes: Route) -> Html {
     match routes {
         Route::Root => {
+            html! { <pages::ExperimentEqualOrDifferent /> }
+        },
+        Route::ExperimentCompare => {
             html! { <pages::ImagesToCompare /> }
         },
         Route::ExperimentEqualOrDifferent => {
