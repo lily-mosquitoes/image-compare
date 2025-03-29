@@ -23,7 +23,6 @@ serde = "1"
 markdown = "1.0.0-alpha.17"
 include_dir = "0.7"
 lazy_static = "1"
-dotenvy_macro = "0.15"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
