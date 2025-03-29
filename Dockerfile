@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y pkg-config libssl-dev
 RUN rustup target add wasm32-unknown-unknown
 RUN cargo install trunk
 
+ARG DEFAULT_PAGE
+
 # cache build
 RUN --mount=type=cache,target=/usr/local/cargo/registry/ \
     --mount=type=cache,target=$(pwd)/target/ \
