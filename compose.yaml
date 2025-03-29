@@ -36,6 +36,8 @@ services:
   nginx:
     build:
       context: .
+      args:
+        DEFAULT_PAGE: "${DEFAULT_PAGE}"
 
     depends_on:
       api:
@@ -44,7 +46,6 @@ services:
 
     environment:
       DOMAIN_NAME: "${DOMAIN_NAME}"
-      DEFAULT_PAGE: "${DEFAULT_PAGE}"
 
     volumes:
       - type: bind
