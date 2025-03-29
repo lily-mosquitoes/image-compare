@@ -144,7 +144,7 @@ pub(crate) fn images_to_compare() -> Html {
                         Ok(ref user) => {
                             get_comparison_for_user(
                                 user.id.clone(),
-                                "experiment_0_truncate_at_5".to_string(),
+                                crate::DEFAULT_PAGE.to_string(),
                             )
                             .await
                         },

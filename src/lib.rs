@@ -51,6 +51,8 @@ lazy_static! {
         MARKDOWN_DIR.dirs().map(|d| d.path()).collect();
 }
 
+static DEFAULT_PAGE: &'static str = dotenvy_macro::dotenv!("DEFAULT_PAGE");
+
 pub(crate) static DEFAULT_LANGUAGE: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Clone, PartialEq)]
