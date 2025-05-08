@@ -34,7 +34,6 @@ pub(crate) fn button(props: &ButtonProps) -> Html {
             class={classes![
                 "p-3",
                 "text-xl",
-                "drop-shadow-2xl",
                 "rounded-xl",
                 "bg-transparent",
                 "hover:bg-black/[0.4]",

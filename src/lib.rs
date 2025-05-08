@@ -124,10 +124,7 @@ pub fn app() -> Html {
                     class={classes![
                         "h-full",
                         "font-hyperlegible",
-                        "bg-gradient-to-tr",
-                        "from-stone-700",
-                        "via-stone-700",
-                        "to-stone-500",
+                        "bg-stone-400",
                     ]}
                 >
                     <Switch<Route> render={switch} />

@@ -6,10 +6,7 @@ use yew::{
     Properties,
 };
 
-use crate::shared_components::{
-    Button,
-    Loading,
-};
+use crate::shared_components::Loading;
 
 #[derive(Properties, PartialEq)]
 pub(super) struct ImageListProps {
@@ -19,7 +16,6 @@ pub(super) struct ImageListProps {
 
 #[function_component(ImageList)]
 pub(super) fn image_list(props: &ImageListProps) -> Html {
-
     props
         .images
         .iter()
@@ -27,7 +23,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
         .map(|(index, image)| {
             if props.loading {
                 html! {
-                    <Button
+                    <div
                         id={format!("loading_status_button_{index}")}
                         class={classes![
                             "h-1/2",
@@ -38,11 +34,11 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                         disabled=true
                     >
                         <Loading />
-                    </Button>
+                    </div>
                 }
             } else {
                 html! {
-                    <Button
+                    <div
                         id={format!("image_to_compare_button_{index}")}
                         class={classes![
                             "h-1/2",
@@ -50,7 +46,6 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                             "aspect-square",
                             "w-fit",
                         ]}
-                        disabled=true
                     >
                         <img
                             id={format!("image_to_compare_{index}")}
@@ -58,7 +53,7 @@ pub(super) fn image_list(props: &ImageListProps) -> Html {
                             src={image.clone()}
                             alt=""
                         />
-                    </Button>
+                    </div>
                 }
             }
         })

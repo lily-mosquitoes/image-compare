@@ -31,7 +31,6 @@ pub(super) fn prompt() -> Html {
                 "self-center",
                 "pt-4",
                 "text-xl",
-                "text-gray-200",
                 "text-center",
             ]}
         >

@@ -198,9 +198,8 @@ pub(crate) fn images_to_compare() -> Html {
                     "flex-col",
                     "md:flex-row",
                     "items-center",
-                    "md:justify-center",
-                    "gap-0",
-                    "md:gap-4",
+                    "md:justify-evenly",
+                    "gap-4",
                 ]}
             >
                 <ImageList
@@ -228,8 +227,8 @@ pub(crate) fn images_to_compare() -> Html {
                     id="vote_same"
                     class={classes![
                         "border-2",
-                        "border-gray-400",
-                        "text-gray-200",
+                        "border-gray-800",
+                        "hover:text-gray-200",
                         "w-full",
                     ]}
                     onclick={
@@ -243,8 +242,8 @@ pub(crate) fn images_to_compare() -> Html {
                     id="vote_different"
                     class={classes![
                         "border-2",
-                        "border-gray-400",
-                        "text-gray-200",
+                        "border-gray-800",
+                        "hover:text-gray-200",
                         "w-full",
                     ]}
                     onclick={
